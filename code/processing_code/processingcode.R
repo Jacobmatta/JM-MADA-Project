@@ -28,13 +28,13 @@ codebook_location <-here::here("data","raw_data","Code_book_Vaccination_Demog_.x
 codebook <- readxl::read_excel(codebook_location)
 
 #Summary of data
-dplyr::glimpse(rawdata)
-dplyr::summary(rawdata)
+glimpse(rawdata)
+summary(rawdata)
 
 
 ## ---- exploredata --------
 #take a look at the data
-dplyr::glimpse(rawdata)
+glimpse(rawdata)
 
 #another way to look at the data
 summary(rawdata)
