@@ -1,148 +1,187 @@
 ###############################
 # processing script
-#
-#this script loads the raw data, processes and cleans it 
-#and saves it as Rds file in the processed_data folder
-#
-# Note the ## ---- name ---- notation
-# This is done so one can pull in the chunks of code into the Quarto document
-# see here: https://bookdown.org/yihui/rmarkdown-cookbook/read-chunk.html
 
-
-## ---- packages --------
-#load needed packages. make sure they are installed.
+#library
+library(here)
 library(readxl) #for loading Excel files
-library(here) #to set paths
-library(dplyr) #for description summary of data 
+library(dplyr) #for data processing/cleaning
+library(tidyr) #for data processing/cleaning
 
-## ---- loaddata --------
-#path to data
-#note the use of the here() package and not absolute paths
-#loading data
-rawdata_location <- here::here("data","raw_data","rawdata.xlsx")
-rawdata <- readxl::read_excel(rawdata_location)
+#loading data and looking at the data using glimpse()
+
+rawdata_location = here("data","raw_data","Sept_17.xlsx")
+Sept_17 <- read_excel(rawdata_location)
+
 
 #loading data code book for reference 
-codebook_location <-here::here("data","raw_data","Code_book_Vaccination_Demog_.xlsx")
-
-codebook <- readxl::read_excel(codebook_location)
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
 
 #Summary of data
-glimpse(rawdata)
-summary(rawdata)
+glimpse(Sept_17)
+summary(Sept_17)
 
 
-## ---- exploredata --------
-#take a look at the data
-glimpse(rawdata)
+#filtering data by county becuase the data contains all counties of Georgia and for this 
+#project I am interested in Dougherty Count, which is where the city of Albany is 
+Dougherty_Vax_Week1 <- filter(Sept_17, COUNTY_NAME == "Dougherty County")  
 
-#another way to look at the data
-summary(rawdata)
+#replacing negative values with 0
+Dougherty_Vax_Week1 [Dougherty_Vax_Week1 < 0] <- 0  
 
-#yet another way to get an idea of the data
-head(rawdata)
-
-#this is a nice way to look at data
-skimr::skim(rawdata)
+#organize the data. then separate into zips and add a zip code column   
 
 
 
+#total vax column that sums the rows across for each census tract  
 
-## ---- cleandata1 --------
-# Inspecting the data, we find some problems that need addressing:
-# First, there is an entry for height which says "sixty" instead of a number. 
-# Does that mean it should be a numeric 60? It somehow doesn't make
-# sense since the weight is 60kg, which can't happen for a 60cm person (a baby)
-# Since we don't know how to fix this, we might decide to remove the person.
-# This "sixty" entry also turned all Height entries into characters instead of numeric.
-# That conversion to character also means that our summary function isn't very meaningful.
-# So let's fix that first.
-
-d1 <- rawdata %>% dplyr::filter( Height != "sixty" ) %>% 
-                  dplyr::mutate(Height = as.numeric(Height))
-
-
-# look at partially fixed data again
-skimr::skim(d1)
-hist(d1$Height)
-
-
-## ---- cleandata2 --------
-# Now we see that there is one person with a height of 6. 
-# that could be a typo, or someone mistakenly entered their height in feet.
-# If we don't know, we might need to remove this person.
-# But let's assume that we somehow know that this is meant to be 6 feet, so we can convert to centimeters.
-d2 <- d1 %>% dplyr::mutate( Height = replace(Height, Height=="6",round(6*30.48,0)) )
-
-
-#height values seem ok now
-skimr::skim(d2)
-
-
-## ---- cleandata3 --------
-# now let's look at weight
-# there is a person with weight of 7000, which is impossible,
-# and one person with missing weight.
-# Note that the original data had an empty cell. 
-# The codebook says that's not allowed, it should have been NA.
-# R automatically converts empty values to NA.
-# If you don't want that, you can adjust it when you load the data.
-# to be able to analyze the data, we'll remove those individuals as well.
-# Note: Some analysis methods can deal with missing values, so it's not always necessary to remove them. 
-# This should be adjusted based on your planned analysis approach. 
-d3 <- d2 %>%  dplyr::filter(Weight != 7000) %>% tidyr::drop_na()
-skimr::skim(d3)
-
-
-## ---- cleandata4 --------
-# We also want to have Gender coded as a categorical/factor variable
-# we can do that with simple base R code to mix things up
-d3$Gender <- as.factor(d3$Gender)  
-skimr::skim(d3)
-
-
-## ---- cleandata5 --------
-#now we see that there is another NA, but it's not "NA" from R 
-#instead it was loaded as character and is now considered as a category.
-#There is also an individual coded as "N" which is not allowed.
-#This could be mistyped M or a mistyped NA. If we have a good guess, we could adjust.
-#If we don't we might need to remove that individual.
-#well proceed here by removing both the NA and N individuals
-#since this keeps an empty category, I'm also using droplevels() to get rid of it
-d4 <- d3 %>% dplyr::filter( !(Gender %in% c("NA","N")) ) %>% droplevels()
-skimr::skim(d4)
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>% mutate(total_vax_Week1 = sum(across(ends_with("VAX")), na.rm = T))  
 
 
 
-## ---- savedata --------
-# all done, data is clean now. 
-# Let's assign at the end to some final variable
-# makes it easier to add steps above
-processeddata <- d4
-# location to save file
-save_data_location <- here::here("data","processed_data","processeddata.rds")
-saveRDS(processeddata, file = save_data_location)
+#total vax column for male and female  
+
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1  %>% rowwise() %>%   
+  
+  mutate(total_male_vax = sum(across(starts_with("M") & ends_with("VAX")), na.rm = T))  
 
 
 
-## ---- notes --------
-# anything you don't want loaded into the Quarto file but 
-# keep in the R file, just give it its own label and then don't include that label
-# in the Quarto file
-
-# Dealing with NA or "bad" data:
-# removing anyone who had "faulty" or missing data is one approach.
-# it's often not the best. based on your question and your analysis approach,
-# you might want to do cleaning differently (e.g. keep individuals with some missing information)
-
-# Saving data as RDS:
-# I suggest you save your processed and cleaned data as RDS or RDA/Rdata files. 
-# This preserves coding like factors, characters, numeric, etc. 
-# If you save as CSV, that information would get lost.
-# However, CSV is better for sharing with others since it's plain text. 
-# If you do CSV, you might want to write down somewhere what each variable is.
-# See here for some suggestions on how to store your processed data:
-# http://www.sthda.com/english/wiki/saving-data-into-r-data-format-rds-and-rdata
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>%   
+  
+  mutate(total_female_vax = sum(across(starts_with("F") & ends_with("VAX")), na.rm = T))  
 
 
 
+#total white, black, asian, other race male   
+
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>%   
+  
+  mutate(total_masian_vax = sum(across(starts_with("MAsianNHPI") & ends_with("VAX")), na.rm = T))  
+
+
+
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>%   
+  
+  mutate(total_mblack_vax = sum(across(starts_with("MBlack") & ends_with("VAX")), na.rm = T))  
+
+
+
+Dougherty_Vax_Week1<- Dougherty_Vax_Week1 %>% rowwise() %>%   
+  
+  mutate(total_morace_vax = sum(across(starts_with("MOtherRace") & ends_with("VAX")), na.rm = T))  
+
+
+
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>%   
+  
+  mutate(total_mwhite_vax = sum(across(starts_with("MWhite") & ends_with("VAX")), na.rm = T))  
+
+
+
+#total white, black, asian, other race female   
+
+
+
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>%   
+  
+  mutate(total_fasian_vax = sum(across(starts_with("FAsianNHPI") & ends_with("VAX")), na.rm = T))  
+
+
+
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>%   
+  
+  mutate(total_fblack_vax = sum(across(starts_with("FBlack") & ends_with("VAX")), na.rm = T))  
+
+
+
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>%   
+  
+  mutate(total_forace_vax = sum(across(starts_with("FOtherRace") & ends_with("VAX")), na.rm = T))  
+
+
+
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>%   
+  
+  mutate(total_fwhite_vax = sum(across(starts_with("FWhite") & ends_with("VAX")), na.rm = T))  
+
+
+
+#Race totals (male + female )  
+
+
+
+Dougherty_Vax_Week1$total_asian_vax <- Dougherty_Vax_Week1$total_masian_vax + Dougherty_Vax_Week1$total_fasian_vax  
+
+
+
+Dougherty_Vax_Week1$total_black_vax <- Dougherty_Vax_Week1$total_mblack_vax + Dougherty_Vax_Week1$total_fblack_vax  
+
+
+
+Dougherty_Vax_Week1$total_orace_vax <- Dougherty_Vax_Week1$total_morace_vax + Dougherty_Vax_Week1$total_forace_vax  
+
+
+
+Dougherty_Vax_Week1$total_white_vax <- Dougherty_Vax_Week1$total_mwhite_vax + Dougherty_Vax_Week1$total_fwhite_vax  
+
+
+
+#Summing for age totals: 05-09, 10-17, 18-44, 45-64, 65+  
+
+
+
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>% mutate(total_05_09_vax = sum(FAsianNHPI_05_09_VAX, MAsianNHPI_05_09_VAX, UAsianNHPI_05_09_VAX,FBlack_05_09_VAX, MBlack_05_09_VAX, UBlack_05_09_VAX,FNone_05_09_VAX, MNone_05_09_VAX, UNone_05_09_VAX,FOtherRace_05_09_VAX, MOtherRace_05_09_VAX, UOtherRace_05_09_VAX,FWhite_05_09_VAX, MWhite_05_09_VAX, UWhite_05_09_VAX, na.rm = T))  
+
+
+
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>% mutate(total_10_17_vax = sum(FAsianNHPI_10_17_VAX, MAsianNHPI_10_17_VAX, UAsianNHPI_10_17_VAX,FBlack_10_17_VAX, MBlack_10_17_VAX, UBlack_10_17_VAX,FNone_10_17_VAX, MNone_10_17_VAX, UNone_10_17_VAX,FOtherRace_10_17_VAX, MOtherRace_10_17_VAX, UOtherRace_10_17_VAX,FWhite_10_17_VAX, MWhite_10_17_VAX, UWhite_10_17_VAX, na.rm = T))  
+
+
+
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>% mutate(total_18_44_vax = sum(FAsianNHPI_18_44_VAX, MAsianNHPI_18_44_VAX, UAsianNHPI_18_44_VAX,FBlack_18_44_VAX, MBlack_18_44_VAX, UBlack_18_44_VAX,FNone_18_44_VAX, MNone_18_44_VAX, UNone_18_44_VAX,FOtherRace_18_44_VAX, MOtherRace_18_44_VAX, UOtherRace_18_44_VAX,FWhite_18_44_VAX, MWhite_18_44_VAX, UWhite_18_44_VAX, na.rm = T))  
+
+
+
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>% mutate(total_45_64_vax = sum(FAsianNHPI_45_64_VAX, MAsianNHPI_45_64_VAX, UAsianNHPI_45_64_VAX,FBlack_45_64_VAX, MBlack_45_64_VAX, UBlack_45_64_VAX,FNone_45_64_VAX, MNone_45_64_VAX, UNone_45_64_VAX,FOtherRace_45_64_VAX, MOtherRace_45_64_VAX, UOtherRace_45_64_VAX,FWhite_45_64_VAX, MWhite_45_64_VAX, UWhite_45_64_VAX, na.rm = T))  
+
+
+
+Dougherty_Vax_Week1 <- Dougherty_Vax_Week1 %>% rowwise() %>% mutate(total_65Plus_vax = sum(FAsianNHPI_65Plus_VAX, MAsianNHPI_65Plus_VAX, UAsianNHPI_65Plus_VAX,FBlack_65Plus_VAX, MBlack_65Plus_VAX, UBlack_65Plus_VAX,FNone_65Plus_VAX, MNone_65Plus_VAX, UNone_65Plus_VAX,FOtherRace_65Plus_VAX, MOtherRace_65Plus_VAX, UOtherRace_65Plus_VAX,FWhite_65Plus_VAX, MWhite_65Plus_VAX, UWhite_65Plus_VAX, na.rm = T))  
+
+
+
+#Extract necessary variables only  
+
+Dougherty_Vax_Week1_compressed <- Dougherty_Vax_Week1[,c(1:4,185:204)]  
+
+
+
+#filtering data by zip: 31701  
+
+Zip_31701_Week1<-filter(Dougherty_Vax_Week1_compressed,FIPS=="13095000700" | FIPS=="13095000800" | FIPS=="13095001403" | FIPS=="13095001500" | FIPS=="13095010601" | FIPS=="13095011300" | FIPS=="13095011400" | FIPS=="13095010602")  
+
+
+
+#filtering data by zip: 31705  
+
+Zip_31705_Week1 <- filter(Dougherty_Vax_Week1_compressed, FIPS=="13095000100" | FIPS=="13095000200" | FIPS=="13095010302" | FIPS=="13095010700" | FIPS=="13095010900" | FIPS=="13095011000" | FIPS=="13095011200" | FIPS=="13095011600")  
+
+
+#filtering data by zip: 31707  
+
+Zip_31707_Week1 <- filter(Dougherty_Vax_Week1_compressed, FIPS=="13095000400" | FIPS=="13095000501" | FIPS=="13095000502" | FIPS=="13095000600" | FIPS=="13095000900" | FIPS=="13095001000" | FIPS=="13095001100")  
+#Change the column names for 31701 Week1  
+colnames(Zip_31701_Week1) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_vax_Sept_17", "total_male_vax_Sept_17", "total_female_vax_Sept_17", "total_masian_vax_Sept_17", "total_mblack_vax_Sept_17", "total_morace_vax_Sept_17", "total_mwhite_vax_Sept_17", "total_fasian_vax_Sept_17", "total_fblack_vax_Sept_17", "total_forace_vax_Sept_17", "total_fwhite_vax_Sept_17", "total_asian_vax_Sept_17","total_black_vax_Sept_17", "total_orace_vax_Sept_17", "total_white_vax_Sept_17", "total_05_09_vax_Sept_17", "total_10_17_vax_Sept_17", "total_18_44_vax_Sept_17", "total_45_64_vax_Sept_17", "total_65Plus_vax_Sept_17") 
+#change column names for 31705 Week1  
+colnames(Zip_31705_Week1) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_vax_Sept_17", "total_male_vax_Sept_17", "total_female_vax_Sept_17", "total_masian_vax_Sept_17", "total_mblack_vax_Sept_17", "total_morace_vax_Sept_17", "total_mwhite_vax_Sept_17", "total_fasian_vax_Sept_17", "total_fblack_vax_Sept_17", "total_forace_vax_Sept_17", "total_fwhite_vax_Sept_17", "total_asian_vax_Sept_17","total_black_vax_Sept_17", "total_orace_vax_Sept_17", "total_white_vax_Sept_17", "total_05_09_vax_Sept_17", "total_10_17_vax_Sept_17", "total_18_44_vax_Sept_17", "total_45_64_vax_Sept_17", "total_65Plus_vax_Sept_17") 
+#change column names for 31707 Week1  
+colnames(Zip_31707_Week1) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_vax_Sept_17", "total_male_vax_Sept_17", "total_female_vax_Sept_17", "total_masian_vax_Sept_17", "total_mblack_vax_Sept_17", "total_morace_vax_Sept_17", "total_mwhite_vax_Sept_17", "total_fasian_vax_Sept_17", "total_fblack_vax_Sept_17", "total_forace_vax_Sept_17", "total_fwhite_vax_Sept_17", "total_asian_vax_Sept_17","total_black_vax_Sept_17", "total_orace_vax_Sept_17", "total_white_vax_Sept_17", "total_05_09_vax_Sept_17", "total_10_17_vax_Sept_17", "total_18_44_vax_Sept_17", "total_45_64_vax_Sept_17", "total_65Plus_vax_Sept_17") 
+
+
+##deleting excess variables 
+rm(Dougherty_Vax_Week1, Dougherty_Vax_Week1_compressed, Sept_17) 
+
+
+##saving 
+save.image("~/Documents/R/ASU-Project-/Secondary Data Analysis /Data/Clean_data/Week1_Vax.RData")
