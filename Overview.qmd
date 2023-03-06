@@ -14,7 +14,7 @@ The data is a count of residents with at least one COVID-19 vaccination by demog
 
 You can download the data from [here](https://www.arcgis.com/home/item.html?id=17a8a4af79e5453a9132aaa29fb4ad22)
 
-A further description of the data can be found [here](https://outlookuga-my.sharepoint.com/personal/jrthapa_uga_edu/_layouts/15/onedrive.aspx?FolderCTID=0x012000EA7894D56E25AD4AA0284A71A1248429&id=%2Fpersonal%2Fjrthapa%5Fuga%5Fedu%2FDocuments%2FProject%5FHealth%20Literacy%20Program%20Evaluation)
+A further description of the data can be found [here](https://experience.arcgis.com/experience/3d8eea39f5c1443db1743a4cb8948a9c)
 
 ## Why did I choose this data?
 

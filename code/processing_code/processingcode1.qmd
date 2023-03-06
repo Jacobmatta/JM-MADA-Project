@@ -1,0 +1,56 @@
+---
+title: "An example cleaning script"
+author: "Andreas Handel"
+date: "2023-01-03"
+output: html_document
+---
+
+# Processing script
+
+This contains the same code and comments/information as `processingcode.R`.
+
+This just shows it as Quarto file, to give you an idea how to do it in a setup that combines code and text in a single file.
+
+# Setup
+
+Load needed packages. make sure they are installed.
+
+```{r}
+library(readxl) #for loading Excel files
+library(here) #used for setting a path 
+library(readxl) #for loading Excel files
+library(dplyr) #for data processing/cleaning
+library(tidyr) #for data processing/cleaning
+```
+
+# Raw Data loading
+
+```{r}
+rawdata_location = here("data","raw_data","Sept_17.xlsx")
+Sept17 = read_excel(rawdata_location)
+glimpse(Sept17)
+```
+
+# Codebook loading
+
+```{r}
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+# Summary of raw data
+
+```{r}
+glimpse(Sept_17)
+summary(Sept_17)
+```
+
+# Filtering the data by Doughert County
+### I am only interested in Covid-19 Vaccination from Dougherty County which contains the target zip codes of 31701, 31705 and 31707
+```{r}
+Dougherty_Vax_Week1 <- filter(Sept_17, COUNTY_NAME == "Dougherty County")  
+
+#replacing negative values with 0
+Dougherty_Vax_Week1 [Dougherty_Vax_Week1 < 0] <- 0  
+```
