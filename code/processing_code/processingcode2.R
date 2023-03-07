@@ -1,4 +1,3 @@
-#determining whether the data is per 100K or single counts of vaccinations 
 
 #the count of residents in GA with at least one dose of the covid-19 vaccines is 6,935,491 on Feb_26th 2023
 

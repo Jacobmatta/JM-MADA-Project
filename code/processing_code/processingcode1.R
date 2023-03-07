@@ -7,8 +7,13 @@ library(readxl) #for loading Excel files
 library(dplyr) #for data processing/cleaning
 library(tidyr) #for data processing/cleaning
 
-#loading data and looking at the data using glimpse()
+#library
+library(here)
+library(readxl) #for loading Excel files
+library(dplyr) #for data processing/cleaning
+library(tidyr) #for data processing/cleaning and looking at the data using glimpse()
 
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
 rawdata_location = here("data","raw_data","Sept_17.xlsx")
 Sept_17 <- read_excel(rawdata_location)
 

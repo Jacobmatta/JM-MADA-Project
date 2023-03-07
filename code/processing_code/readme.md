@@ -10,10 +10,12 @@ The code contains the processing code used to clean the weekly data downloaded f
 I am filtering data by county because the data contains all counties of Georgia and for this project I am only interested in working with data from Dougherty county, being the county that the city Albany, GA is in.
 
 ##replacing negative values with 0
+
+There are negative values in the data because according to the Code book "Where -1 is indicated, either the numerator is less than five or the denominator is less than 25"
 ------------------------------------------------------------------------
 # processingcode2.qmd and processingcode2.R 
 
-These two files contain the code used to determine whether the data contains vaccinations per 100,000 or if the vaccinations are not saved as rates 
+These two files contain the code used to understand the data and where the data is being downloaded from.
 
 ## Plan
 

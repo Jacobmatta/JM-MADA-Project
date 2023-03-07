@@ -14,7 +14,7 @@ The data is a count of residents with at least one COVID-19 vaccination by demog
 
 You can download the data from [here](https://www.arcgis.com/home/item.html?id=17a8a4af79e5453a9132aaa29fb4ad22)
 
-A further description of the data can be found [here](https://experience.arcgis.com/experience/3d8eea39f5c1443db1743a4cb8948a9c)
+A further description of the data can be found [here](https://insights.arcgis.com/#/view/08d2c1f995524053b1f9669dd0b0b995)
 
 ## Why did I choose this data?
 
