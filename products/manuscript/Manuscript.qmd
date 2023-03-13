@@ -8,13 +8,37 @@ format:
     toc: false
     number-sections: true
     highlight-style: github
-bibliography: ../dataanalysis_template_references.bib
+bibliography: ../My_Library.bib
 csl: ../apa.csl
 ---
 
-# Abstract
+# Summary
+Back in March 2020, COVID-19 began to disproportionately impact the citizens of the United States. Among African Americans sub-population in rural South Georgia, there was a call to increase access to health services, promote health literacy as it relates to COVID-19 and decrease vaccine hesitancy. One such program includes the partnership between the City of Albany, GA and Albany State University to reduce COVID-19 vaccine hesitancy in Albany through a $3.9 million grant from Health and Human Services and the Office of Minority Health.
+
+This study aims to conduct a secondary analysis of residents in Albany, GA that have received at least one dose of the COVID-19 vaccine and live in the one of the three zip codes 31701, 31705 and 31707. 
+
+{{< pagebreak >}}
 
 # Introduction
+
+## General Background 
+
+## Description of data and data source
+The data is a count of residents with at least one COVID-19 vaccination by demographic in the state of Georgia released by the Georgia Department of Public Health. The data has 1962 observations. The data is uploaded weekly.
+
+You can download the data from [here](https://www.arcgis.com/home/item.html?id=17a8a4af79e5453a9132aaa29fb4ad22)
+
+A further description of the data can be found [here](https://insights.arcgis.com/#/view/08d2c1f995524053b1f9669dd0b0b995)
+
+## Objective 
+I am seeking to establish an efficient method of processing and cleaning the data to produce a data set with the target zip codes. 
+
+My goal is to compare monthly trends of vaccinations and examine whether there is an increase in vaccinations among African American residents during the time of the health literacy program, which is from September through April. 
+
+In other words, I am looking to see if the COVID-19 vaccine hesitancy program will have any observable effects through secondary data.
+
+## Hypothesis 
+The city of Albany's population is predominately African American and by examining vaccination rates of African American residents in Albany, there will be an observable change in vaccinations over the course of the COVID-19 vaccine hesitany program.
 
 # Methods
 

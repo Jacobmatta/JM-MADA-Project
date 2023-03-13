@@ -1,97 +1,205 @@
 ---
-title: "Processing script 2"
-author: "Jacob Matta"
-date: "2023-01-03"
-output: html_document
+title: "Processing Code for October Data"
+format: html
+editor: visual
 ---
-# Processing script 2: Understanding the rawdata and data source 
+# Processing script 2
 
-## Determining the count of residents in GA with at least one dose of the covid-19 vaccines
-
-The count of residents in GA with at least one dose of the Covid-19 vaccines as of Feb 26th, 2023 is 6,935,491. This was found from the Georgia Department of [Public Health Vaccine Distribution Dashboard](https://experience.arcgis.com/experience/3d8eea39f5c1443db1743a4cb8948a9c) on Feb 26th/
-
-## This processing script will look to see how the raw data used for this analysis compares to the overall number of 6,935,491 as of Feb 26th, 2023.
-
-The overall sum of residents in GA with at least one dose of the covid-19 vaccines as of Feb 26th, 2023 should equal 6,935,491
-
-### Load needed packages. make sure they are installed.
+Load needed packages. make sure they are installed.
 
 ```{r}
-library(readxl) #for loading Excel files
-library(here) #used for setting a path 
+library(here)
 library(readxl) #for loading Excel files
 library(dplyr) #for data processing/cleaning
 library(tidyr) #for data processing/cleaning
 ```
 
-### Raw Data loading
+## Raw Data & Codebook loading
 
 ```{r}
-rawdata_location = here("data","raw_data","Feb_26.xlsx")
-Feb_26 <- read_excel(rawdata_location)
-```
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Oct_28.xlsx")
+Oct_28 <- read_excel(rawdata_location)
 
-### Codebook loading
 
-```{r}
 #loading data code book for reference 
 codebook_location = here("data","raw_data","Codebook.xlsx")
 codebook = read_excel(codebook_location)
 ```
 
-### Cleaning
+## Summary of data
 
 ```{r}
-#dropping columns that i don't need
-#keeping county name to group data together 
-Feb_26 <- Feb_26[-c(1:3)]
+glimpse(Oct_28)
+```
 
-#removing all of the population data 
-Feb_26 = Feb_26[-c(3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 65, 67, 69, 71, 73, 75, 77, 79, 81, 83, 85, 87, 89, 91, 93, 95, 97, 99, 101, 103, 105, 107, 109, 111, 113, 115, 117, 119, 121, 123, 125, 127, 129, 131, 133, 135, 137, 139, 141, 143, 145, 147, 149, 151, 153, 155, 157, 159, 161, 163, 165, 167, 169, 171, 173, 175, 177, 179, 181.)]
-Feb_26[-c(1)]
+## Cleaning
 
-#removing the negative values 
-Feb_26 [Feb_26 < 0] <- 0  
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Vaccination from Dougherty County which contains the target zip codes of 31701, 31705 and 31707
+#by using filter() I am able to create a new dataset with vaccinations from Dougherty County 
+Dougherty_Vax_Oct <- filter(Oct_28, COUNTY_NAME == "Dougherty County")  
+
+#replacing negative values with 0
+Dougherty_Vax_Oct [Dougherty_Vax_Oct < 0] <- 0  
+```
+
+### Adding new columns: total vax sum, total vax of all males, total vax of all females
+
+```{r}
+#Adding a column of the total vax for each census tract (for each observation)  
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>% mutate(total_vax_Oct = sum(across(ends_with("VAX")), na.rm = T))  
+
+#total vax column for all males
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct  %>% rowwise() %>%   
+  mutate(total_male_vax = sum(across(starts_with("M") & ends_with("VAX")), na.rm = T)) 
+
+#total vax column for all females
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>%   
+  mutate(total_female_vax = sum(across(starts_with("F") & ends_with("VAX")), na.rm = T))
 
 ```
 
-### Summing the vaccinations in each column
+### Adding new columns for Male Residents by race
 
 ```{r}
-Feb_26_sum_by_col = colSums(Feb_26[ , c(2:91)])     
-Feb_26_sum_by_col
+#total vax column for Asian male residents 
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>%   
+  mutate(total_masian_vax = sum(across(starts_with("MAsianNHPI") & ends_with("VAX")), na.rm = T))
+
+#total vax column for African American male residents
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>%   
+  mutate(total_mblack_vax = sum(across(starts_with("MBlack") & ends_with("VAX")), na.rm = T))
+
+#total vax column for other race male residents
+Dougherty_Vax_Oct<- Dougherty_Vax_Oct %>% rowwise() %>%   
+  mutate(total_morace_vax = sum(across(starts_with("MOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White male residents 
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>%   
+  mutate(total_mwhite_vax = sum(across(starts_with("MWhite") & ends_with("VAX")), na.rm = T))
+
 ```
 
-### Turning the sums by column into a tibble that puts all of the sums of each column into one column
+### Adding new columns for Female Residents by race
 
 ```{r}
-Feb_26_sum_tib = tibble(Feb_26_sum_by_col)
-Feb_26_sum_tib
+#total vax column for Asian female residents    
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>%   
+  mutate(total_fasian_vax = sum(across(starts_with("FAsianNHPI") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for African American female residents
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>%   
+  mutate(total_fblack_vax = sum(across(starts_with("FBlack") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for other race female residents
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>%   
+  mutate(total_forace_vax = sum(across(starts_with("FOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White female residents 
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>%   
+  mutate(total_fwhite_vax = sum(across(starts_with("FWhite") & ends_with("VAX")), na.rm = T))  
 ```
 
-### Summing all of the vaccinations together
+### Adding new columns for Vax totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident vaccinations by adding all males and females of a specific race to get the the overall amount of resident vaccinations by race.
+
+For example(see below): I get the total Asian resident vaccinations by summing male Asian residents + female Asain residents.
 
 ```{r}
-Overall_sum = sum(Feb_26_sum_tib) 
-Overall_sum
+#Vax total Asian Residents
+Dougherty_Vax_Oct$total_asian_vax <- Dougherty_Vax_Oct$total_masian_vax + Dougherty_Vax_Oct$total_fasian_vax
+
+#Vax total for African American Residents 
+Dougherty_Vax_Oct$total_black_vax <- Dougherty_Vax_Oct$total_mblack_vax + Dougherty_Vax_Oct$total_fblack_vax  
+
+#Vax total for Other Race Residents
+Dougherty_Vax_Oct$total_orace_vax <- Dougherty_Vax_Oct$total_morace_vax + Dougherty_Vax_Oct$total_forace_vax  
+
+#Vax total for White Residents
+Dougherty_Vax_Oct$total_white_vax <- Dougherty_Vax_Oct$total_mwhite_vax + Dougherty_Vax_Oct$total_fwhite_vax  
 ```
 
-### Thoughts
+### Adding new columns for Vax totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
 
-The overall total of residents in GA with at least one dose of the covid-19 vaccines is 5,654,635 which is more than 1 million should of the total about of GA residents with at least one dose of a Covid-19 vaccine that the Georgia Department of Public Health Vaccine Distribution Dashboard reported on Feb, 26th, 2023.
+```{r}
+#summing all residents in the age range of 05-09
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>% mutate(total_05_09_vax = sum(FAsianNHPI_05_09_VAX, MAsianNHPI_05_09_VAX, UAsianNHPI_05_09_VAX,FBlack_05_09_VAX, MBlack_05_09_VAX, UBlack_05_09_VAX,FNone_05_09_VAX, MNone_05_09_VAX, UNone_05_09_VAX,FOtherRace_05_09_VAX, MOtherRace_05_09_VAX, UOtherRace_05_09_VAX,FWhite_05_09_VAX, MWhite_05_09_VAX, UWhite_05_09_VAX, na.rm = T))  
 
-The data that I am using for this project possibly excludes certain vaccines brands (eg. Pfizer, Moderna, Johnson & Johnson) whereas the overall vaccination count represented on the website includes all vaccination brands. This is a question I will attempt to figure out. For now, it is my understanding that there are 5,654,635 Ga residents by census tract who currently have one dose of the Covid-19 vaccine. The brands of Covid-19 vaccines included in the census tract data has yet to be specified.
+#summing all residents in the age range of 10-17
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>% mutate(total_10_17_vax = sum(FAsianNHPI_10_17_VAX, MAsianNHPI_10_17_VAX, UAsianNHPI_10_17_VAX,FBlack_10_17_VAX, MBlack_10_17_VAX, UBlack_10_17_VAX,FNone_10_17_VAX, MNone_10_17_VAX, UNone_10_17_VAX,FOtherRace_10_17_VAX, MOtherRace_10_17_VAX, UOtherRace_10_17_VAX,FWhite_10_17_VAX, MWhite_10_17_VAX, UWhite_10_17_VAX, na.rm = T))  
 
-### Explanation for difference Covid-19 Vaccination totals
+#summing all residents in the age range of 18-44
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>% mutate(total_18_44_vax = sum(FAsianNHPI_18_44_VAX, MAsianNHPI_18_44_VAX, UAsianNHPI_18_44_VAX,FBlack_18_44_VAX, MBlack_18_44_VAX, UBlack_18_44_VAX,FNone_18_44_VAX, MNone_18_44_VAX, UNone_18_44_VAX,FOtherRace_18_44_VAX, MOtherRace_18_44_VAX, UOtherRace_18_44_VAX,FWhite_18_44_VAX, MWhite_18_44_VAX, UWhite_18_44_VAX, na.rm = T))  
 
-1.  The data I downloaded is by census tract
+#summing all residents in the age range of 45-64
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>% mutate(total_45_64_vax = sum(FAsianNHPI_45_64_VAX, MAsianNHPI_45_64_VAX, UAsianNHPI_45_64_VAX,FBlack_45_64_VAX, MBlack_45_64_VAX, UBlack_45_64_VAX,FNone_45_64_VAX, MNone_45_64_VAX, UNone_45_64_VAX,FOtherRace_45_64_VAX, MOtherRace_45_64_VAX, UOtherRace_45_64_VAX,FWhite_45_64_VAX, MWhite_45_64_VAX, UWhite_45_64_VAX, na.rm = T))  
 
-2.  The data displayed on the Georgia Department of [Public Health Vaccine Distribution Dashboard](https://experience.arcgis.com/experience/3d8eea39f5c1443db1743a4cb8948a9c) on Feb 26th is by county level which does not align with census tracts
+#summing all residents in the age range of 65+ 
+Dougherty_Vax_Oct <- Dougherty_Vax_Oct %>% rowwise() %>% mutate(total_65Plus_vax = sum(FAsianNHPI_65Plus_VAX, MAsianNHPI_65Plus_VAX, UAsianNHPI_65Plus_VAX,FBlack_65Plus_VAX, MBlack_65Plus_VAX, UBlack_65Plus_VAX,FNone_65Plus_VAX, MNone_65Plus_VAX, UNone_65Plus_VAX,FOtherRace_65Plus_VAX, MOtherRace_65Plus_VAX, UOtherRace_65Plus_VAX,FWhite_65Plus_VAX, MWhite_65Plus_VAX, UWhite_65Plus_VAX, na.rm = T))  
 
-3.  Going forward for details regarding the raw data you should go to arcGIS insights dashboard for Covid-19 vaccinations among GA Residents with at least one dose found [here](https://insights.arcgis.com/#/view/08d2c1f995524053b1f9669dd0b0b995)
+```
 
-4.  The data dashboard for Covid-19 vaccinations among GA Residents with at least one dose (link above) states that the data downloaded by census tract will not add up to the county level and state level data
+### Creating a data set with only the sums columns I just created via the previous code
 
-### Moving forward
-If the vaccinations are not rates (eg. per 100,000) why are there negative values and why does it state that the where "-1 is indicated, either the numerator is less than five or the denominator is less than 25".
--   What is the numerator and what is the denominator?
+```{r}
+#Extract necessary variables only  
+Dougherty_Vax_Oct_sums <- Dougherty_Vax_Oct[,c(1:4,185:204)]  
+```
+
+### Filtering the data by zip code and creating a
+
+```{r}
+#filtering data by zip: 31701  
+#All of the following FIPS or census tracts correspond to the 31701 zip code
+Zip_31701_Oct <-filter(Dougherty_Vax_Oct_sums,FIPS=="13095000700" | FIPS=="13095000800" | FIPS=="13095001403" | FIPS=="13095001500" | FIPS=="13095010601" | FIPS=="13095011300" | FIPS=="13095011400" | FIPS=="13095010602")  
+
+#filtering data by zip: 31705  
+#All of the following FIPS or census tracts correspond to the 31705 zip code
+Zip_31705_Oct <- filter(Dougherty_Vax_Oct_sums, FIPS=="13095000100" | FIPS=="13095000200" | FIPS=="13095010302" | FIPS=="13095010700" | FIPS=="13095010900" | FIPS=="13095011000" | FIPS=="13095011200" | FIPS=="13095011600")  
+
+#filtering data by zip: 31707  
+#All of the following FIPS or census tracts correspond to the 31707 zip code
+Zip_31707_Oct <- filter(Dougherty_Vax_Oct_sums, FIPS=="13095000400" | FIPS=="13095000501" | FIPS=="13095000502" | FIPS=="13095000600" | FIPS=="13095000900" | FIPS=="13095001000" | FIPS=="13095001100")  
+
+```
+
+### Change the column names for 31701 Oct
+
+```{r}
+colnames(Zip_31701_Oct) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_vax_Oct_28", "total_male_vax_Oct_28", "total_female_vax_Oct_28", "total_masian_vax_Oct_28", "total_mblack_vax_Oct_28", "total_morace_vax_Oct_28", "total_mwhite_vax_Oct_28", "total_fasian_vax_Oct_28", "total_fblack_vax_Oct_28", "total_forace_vax_Oct_28", "total_fwhite_vax_Oct_28", "total_asian_vax_Oct_28","total_black_vax_Oct_28", "total_orace_vax_Oct_28", "total_white_vax_Oct_28", "total_05_09_vax_Oct_28", "total_10_17_vax_Oct_28", "total_18_44_vax_Oct_28", "total_45_64_vax_Oct_28", "total_65Plus_vax_Oct_28") 
+
+#change column names for 31705 Oct  
+colnames(Zip_31705_Oct) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_vax_Oct_28", "total_male_vax_Oct_28", "total_female_vax_Oct_28", "total_masian_vax_Oct_28", "total_mblack_vax_Oct_28", "total_morace_vax_Oct_28", "total_mwhite_vax_Oct_28", "total_fasian_vax_Oct_28", "total_fblack_vax_Oct_28", "total_forace_vax_Oct_28", "total_fwhite_vax_Oct_28", "total_asian_vax_Oct_28","total_black_vax_Oct_28", "total_orace_vax_Oct_28", "total_white_vax_Oct_28", "total_05_09_vax_Oct_28", "total_10_17_vax_Oct_28", "total_18_44_vax_Oct_28", "total_45_64_vax_Oct_28", "total_65Plus_vax_Oct_28") 
+
+#change column names for 31707 Oct  
+colnames(Zip_31707_Oct) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_vax_Oct_28", "total_male_vax_Oct_28", "total_female_vax_Oct_28", "total_masian_vax_Oct_28", "total_mblack_vax_Oct_28", "total_morace_vax_Oct_28", "total_mwhite_vax_Oct_28", "total_fasian_vax_Oct_28", "total_fblack_vax_Oct_28", "total_forace_vax_Oct_28", "total_fwhite_vax_Oct_28", "total_asian_vax_Oct_28","total_black_vax_Oct_28", "total_orace_vax_Oct_28", "total_white_vax_Oct_28", "total_05_09_vax_Oct_28", "total_10_17_vax_Oct_28", "total_18_44_vax_Oct_28", "total_45_64_vax_Oct_28", "total_65Plus_vax_Oct_28") 
+
+```
+
+# Cleaning is done, now lets save the processed data 
+
+### Deleting excess environment objects and saving data as processed_data_Oct
+```{r}
+#Only need to save processed data for the three zip codes
+rm(Dougherty_Vax_Oct,Oct_28, codebook, Dougherty_Vax_Oct_sums) 
+
+#saving clean data for 31701 to processed_data folder
+save_data_location = here("data", "processed_data","Oct", "processed_data_31701_Oct.rds")
+
+saveRDS(Zip_31701_Oct, file = save_data_location)
+
+#saving clean data for 31705 to processed_data folder
+save_data_location2 = here("data", "processed_data", "Oct", "processed_data_31705_Oct.rds")
+
+saveRDS(Zip_31705_Oct, file = save_data_location2)
+
+#saving clean data for 31707 to processed_data folder
+save_data_location3 = here("data", "processed_data", "Oct", "processed_data_31707_Oct.rds")
+
+saveRDS(Zip_31707_Oct, file = save_data_location3)
+
+```
