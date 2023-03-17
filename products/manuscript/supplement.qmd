@@ -1,0 +1,81 @@
+# Overview
+
+This file describes all files in this project, the reproducibility procedure for this project, any addition information regarding the methods, results and discussion for this project.
+
+# Description of Project Files
+
+-   `gitignore` file: Tells Git which files and directories to ignore when you make a commit
+
+-   `JM-MADA-Project.Rproj` file: Establishes file paths for project
+
+-   `data` folder: Contains the `processed_data` and `raw_data` folders
+
+    -   `processed_data` folder: Contains the data that has been processed by the processing code
+
+        -   `Sept` folder: Contains processed data for September
+
+            -   `processed_data_31701_Sept.rds`: Contains processed data for the 31701 zip code
+
+            -   `processed_data_31705_Sept.rds`: Contains processed data for the 31705 zip code
+
+            -   `processed_data_31707_Sept.rds`: Contains processed data for the 31707 zip code
+
+        -   `Oct` folder: Contains processed data for October
+
+            -   `processed_data_31701_Oct.rds`: Contains processed data for the 31701 zip code
+
+            -   `processed_data_31705_Oct.rds`: Contains processed data for the 31705 zip code
+
+            -   `processed_data_31707_Oct.rds`: Contains processed data for the 31707 zip code
+
+        -   `Nov` folder: Contains processed data for November
+
+            -   `processed_data_31701_Nov.rds`: Contains processed data for the 31701 zip code
+
+            -   `processed_data_31705_Nov.rds`: Contains processed data for the 31705 zip code
+
+            -   `processed_data_31707_Nov.rds`: Contains processed data for the 31707 zip code
+
+        -   `Dec` folder: Contains processed data for December
+
+            -   `processed_data_31701_Dec.rds`: Contains processed data for the 31701 zip code
+
+            -   `processed_data_31705_Dec.rds`: Contains processed data for the 31705 zip code
+
+            -   `processed_data_31707_Dec.rds`: Contains processed data for the 31707 zip code
+
+        -   `Jan` folder: Contains processed data for January
+
+            -   `processed_data_31701_Jan.rds`: Contains processed data for the 31701 zip code
+
+            -   `processed_data_31705_Jan.rds`: Contains processed data for the 31705 zip code
+
+            -   `processed_data_31707_Jan.rds`: Contains processed data for the 31707 zip code
+
+        -   `Feb` folder: Contains processed data for February
+
+            -   `processed_data_31701_Feb.rds`: Contains processed data for the 31701 zip code
+
+            -   `processed_data_31705_Feb.rds`: Contains processed data for the 31705 zip code
+
+            -   `processed_data_31707_Feb.rds`: Contains processed data for the 31707 zip code
+
+    -   `raw_data` folder: Contains the raw data for this project
+
+        -   `Codebook.xlsx` : Contains the codebook for the raw data
+
+        -   `Sept_17.xlsx`: Contains raw data that was downloaded on September 17th, 2022
+
+        -   `Oct_28.xlsx`: Contains raw data that was downloaded on October 28th, 2022
+
+        -   `Nov_24.xlsx`: Contains raw data that was downloaded on November 24th, 2022
+
+        -   `Dec_29.xlsx`: Contains raw data that was downloaded on December 29th, 2022
+
+        -   `Jan_26.xlsx`: Contains raw data that was downloaded on January 26th, 2023
+
+        -   `Feb_26.xlsx`: Contains raw data that was downloaded on February 26th, 2023
+
+-   `code` folder: Contains `analysis_code` folder and `processing_code` folder which are used to process the raw data into processed data through a series of cleaning steps and then using the analysis code to analyze the data
+
+    -   `analysis_code`
