@@ -3,6 +3,7 @@ title: "Processing Code for October Data"
 format: html
 editor: visual
 ---
+
 # Processing script 2
 
 Load needed packages. make sure they are installed.
@@ -180,25 +181,26 @@ colnames(Zip_31707_Oct) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "tot
 
 ```
 
-# Cleaning is done, now lets save the processed data 
+# Cleaning is done, now lets save the processed data
 
 ### Deleting excess environment objects and saving data as processed_data_Oct
+
 ```{r}
 #Only need to save processed data for the three zip codes
 rm(Dougherty_Vax_Oct,Oct_28, codebook, Dougherty_Vax_Oct_sums) 
 
 #saving clean data for 31701 to processed_data folder
-save_data_location = here("data", "processed_data","Oct", "processed_data_31701_Oct.rds")
+save_data_location = here("data", "processed_data","Zip_31701", "processed_data_31701_Oct.rds")
 
 saveRDS(Zip_31701_Oct, file = save_data_location)
 
 #saving clean data for 31705 to processed_data folder
-save_data_location2 = here("data", "processed_data", "Oct", "processed_data_31705_Oct.rds")
+save_data_location2 = here("data", "processed_data", "Zip_31705", "processed_data_31705_Oct.rds")
 
 saveRDS(Zip_31705_Oct, file = save_data_location2)
 
 #saving clean data for 31707 to processed_data folder
-save_data_location3 = here("data", "processed_data", "Oct", "processed_data_31707_Oct.rds")
+save_data_location3 = here("data", "processed_data", "Zip_31707", "processed_data_31707_Oct.rds")
 
 saveRDS(Zip_31707_Oct, file = save_data_location3)
 

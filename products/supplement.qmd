@@ -12,53 +12,49 @@ This file describes all files in this project, the reproducibility procedure for
 
     -   `processed_data` folder: Contains the data that has been processed by the processing code
 
-        -   `Sept` folder: Contains processed data for September
+        -   `Zip_31701` folder: Contains processed data for the 31701 zip code
 
-            -   `processed_data_31701_Sept.rds`: Contains processed data for the 31701 zip code
+            -   `processed_data_31701_Sept.rds`: Contains processed data for the 31701 zip code during September, 2022
 
-            -   `processed_data_31705_Sept.rds`: Contains processed data for the 31705 zip code
+            -   `processed_data_31701_Oct.rds`: Contains processed data for the 31701 zip code during October, 2022
 
-            -   `processed_data_31707_Sept.rds`: Contains processed data for the 31707 zip code
+            -   `processed_data_31701_Nov.rds`: Contains processed data for the 31701 zip code during November, 2022
 
-        -   `Oct` folder: Contains processed data for October
+            -   `processed_data_31701_Dec.rds`: Contains processed data for the 31701 zip code during December, 2022
 
-            -   `processed_data_31701_Oct.rds`: Contains processed data for the 31701 zip code
+            -   `processed_data_31701_Jan.rds`: Contains processed data for the 31701 zip code during January, 2023
 
-            -   `processed_data_31705_Oct.rds`: Contains processed data for the 31705 zip code
+            -   `processed_data_31701_Feb.rds`: Contains processed data for the 31701 zip code during February, 2023
 
-            -   `processed_data_31707_Oct.rds`: Contains processed data for the 31707 zip code
+            -   `processed_combined_31701.rds`: Contains all vaccinations with all variables by month (September-February) for African Americans in the 31701 zip
 
-        -   `Nov` folder: Contains processed data for November
+        -   `Zip_31705` folder: Contains processed data for the 31705 zip code
 
-            -   `processed_data_31701_Nov.rds`: Contains processed data for the 31701 zip code
+            -   `processed_data_31705_Sept.rds`: Contains processed data for the 31705 zip code during September, 2022
 
-            -   `processed_data_31705_Nov.rds`: Contains processed data for the 31705 zip code
+            -   `processed_data_31705_Oct.rds`: Contains processed data for the 31705 zip code during October, 2022
 
-            -   `processed_data_31707_Nov.rds`: Contains processed data for the 31707 zip code
+            -   `processed_data_31705_Nov.rds`: Contains processed data for the 31705 zip code during November, 2022
 
-        -   `Dec` folder: Contains processed data for December
+            -   `processed_data_31705_Dec.rds`: Contains processed data for the 31705 zip code during December, 2022
 
-            -   `processed_data_31701_Dec.rds`: Contains processed data for the 31701 zip code
+            -   `processed_data_31705_Jan.rds`: Contains processed data for the 31705 zip code during January, 2022
 
-            -   `processed_data_31705_Dec.rds`: Contains processed data for the 31705 zip code
+            -   `processed_data_31705_Feb.rds`: Contains processed data for the 31705 zip code during Feb ruary, 2022
 
-            -   `processed_data_31707_Dec.rds`: Contains processed data for the 31707 zip code
+        -   `Zip_31707` folder: Contains processed data for the 31707 zip code
 
-        -   `Jan` folder: Contains processed data for January
+            -   `processed_data_31707_Sept.rds`: Contains processed data for the 31707 zip code during September, 2022
 
-            -   `processed_data_31701_Jan.rds`: Contains processed data for the 31701 zip code
+            -   `processed_data_31707_Oct.rds`: Contains processed data for the 31707 zip code during October, 2022
 
-            -   `processed_data_31705_Jan.rds`: Contains processed data for the 31705 zip code
+            -   `processed_data_31707_Nov.rds`: Contains processed data for the 31707 zip code during November, 2022
 
-            -   `processed_data_31707_Jan.rds`: Contains processed data for the 31707 zip code
+            -   `processed_data_31707_Dec.rds`: Contains processed data for the 31707 zip code during December, 2022
 
-        -   `Feb` folder: Contains processed data for February
+            -   `processed_data_31707_Jan.rds`: Contains processed data for the 31707 zip code during January, 2023
 
-            -   `processed_data_31701_Feb.rds`: Contains processed data for the 31701 zip code
-
-            -   `processed_data_31705_Feb.rds`: Contains processed data for the 31705 zip code
-
-            -   `processed_data_31707_Feb.rds`: Contains processed data for the 31707 zip code
+            -   `processed_data_31707_Feb.rds`: Contains processed data for the 31707 zip code during February, 2023
 
     -   `raw_data` folder: Contains the raw data for this project
 
@@ -108,18 +104,30 @@ This file describes all files in this project, the reproducibility procedure for
 
     -   `analysis_code`: Contains the code for the analysis
 
-        -   `analysiscode1.R`: Contains the code an analysis of the total amount of African Americans with at least one COVID-19 vaccine in the 31701 zip code
+        -   `analysiscode1.qmd`: Contains the code an analysis of the total amount of African Americans with at least one COVID-19 vaccine in all three target zip codes
+        -   `analysiscode1.html`: Contains the output document from rendering `analysiscode1.qmd`
         -   `readme.md`: provides a brief description of the analysis files
 
 -   `products` folder: Contains files for the manuscript and supplementary material of this project
 
     -   `apa.csl` file: APA format for citations
-    
+
     -   `Manuscript.qmd` file: Contains the manuscript for this project
-    -   `My_Library.bib`: Bibliography for this project 
-    
+
+    -   `My_Library.bib`: Bibliography for this project
+
     -   `readme.md`: Contains a description of the files in the `products` folder
-    
+
     -   `supplement.qmd`: Contains supplementart material relevent to reproducing this project and a brief description of every file in this project
+
+-   `results` folder: Contains the graphs produced from rendering the analysis `analysiscode1.qmd`
+
+    -   `Black_Vax_Total.png`: Contains a line graph with all three zip codes plotted for the African American populations 
+
+    -   `Black_Vax_Total_31701.png` : A line graph of African Americans with at least one dose of the COVID-19 vaccine in the 31701 zip code
     
--   `results` folder: 
+
+    -   `Black_Vax_Total_31705.png` : A line graph of African Americans with at least one dose of the COVID-19 vaccine in the 31705 zip code
+    
+
+    -   `Black_Vax_Total_31707.png`: A line graph of African Americans with at least one dose of the COVID-19 vaccine in the 31707 zip code

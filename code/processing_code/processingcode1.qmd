@@ -190,17 +190,17 @@ colnames(Zip_31707_Sept) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "to
 rm(Dougherty_Vax_Sept,Sept_17, codebook, Dougherty_Vax_Sept_sums) 
 
 #saving clean data for 31701 to processed_data folder
-save_data_location = here("data", "processed_data", "Sept", "processed_data_31701_Sept.rds")
+save_data_location = here("data", "processed_data", "Zip_31701", "processed_data_31701_Sept.rds")
 
 saveRDS(Zip_31701_Sept, file = save_data_location)
 
 #saving clean data for 31705 to processed_data folder
-save_data_location2 = here("data", "processed_data", "Sept", "processed_data_31705_Sept.rds")
+save_data_location2 = here("data", "processed_data", "Zip_31705", "processed_data_31705_Sept.rds")
 
 saveRDS(Zip_31705_Sept, file = save_data_location2)
 
 #saving clean data for 31707 to processed_data folder
-save_data_location3 = here("data", "processed_data", "Sept", "processed_data_31707_Sept.rds")
+save_data_location3 = here("data", "processed_data", "Zip_31707", "processed_data_31707_Sept.rds")
 
 saveRDS(Zip_31707_Sept, file = save_data_location3)
 
