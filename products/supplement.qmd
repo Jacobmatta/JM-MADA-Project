@@ -78,4 +78,48 @@ This file describes all files in this project, the reproducibility procedure for
 
 -   `code` folder: Contains `analysis_code` folder and `processing_code` folder which are used to process the raw data into processed data through a series of cleaning steps and then using the analysis code to analyze the data
 
-    -   `analysis_code`
+    -   `processing_code`: Contains the code for data processing in both .R files and .qmd files
+
+        -   `processingcode1.qmd`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 that was downloaded in September 2022
+
+        -   `processingcode1.R`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 that was downloaded in September 2022
+
+        -   `processingcode2.qmd`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 that was downloaded in October 2022
+
+        -   `processingcode2.R`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 that was downloaded in October 2022
+
+        -   `processingcode3.qmd`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 that was downloaded in November 2022
+
+        -   `processingcode3.R`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 that was downloaded in October 2022
+
+        -   `processingcode4.qmd`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 that was downloaded in December 2022
+
+        -   `processingcode4.R`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 that was downloaded in December 2022
+
+        -   `processingcode5.qmd`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 that was downloaded in January 2023
+
+        -   `processingcode5.R`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 that was downloaded in January 2022
+
+        -   `processingcode6.qmd`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 that was downloaded in February 2023
+
+        -   `processingcode6.R`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 that was downloaded in February 2023
+
+        -   `readme.md`: provides a brief description of the files in `processing_code` folder
+
+    -   `analysis_code`: Contains the code for the analysis
+
+        -   `analysiscode1.R`: Contains the code an analysis of the total amount of African Americans with at least one COVID-19 vaccine in the 31701 zip code
+        -   `readme.md`: provides a brief description of the analysis files
+
+-   `products` folder: Contains files for the manuscript and supplementary material of this project
+
+    -   `apa.csl` file: APA format for citations
+    
+    -   `Manuscript.qmd` file: Contains the manuscript for this project
+    -   `My_Library.bib`: Bibliography for this project 
+    
+    -   `readme.md`: Contains a description of the files in the `products` folder
+    
+    -   `supplement.qmd`: Contains supplementart material relevent to reproducing this project and a brief description of every file in this project
+    
+-   `results` folder: 
