@@ -1,7 +1,7 @@
 ---
-title: "Total Amount of Vaccinations Among African Americans in the Target Zip Codes"
-format: html
-editor: visual
+title: "Total Amount of Vaccinations Among Black population in the Target Zip Codes"
+output: 
+  html_document
 echo: FALSE 
 ---
 
@@ -17,7 +17,7 @@ library(reshape2) #reshaping data from wide to long format
 library(plotly) #creating an interactive line plot 
 ```
 
-# Analysis of the Amount of Vaccinations Among African Americans in Each Target Zip Code
+# Analysis of the Amount of Vaccinations Among Black population in Each Target Zip Code
 
 ------------------------------------------------------------------------
 
@@ -56,17 +56,16 @@ processed_data_31701_Feb = readRDS(data_location6)
 processed_combined_31701 <- left_join(processed_combined, processed_data_31701_Feb, by = c("FIPS" = "FIPS"))
 ```
 
-
-### Saving the combined data for African Americans for future use. Will be useful when stratifying the African American population by age and gender
+### Saving the combined data for Black population for future use. Will be useful when stratifying the African American population by age and gender
 
 ```{r}
 save_data_location = here("data", "processed_data","Zip_31701", "processed_combined_31701.rds")
 saveRDS(processed_combined_31701, file = save_data_location)
 ```
 
-### Dropping all variables except for total black variables in order to obtain vaccination rates of all African Americans in the 31701 zip code
+### Dropping all variables except for total black variables in order to obtain vaccination rates of all Black population in the 31701 zip code
 
-#### Using the select() function to subset the data frame by columns that start with "total_black_vax" which are variables with a total count of African Americans with at least one dose of the COVID-19 vaccine by month
+#### Using the select() function to subset the data frame by columns that start with "total_black_vax" which are variables with a total count of Black population with at least one dose of the COVID-19 vaccine by month
 
 ```{r}
 processed_combined_31701_total_black = processed_combined_31701 %>% select(starts_with("total_black_vax"))
@@ -91,8 +90,8 @@ Sum_by_month_31701 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
                           Total = c(7797, 7780, 7755, 7773, 7792, 7817)) 
 ```
 
+### gglot2: Creating a line plot for the vaccination totals by month for the African American population in the 31701 zip code
 
-### gglot2: Creating a line plot for the vaccination totals by month for the African American population in the 31701 zip code 
 ```{r}
 plot_31701_total_black_vax = Sum_by_month_31701 %>% 
   ggplot(aes(Date, Total, group=1)) + 
@@ -101,7 +100,7 @@ plot_31701_total_black_vax = Sum_by_month_31701 %>%
 
 #Adding a customization title for the plot 
 plot_31701_total_black_vax = plot_31701_total_black_vax + 
-  ggtitle("Vaccination Totals for African Americans in the 31701 Zipcode") + 
+  ggtitle("Vaccination Totals for Black population in the 31701 Zipcode") + 
   theme(plot.title = 
           element_text(color="red", size=10, face="bold.italic"))
 ```
@@ -111,6 +110,7 @@ plot_31701_total_black_vax = plot_31701_total_black_vax +
 ## Zip code: 31705
 
 ### Loading the processed data in order to begin analysis for the 31705 zip code
+
 ```{r}
 #Loading September 31705
 data_location7 = here("data", "processed_data", "Zip_31705", "processed_data_31705_Sept.rds")
@@ -143,21 +143,21 @@ processed_combined_31705 <- left_join(processed_combined, processed_data_31705_F
 
 ```
 
+### Saving the combined data for Black population for future use
 
-### Saving the combined data for African Americans for future use 
 ```{r}
 save_data_location = here("data", "processed_data","Zip_31705", "processed_combined_31705.rds")
 saveRDS(processed_combined_31705, file = save_data_location)
 ```
 
+### Dropping all variables except for total black variables in order to obtain vaccination rates of all Black population in the 31705 zip code
 
-### Dropping all variables except for total black variables in order to obtain vaccination rates of all African Americans in the 31705 zip code 
 ```{r}
 processed_combined_31705_total_black = processed_combined_31705 %>% select(starts_with("total_black_vax"))
 ```
 
+### Summing each column for each month
 
-### Summing each column for each month 
 ```{r}
 
 sum(processed_combined_31705_total_black$total_black_vax_Sept_17) 
@@ -173,17 +173,19 @@ sum(processed_combined_31705_total_black$total_black_vax_Jan_26)
 sum(processed_combined_31705_total_black$total_black_vax_Feb_26)
 ```
 
-### Separating sums by month into a data fram consisting of two variables: Date and Total 
+### Separating sums by month into a data fram consisting of two variables: Date and Total
 
 ### Date contains months September-February
 
 ### Total contains the vaccination totals for each month
+
 ```{r}
 Sum_by_month_31705 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
                                 Total = c(10383, 10327, 10303, 10301, 10337, 10348)) 
 ```
 
 ### ggplot creating a line plot for the vaccination totals by month for the 31705 zip code African American population
+
 ```{r}
 plot_31705_total_black_vax = Sum_by_month_31705 %>% 
   ggplot(aes(Date, Total, group=1)) + 
@@ -192,7 +194,7 @@ plot_31705_total_black_vax = Sum_by_month_31705 %>%
 
 #Adding a customization title for the plot 
 plot_31705_total_black_vax = plot_31705_total_black_vax + 
-  ggtitle("Vaccination Totals for African Americans in the 31705 Zipcode") + 
+  ggtitle("Vaccination Totals for Black population in the 31705 Zipcode") + 
   theme(plot.title = 
           element_text(color="red", size=10, face="bold.italic"))
 ```
@@ -202,6 +204,7 @@ plot_31705_total_black_vax = plot_31705_total_black_vax +
 ## Zip code: 31707
 
 ### Loading the processed data in order to begin analysis for the 31707 zip code
+
 ```{r}
 # Loading September 31707
 data_location13 = here("data", "processed_data", "Zip_31707", "processed_data_31707_Sept.rds")
@@ -233,20 +236,22 @@ processed_data_31707_Feb = readRDS(data_location18)
 processed_combined_31707 <- left_join(processed_combined, processed_data_31707_Feb, by = c("FIPS" = "FIPS"))
 ```
 
+### Saving the combined data for Black population for future use
 
-### Saving the combined data for African Americans for future use 
 ```{r}
 save_data_location = here("data", "processed_data","Zip_31707", "processed_combined_31707.rds")
 saveRDS(processed_combined_31707, file = save_data_location)
 ```
 
-### Dropping all variables except for total black variables in order to obtain vaccination rates of all African Americans in the 31707 zip code 
+### Dropping all variables except for total black variables in order to obtain vaccination rates of all Black population in the 31707 zip code
+
 ```{r}
 processed_combined_31707_total_black = processed_combined_31707 %>% select(starts_with("total_black_vax"))
 
 ```
 
-### Summing each column for each month 
+### Summing each column for each month
+
 ```{r}
 sum(processed_combined_31707_total_black$total_black_vax_Sept_17) 
 sum(processed_combined_31707_total_black$total_black_vax_Oct_28) 
@@ -256,9 +261,12 @@ sum(processed_combined_31707_total_black$total_black_vax_Jan_26)
 sum(processed_combined_31707_total_black$total_black_vax_Feb_26)
 ```
 
-### Separating sums by month into a data fram consisting of two variables: Date and Total 
+### Separating sums by month into a data fram consisting of two variables: Date and Total
+
 ### Date contains months September-February
+
 ### Total contains the vaccination totals for each month
+
 ```{r}
 Sum_by_month_31707 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
                                 Total = c(9035, 8985, 8997, 9005, 9035, 9042)) 
@@ -266,6 +274,7 @@ Sum_by_month_31707 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
 ```
 
 ###ggplot: creating a line plot for the vaccination totals by month for the 31707 zip code African American population
+
 ```{r}
 plot_31707_total_black_vax = Sum_by_month_31707 %>% 
   ggplot(aes(Date, Total, group=1)) + 
@@ -274,17 +283,17 @@ plot_31707_total_black_vax = Sum_by_month_31707 %>%
 
 #Adding a customization title for the plot
 plot_31707_total_black_vax = plot_31707_total_black_vax + 
-  ggtitle("Vaccination Totals for African Americans in the 31707 Zipcode") + 
+  ggtitle("Vaccination Totals for Black population in the 31707 Zipcode") + 
   theme(plot.title = 
           element_text(color="red", size=10, face="bold.italic"))
 ```
-
 
 ------------------------------------------------------------------------
 
 ## Comparing plots the 3 target zip codes
 
-### Taking a look at each of the line plots for the different zip codes and comparing the total vaccinations by month in the African American population 
+### Taking a look at each of the line plots for the different zip codes and comparing the total vaccinations by month in the African American population
+
 ```{r}
 plot_31701_total_black_vax
 plot_31705_total_black_vax
@@ -292,20 +301,25 @@ plot_31707_total_black_vax
 ```
 
 ### Combining all plots into one
+
 ```{r}
 ## Creating a new dataframe called "Total_black_vax" by combining the vaccination totals from 31701 and 3105 by using leftjoin() by the Date variable 
 Total_black_vax = left_join(Sum_by_month_31701, Sum_by_month_31705, by = c("Date" = "Date"))
 
 ```
 
-### Combining the new dataframe "Total_black_vax" with the 31707 zip vaccination totals so all three target zip codes are in the same data frame 
+### Combining the new dataframe "Total_black_vax" with the 31707 zip vaccination totals so all three target zip codes are in the same data frame
+
 ```{r}
 Total_black_vax = left_join(Total_black_vax, Sum_by_month_31707, by = c("Date" = "Date"))
 ```
 
 ### Renaming column totals to match the zip
+
 ### Haing to do this because the the total variable names are Total.x, Total.y and Total
+
 ### Need to specificy each total variable by zip using the following code
+
 ```{r}
 Total_black_vax <- Total_black_vax %>% 
   rename("31701" = "Total.x") %>% 
@@ -314,13 +328,17 @@ Total_black_vax <- Total_black_vax %>%
 ```
 
 ### Converting data to long format in order to create a line plot using ggplot
+
 ```{r}
 Total_black_vax_long = reshape2::melt(Total_black_vax, id = "Date")
 ```
 
 ### Changing the variable name "variable" to "Zip_code" and "value" to "Vaccination_total" for clarity
+
 ### Doing this because when the data was converted to a long format the column names we changed to "variable" which refers to the zip code and "value" which refers to the amount of vaccinations
+
 ### Changing "variable" to "Zip_code" and "value" to "Vaccination_total"
+
 ```{r}
 Total_black_vax_long <- Total_black_vax_long %>% 
   rename("Zip_code" = "variable") %>% 
@@ -328,6 +346,7 @@ Total_black_vax_long <- Total_black_vax_long %>%
 ```
 
 ### ggplot: Making a line graph that compares the vaccination totals for each African American population in each zip code
+
 ```{r}
 plot_Total_black_vax = Total_black_vax_long %>% 
                      ggplot(aes(Date, Vaccination_total, 
@@ -337,7 +356,7 @@ plot_Total_black_vax = Total_black_vax_long %>%
                      scale_x_discrete(limits = c("Sep","Oct","Nov","Dec","Jan","Feb"))
 #adding a title to the plot 
 plot_Total_black_vax = plot_Total_black_vax + 
-  ggtitle("Vaccination Totals for African Americans in Target Zip Codes") + 
+  ggtitle("Vaccination Totals for Black population in Target Zip Codes") + 
   theme(plot.title = 
           element_text(color="red", size=10, face="bold.italic")) + 
   labs(y = "Vaccination Total")
@@ -345,8 +364,8 @@ plot_Total_black_vax
 ```
 
 ### Turning ggplot into an interactive plot
+
 ```{r}
 plotly_Total_black_vax = ggplotly(plot_Total_black_vax)
 plotly_Total_black_vax
 ```
-
