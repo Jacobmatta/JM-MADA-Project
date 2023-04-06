@@ -17,7 +17,7 @@ library(reshape2) #reshaping data from wide to long format
 library(plotly) #creating an interactive line plot 
 ```
 
-# Total Amount of vaccinations by gender among Black population in the target zip codes
+# Total Amount of vaccinations by Age among Black population in the target zip codes
 
 ------------------------------------------------------------------------
 
@@ -30,86 +30,114 @@ save_data_location = here("data", "processed_data","Zip_31701", "processed_combi
 processed_combined_31701 = readRDS(save_data_location)
 ```
 
-### Dropping all variables except for black males and black females within 31701
+### Dropping all variables except for black age groups within 31701
 
-#### Using the select() function to subset the data frame by columns that start with "total_black_vax" which are variables with a total count of Black population with at least one dose of the COVID-19 vaccine by month
+#### Using the select() function to subset the data frame by columns that start with an age group 
 
 ```{r}
 processed_combined_31701_Age_black = processed_combined_31701 %>% 
   select(starts_with("total_05_09"), starts_with("total_10_17"), starts_with("total_18_44"), starts_with("total_45_64"), starts_with("total_65Plus"))
 ```
 
-### Summing each Month variable by census tract
+### Summing each Month variable by age group by month
 ```{r}
-#Summing for black males by month 
-sum(processed_combined_31701_total_black$total_mblack_vax_Sept_17) 
-sum(processed_combined_31701_total_black$total_mblack_vax_Oct_28) 
-sum(processed_combined_31701_total_black$total_mblack_vax_Nov_24) 
-sum(processed_combined_31701_total_black$total_mblack_vax_Dec_29) 
-sum(processed_combined_31701_total_black$total_mblack_vax_Jan_26) 
-sum(processed_combined_31701_total_black$total_mblack_vax_Feb_26)
+#Summing for ages 5-9 by month 
+sum(processed_combined_31701_Age_black$total_05_09_vax_Sept_17) 
+sum(processed_combined_31701_Age_black$total_05_09_vax_Oct_28) 
+sum(processed_combined_31701_Age_black$total_05_09_vax_Nov_24) 
+sum(processed_combined_31701_Age_black$total_05_09_vax_Dec_29) 
+sum(processed_combined_31701_Age_black$total_05_09_vax_Jan_26) 
+sum(processed_combined_31701_Age_black$total_05_09_vax_Feb_26)
 
-#summing for black females by month 
-sum(processed_combined_31701_total_black$total_fblack_vax_Sept_17) 
-sum(processed_combined_31701_total_black$total_fblack_vax_Oct_28) 
-sum(processed_combined_31701_total_black$total_fblack_vax_Nov_24) 
-sum(processed_combined_31701_total_black$total_fblack_vax_Dec_29) 
-sum(processed_combined_31701_total_black$total_fblack_vax_Jan_26) 
-sum(processed_combined_31701_total_black$total_fblack_vax_Feb_26) 
+#Summing for ages 10-17 by month 
+sum(processed_combined_31701_Age_black$total_10_17_vax_Sept_17) 
+sum(processed_combined_31701_Age_black$total_10_17_vax_Oct_28) 
+sum(processed_combined_31701_Age_black$total_10_17_vax_Nov_24) 
+sum(processed_combined_31701_Age_black$total_10_17_vax_Dec_29) 
+sum(processed_combined_31701_Age_black$total_10_17_vax_Jan_26) 
+sum(processed_combined_31701_Age_black$total_10_17_vax_Feb_26)
+
+#Summing for ages 18-44 by month 
+sum(processed_combined_31701_Age_black$total_18_44_vax_Sept_17) 
+sum(processed_combined_31701_Age_black$total_18_44_vax_Oct_28) 
+sum(processed_combined_31701_Age_black$total_18_44_vax_Nov_24) 
+sum(processed_combined_31701_Age_black$total_18_44_vax_Dec_29) 
+sum(processed_combined_31701_Age_black$total_18_44_vax_Jan_26) 
+sum(processed_combined_31701_Age_black$total_18_44_vax_Feb_26)
+
+#Summing for ages 45-64 by month 
+sum(processed_combined_31701_Age_black$total_45_64_vax_Sept_17) 
+sum(processed_combined_31701_Age_black$total_45_64_vax_Oct_28) 
+sum(processed_combined_31701_Age_black$total_45_64_vax_Nov_24) 
+sum(processed_combined_31701_Age_black$total_45_64_vax_Dec_29) 
+sum(processed_combined_31701_Age_black$total_45_64_vax_Jan_26) 
+sum(processed_combined_31701_Age_black$total_45_64_vax_Feb_26)
+
+#Summing for ages 65+ by month 
+sum(processed_combined_31701_Age_black$total_65Plus_vax_Sept_17) 
+sum(processed_combined_31701_Age_black$total_65Plus_vax_Oct_28) 
+sum(processed_combined_31701_Age_black$total_65Plus_vax_Nov_24) 
+sum(processed_combined_31701_Age_black$total_65Plus_vax_Dec_29) 
+sum(processed_combined_31701_Age_black$total_65Plus_vax_Jan_26) 
+sum(processed_combined_31701_Age_black$total_65Plus_vax_Feb_26)
+
 ```
 
-#Separating sums by month into a data fram consisting of two variables: Date and Total Date contains months September-February #Total contains the vaccination totals for each month
+### Separating sums by month into a data fram consisting of two variables: Date and Total Date contains months September-February #Total contains the vaccination totals for each month
 
 ```{r}
-Gender_Sum_by_month_31701 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
-                          Male_Total = c(3371, 3358, 3368, 3379, 3387, 3397),
-                          Female_Total = c(4426, 4422, 4387, 4394, 4405, 4420))
+Age_Sum_by_month_31701 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
+                          Age_05_09 = c(123, 126, 126, 127, 127, 128),
+                          Age_10_17 = c(642, 635, 633, 637, 630, 629),
+                          Age_18_44 = c(3310, 3316, 3313, 3323, 3325, 3331),
+                          Age_45_64 = c(3229, 3244, 3239, 3259, 3264, 3258),
+                          Age_65Plus = c(2576, 2570, 2569, 2574, 2568, 2572))
+                          
 ```
 
-### Converting the Gender_Sum_by_month_31701 to long data in order to plot
+### Converting the Age_Sum_by_month_31701 to long data in order to plot
 ```{r}
-Gender_Sum_by_month_31701_long = reshape2::melt(Gender_Sum_by_month_31701, id = "Date")
+Age_Sum_by_month_31701_long = reshape2::melt(Age_Sum_by_month_31701, id = "Date")
 ```
 
 
-### Changing "variable" to "Gender" and "value" to "Vaccination_total"
+### Changing "variable" to "Age" and "value" to "Vaccination_total"
 
 ```{r}
-Gender_Sum_by_month_31701_long <- Gender_Sum_by_month_31701_long %>% 
-  rename("Gender" = "variable") %>% 
+Age_Sum_by_month_31701_long <- Age_Sum_by_month_31701_long %>% 
+  rename("Age" = "variable") %>% 
   rename("Vaccination_total" = "value")
 ```
 
 
-### gglot2: Creating a line plot for the vaccination totals by month for the Black population by gender in the 31701 zip code
+### gglot2: Creating a line plot for the vaccination totals by month for the Black population by Age in the 31701 zip code
 
 ```{r}
-plot_Gender_black_vax = Gender_Sum_by_month_31701_long %>% 
+plot_Age_black_vax = Age_Sum_by_month_31701_long %>% 
                      ggplot(aes(Date, Vaccination_total, 
-                                group = Gender, 
-                                color = Gender)) + 
+                                group = Age, 
+                                color = Age)) + 
                      geom_point() + geom_line() + 
                      scale_x_discrete(limits = c("Sep","Oct","Nov","Dec","Jan","Feb"))
 #adding a title to the plot 
-plot_Total_black_vax = plot_Total_black_vax + 
-  ggtitle("Vaccination Totals for Black population by Gender in 31701") + 
+plot_Age_black_vax = plot_Age_black_vax + 
+  ggtitle("Vaccination Totals for Black population by Age in 31701") + 
   theme(plot.title = 
           element_text(color="red", size=10, face="bold.italic")) + 
   labs(y = "Vaccination Total")
-plot_Gender_black_vax
+plot_Age_black_vax
 ```
 
 
 ### Turning ggplot into an interactive plot
 
 ```{r}
-plotly_plot_Gender_black_vax = ggplotly(plot_Gender_black_vax)
-plotly_plot_Gender_black_vax
+plotly_plot_Age_black_vax = ggplotly(plot_Age_black_vax)
+plotly_plot_Age_black_vax
 ```
 
 
 ------------------------------------------------------------------------
-
 ## Zip code: 31705
 
 ### Loading the `processed_combined_31705.rds` file from `analysiscode.qmd`
@@ -119,81 +147,113 @@ save_data_location = here("data", "processed_data","Zip_31705", "processed_combi
 processed_combined_31705 = readRDS(save_data_location)
 ```
 
-### Dropping all variables except for black males and black females within 31705
+### Dropping all variables except for black age groups within 31705
 
-#### Using the select() function to subset the data frame by columns that start with "total_black_vax" which are variables with a total count of Black population with at least one dose of the COVID-19 vaccine by month
+#### Using the select() function to subset the data frame by columns that start with an age group 
 
 ```{r}
-processed_combined_31705_total_black = processed_combined_31705 %>% select(matches("^total_(mblack|fblack)_vax"))
+processed_combined_31705_Age_black = processed_combined_31705 %>% 
+  select(starts_with("total_05_09"), starts_with("total_10_17"), starts_with("total_18_44"), starts_with("total_45_64"), starts_with("total_65Plus"))
 ```
 
-### Summing each Month variable by census tract
+### Summing each Month variable by age group by month
 ```{r}
-#Summing for black males by month 
-sum(processed_combined_31705_total_black$total_mblack_vax_Sept_17) 
-sum(processed_combined_31705_total_black$total_mblack_vax_Oct_28) 
-sum(processed_combined_31705_total_black$total_mblack_vax_Nov_24) 
-sum(processed_combined_31705_total_black$total_mblack_vax_Dec_29) 
-sum(processed_combined_31705_total_black$total_mblack_vax_Jan_26) 
-sum(processed_combined_31705_total_black$total_mblack_vax_Feb_26)
+#Summing for ages 5-9 by month 
+sum(processed_combined_31705_Age_black$total_05_09_vax_Sept_17) 
+sum(processed_combined_31705_Age_black$total_05_09_vax_Oct_28) 
+sum(processed_combined_31705_Age_black$total_05_09_vax_Nov_24) 
+sum(processed_combined_31705_Age_black$total_05_09_vax_Dec_29) 
+sum(processed_combined_31705_Age_black$total_05_09_vax_Jan_26) 
+sum(processed_combined_31705_Age_black$total_05_09_vax_Feb_26)
 
-#summing for black females by month 
-sum(processed_combined_31705_total_black$total_fblack_vax_Sept_17) 
-sum(processed_combined_31705_total_black$total_fblack_vax_Oct_28) 
-sum(processed_combined_31705_total_black$total_fblack_vax_Nov_24) 
-sum(processed_combined_31705_total_black$total_fblack_vax_Dec_29) 
-sum(processed_combined_31705_total_black$total_fblack_vax_Jan_26) 
-sum(processed_combined_31705_total_black$total_fblack_vax_Feb_26) 
+#Summing for ages 10-17 by month 
+sum(processed_combined_31705_Age_black$total_10_17_vax_Sept_17) 
+sum(processed_combined_31705_Age_black$total_10_17_vax_Oct_28) 
+sum(processed_combined_31705_Age_black$total_10_17_vax_Nov_24) 
+sum(processed_combined_31705_Age_black$total_10_17_vax_Dec_29) 
+sum(processed_combined_31705_Age_black$total_10_17_vax_Jan_26) 
+sum(processed_combined_31705_Age_black$total_10_17_vax_Feb_26)
+
+#Summing for ages 18-44 by month 
+sum(processed_combined_31705_Age_black$total_18_44_vax_Sept_17) 
+sum(processed_combined_31705_Age_black$total_18_44_vax_Oct_28) 
+sum(processed_combined_31705_Age_black$total_18_44_vax_Nov_24) 
+sum(processed_combined_31705_Age_black$total_18_44_vax_Dec_29) 
+sum(processed_combined_31705_Age_black$total_18_44_vax_Jan_26) 
+sum(processed_combined_31705_Age_black$total_18_44_vax_Feb_26)
+
+#Summing for ages 45-64 by month 
+sum(processed_combined_31705_Age_black$total_45_64_vax_Sept_17) 
+sum(processed_combined_31705_Age_black$total_45_64_vax_Oct_28) 
+sum(processed_combined_31705_Age_black$total_45_64_vax_Nov_24) 
+sum(processed_combined_31705_Age_black$total_45_64_vax_Dec_29) 
+sum(processed_combined_31705_Age_black$total_45_64_vax_Jan_26) 
+sum(processed_combined_31705_Age_black$total_45_64_vax_Feb_26)
+
+#Summing for ages 65+ by month 
+sum(processed_combined_31705_Age_black$total_65Plus_vax_Sept_17) 
+sum(processed_combined_31705_Age_black$total_65Plus_vax_Oct_28) 
+sum(processed_combined_31705_Age_black$total_65Plus_vax_Nov_24) 
+sum(processed_combined_31705_Age_black$total_65Plus_vax_Dec_29) 
+sum(processed_combined_31705_Age_black$total_65Plus_vax_Jan_26) 
+sum(processed_combined_31705_Age_black$total_65Plus_vax_Feb_26)
+
 ```
 
-#Separating sums by month into a data fram consisting of two variables: Date and Total Date contains months September-February #Total contains the vaccination totals for each month
+### Separating sums by month into a data fram consisting of two variables: Date and Total Date contains months September-February 
+### Total contains the vaccination totals for each month
 
 ```{r}
-Gender_Sum_by_month_31705 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
-                          Male_Total = c(4394, 4397, 4399, 4391, 4403, 4399),
-                          Female_Total = c(5989, 5930, 5904, 5910, 5934, 5949))
+Age_Sum_by_month_31705 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
+                          Age_05_09 = c(210, 211, 209, 201, 202, 202),
+                          Age_10_17 = c(1159, 1171, 1169, 1163, 1168, 1167),
+                          Age_18_44 = c(5201, 5215, 5239, 5263, 5278, 5281), #pretty notable increase for ages 18-44 
+                          Age_45_64 = c(4380, 4381, 4366, 4364, 4367, 4367),
+                          Age_65Plus = c(2983, 3000, 2997, 2997, 2994, 2989))
+                          
 ```
 
-### Converting the Gender_Sum_by_month_31705 to long data in order to plot
+### Converting the Age_Sum_by_month_31705 to long data in order to plot
 ```{r}
-Gender_Sum_by_month_31705_long = reshape2::melt(Gender_Sum_by_month_31705, id = "Date")
+Age_Sum_by_month_31705_long = reshape2::melt(Age_Sum_by_month_31705, id = "Date")
 ```
 
 
-### Changing "variable" to "Gender" and "value" to "Vaccination_total"
+### Changing "variable" to "Age" and "value" to "Vaccination_total"
 
 ```{r}
-Gender_Sum_by_month_31705_long <- Gender_Sum_by_month_31705_long %>% 
-  rename("Gender" = "variable") %>% 
+Age_Sum_by_month_31705_long <- Age_Sum_by_month_31705_long %>% 
+  rename("Age" = "variable") %>% 
   rename("Vaccination_total" = "value")
 ```
 
 
-### gglot2: Creating a line plot for the vaccination totals by month for the Black population by gender in the 31705 zip code
+### gglot2: Creating a line plot for the vaccination totals by month for the Black population by Age in the 31705 zip code
 
 ```{r}
-plot_Gender_black_vax_31705 = Gender_Sum_by_month_31705_long %>% 
+plot_Age_black_vax = Age_Sum_by_month_31705_long %>% 
                      ggplot(aes(Date, Vaccination_total, 
-                                group = Gender, 
-                                color = Gender)) + 
+                                group = Age, 
+                                color = Age)) + 
                      geom_point() + geom_line() + 
                      scale_x_discrete(limits = c("Sep","Oct","Nov","Dec","Jan","Feb"))
 #adding a title to the plot 
-plot_Total_black_vax = plot_Total_black_vax + 
-  ggtitle("Vaccination Totals for Black population by Gender in 31705") + 
+plot_Age_black_vax = plot_Age_black_vax + 
+  ggtitle("Vaccination Totals for Black population by Age in 31705") + 
   theme(plot.title = 
           element_text(color="red", size=10, face="bold.italic")) + 
   labs(y = "Vaccination Total")
-plot_Gender_black_vax_31705
+plot_Age_black_vax
 ```
 
 
 ### Turning ggplot into an interactive plot
 
 ```{r}
-plotly_plot_Gender_black_vax_31705 = ggplotly(plot_Gender_black_vax_31705)
-plotly_plot_Gender_black_vax_31705
+plotly_plot_Age_black_vax = ggplotly(plot_Age_black_vax)
+plotly_plot_Age_black_vax
 ```
+
 
 ------------------------------------------------------------------------
 
@@ -206,77 +266,110 @@ save_data_location = here("data", "processed_data","Zip_31707", "processed_combi
 processed_combined_31707 = readRDS(save_data_location)
 ```
 
-### Dropping all variables except for black males and black females within 31707
+### Dropping all variables except for black age groups within 31707
 
-#### Using the select() function to subset the data frame by columns that start with "total_black_vax" which are variables with a total count of Black population with at least one dose of the COVID-19 vaccine by month
+#### Using the select() function to subset the data frame by columns that start with an age group 
 
 ```{r}
-processed_combined_31707_total_black = processed_combined_31707 %>% select(matches("^total_(mblack|fblack)_vax"))
+processed_combined_31707_Age_black = processed_combined_31707 %>% 
+  select(starts_with("total_05_09"), starts_with("total_10_17"), starts_with("total_18_44"), starts_with("total_45_64"), starts_with("total_65Plus"))
 ```
 
-### Summing each Month variable by census tract
+### Summing each Month variable by age group by month
 ```{r}
-#Summing for black males by month 
-sum(processed_combined_31707_total_black$total_mblack_vax_Sept_17) 
-sum(processed_combined_31707_total_black$total_mblack_vax_Oct_28) 
-sum(processed_combined_31707_total_black$total_mblack_vax_Nov_24) 
-sum(processed_combined_31707_total_black$total_mblack_vax_Dec_29) 
-sum(processed_combined_31707_total_black$total_mblack_vax_Jan_26) 
-sum(processed_combined_31707_total_black$total_mblack_vax_Feb_26)
+#Summing for ages 5-9 by month 
+sum(processed_combined_31707_Age_black$total_05_09_vax_Sept_17) 
+sum(processed_combined_31707_Age_black$total_05_09_vax_Oct_28) 
+sum(processed_combined_31707_Age_black$total_05_09_vax_Nov_24) 
+sum(processed_combined_31707_Age_black$total_05_09_vax_Dec_29) 
+sum(processed_combined_31707_Age_black$total_05_09_vax_Jan_26) 
+sum(processed_combined_31707_Age_black$total_05_09_vax_Feb_26)
 
-#summing for black females by month 
-sum(processed_combined_31707_total_black$total_fblack_vax_Sept_17) 
-sum(processed_combined_31707_total_black$total_fblack_vax_Oct_28) 
-sum(processed_combined_31707_total_black$total_fblack_vax_Nov_24) 
-sum(processed_combined_31707_total_black$total_fblack_vax_Dec_29) 
-sum(processed_combined_31707_total_black$total_fblack_vax_Jan_26) 
-sum(processed_combined_31707_total_black$total_fblack_vax_Feb_26) 
+#Summing for ages 10-17 by month 
+sum(processed_combined_31707_Age_black$total_10_17_vax_Sept_17) 
+sum(processed_combined_31707_Age_black$total_10_17_vax_Oct_28) 
+sum(processed_combined_31707_Age_black$total_10_17_vax_Nov_24) 
+sum(processed_combined_31707_Age_black$total_10_17_vax_Dec_29) 
+sum(processed_combined_31707_Age_black$total_10_17_vax_Jan_26) 
+sum(processed_combined_31707_Age_black$total_10_17_vax_Feb_26)
+
+#Summing for ages 18-44 by month 
+sum(processed_combined_31707_Age_black$total_18_44_vax_Sept_17) 
+sum(processed_combined_31707_Age_black$total_18_44_vax_Oct_28) 
+sum(processed_combined_31707_Age_black$total_18_44_vax_Nov_24) 
+sum(processed_combined_31707_Age_black$total_18_44_vax_Dec_29) 
+sum(processed_combined_31707_Age_black$total_18_44_vax_Jan_26) 
+sum(processed_combined_31707_Age_black$total_18_44_vax_Feb_26)
+
+#Summing for ages 45-64 by month 
+sum(processed_combined_31707_Age_black$total_45_64_vax_Sept_17) 
+sum(processed_combined_31707_Age_black$total_45_64_vax_Oct_28) 
+sum(processed_combined_31707_Age_black$total_45_64_vax_Nov_24) 
+sum(processed_combined_31707_Age_black$total_45_64_vax_Dec_29) 
+sum(processed_combined_31707_Age_black$total_45_64_vax_Jan_26) 
+sum(processed_combined_31707_Age_black$total_45_64_vax_Feb_26)
+
+#Summing for ages 65+ by month 
+sum(processed_combined_31707_Age_black$total_65Plus_vax_Sept_17) 
+sum(processed_combined_31707_Age_black$total_65Plus_vax_Oct_28) 
+sum(processed_combined_31707_Age_black$total_65Plus_vax_Nov_24) 
+sum(processed_combined_31707_Age_black$total_65Plus_vax_Dec_29) 
+sum(processed_combined_31707_Age_black$total_65Plus_vax_Jan_26) 
+sum(processed_combined_31707_Age_black$total_65Plus_vax_Feb_26)
+
 ```
 
-#Separating sums by month into a data fram consisting of two variables: Date and Total Date contains months September-February #Total contains the vaccination totals for each month
+### Separating sums by month into a data fram consisting of two variables: Date and Total Date contains months September-February 
+### Total contains the vaccination totals for each month
 
 ```{r}
-Gender_Sum_by_month_31707 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
-                          Male_Total = c(3698, 3674, 3678, 3680, 3684, 3681),
-                          Female_Total = c(5337, 5311, 5319, 5325, 5351, 5361))
+Age_Sum_by_month_31707 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
+                          Age_05_09 = c(275, 277, 280, 282, 284, 283),
+                          Age_10_17 = c(1109, 1120, 1125, 1134, 1136, 1142),
+                          Age_18_44 = c(5903, 5931, 5943, 5947, 5960, 5958),
+                          Age_45_64 = c(5130, 5120, 5125, 5123, 5133, 5140),
+                          Age_65Plus = c(4200, 4204, 4195, 4206, 4202, 4189))
+                          
 ```
 
-### Converting the Gender_Sum_by_month_31707 to long data in order to plot
+### Converting the Age_Sum_by_month_31707 to long data in order to plot
 ```{r}
-Gender_Sum_by_month_31707_long = reshape2::melt(Gender_Sum_by_month_31707, id = "Date")
+Age_Sum_by_month_31707_long = reshape2::melt(Age_Sum_by_month_31707, id = "Date")
 ```
 
 
-### Changing "variable" to "Gender" and "value" to "Vaccination_total"
+### Changing "variable" to "Age" and "value" to "Vaccination_total"
 
 ```{r}
-Gender_Sum_by_month_31707_long <- Gender_Sum_by_month_31707_long %>% 
-  rename("Gender" = "variable") %>% 
+Age_Sum_by_month_31707_long <- Age_Sum_by_month_31707_long %>% 
+  rename("Age" = "variable") %>% 
   rename("Vaccination_total" = "value")
 ```
 
 
-### gglot2: Creating a line plot for the vaccination totals by month for the Black population by gender in the 31707 zip code
+### gglot2: Creating a line plot for the vaccination totals by month for the Black population by Age in the 31707 zip code
 
 ```{r}
-plot_Gender_black_vax_31707 = Gender_Sum_by_month_31707_long %>% 
+plot_Age_black_vax = Age_Sum_by_month_31707_long %>% 
                      ggplot(aes(Date, Vaccination_total, 
-                                group = Gender, 
-                                color = Gender)) + 
+                                group = Age, 
+                                color = Age)) + 
                      geom_point() + geom_line() + 
                      scale_x_discrete(limits = c("Sep","Oct","Nov","Dec","Jan","Feb"))
 #adding a title to the plot 
-plot_Total_black_vax = plot_Total_black_vax + 
-  ggtitle("Vaccination Totals for Black population by Gender in 31707") + 
+plot_Age_black_vax = plot_Age_black_vax + 
+  ggtitle("Vaccination Totals for Black population by Age in 31707") + 
   theme(plot.title = 
           element_text(color="red", size=10, face="bold.italic")) + 
   labs(y = "Vaccination Total")
-plot_Gender_black_vax_31707
+plot_Age_black_vax
 ```
+
 
 ### Turning ggplot into an interactive plot
 
 ```{r}
-plotly_plot_Gender_black_vax_31707 = ggplotly(plot_Gender_black_vax_31707)
-plotly_plot_Gender_black_vax_31707
+plotly_plot_Age_black_vax = ggplotly(plot_Age_black_vax)
+plotly_plot_Age_black_vax
 ```
+

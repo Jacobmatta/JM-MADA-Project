@@ -32,7 +32,7 @@ processed_combined_31701 = readRDS(save_data_location)
 
 ### Dropping all variables except for black males and black females within 31701
 
-#### Using the select() function to subset the data frame by columns that start with "total_black_vax" which are variables with a total count of Black population with at least one dose of the COVID-19 vaccine by month
+#### Using the select() function to subset the data frame by columns that start with "Gender_black_vax" which are variables with a total count of Black population with at least one dose of the COVID-19 vaccine by month
 
 ```{r}
 processed_combined_31701_Gender_black = processed_combined_31701 %>% select(matches("^total_(mblack|fblack)_vax"))
@@ -41,20 +41,20 @@ processed_combined_31701_Gender_black = processed_combined_31701 %>% select(matc
 ### Summing each Month variable by census tract
 ```{r}
 #Summing for black males by month 
-sum(processed_combined_31701_total_black$total_mblack_vax_Sept_17) 
-sum(processed_combined_31701_total_black$total_mblack_vax_Oct_28) 
-sum(processed_combined_31701_total_black$total_mblack_vax_Nov_24) 
-sum(processed_combined_31701_total_black$total_mblack_vax_Dec_29) 
-sum(processed_combined_31701_total_black$total_mblack_vax_Jan_26) 
-sum(processed_combined_31701_total_black$total_mblack_vax_Feb_26)
+sum(processed_combined_31701_Gender_black$total_mblack_vax_Sept_17) 
+sum(processed_combined_31701_Gender_black$total_mblack_vax_Oct_28) 
+sum(processed_combined_31701_Gender_black$total_mblack_vax_Nov_24) 
+sum(processed_combined_31701_Gender_black$total_mblack_vax_Dec_29) 
+sum(processed_combined_31701_Gender_black$total_mblack_vax_Jan_26) 
+sum(processed_combined_31701_Gender_black$total_mblack_vax_Feb_26)
 
 #summing for black females by month 
-sum(processed_combined_31701_total_black$total_fblack_vax_Sept_17) 
-sum(processed_combined_31701_total_black$total_fblack_vax_Oct_28) 
-sum(processed_combined_31701_total_black$total_fblack_vax_Nov_24) 
-sum(processed_combined_31701_total_black$total_fblack_vax_Dec_29) 
-sum(processed_combined_31701_total_black$total_fblack_vax_Jan_26) 
-sum(processed_combined_31701_total_black$total_fblack_vax_Feb_26) 
+sum(processed_combined_31701_Gender_black$total_fblack_vax_Sept_17) 
+sum(processed_combined_31701_Gender_black$total_fblack_vax_Oct_28) 
+sum(processed_combined_31701_Gender_black$total_fblack_vax_Nov_24) 
+sum(processed_combined_31701_Gender_black$total_fblack_vax_Dec_29) 
+sum(processed_combined_31701_Gender_black$total_fblack_vax_Jan_26) 
+sum(processed_combined_31701_Gender_black$total_fblack_vax_Feb_26) 
 ```
 
 #Separating sums by month into a data fram consisting of two variables: Date and Total Date contains months September-February #Total contains the vaccination totals for each month
@@ -90,7 +90,7 @@ plot_Gender_black_vax = Gender_Sum_by_month_31701_long %>%
                      geom_point() + geom_line() + 
                      scale_x_discrete(limits = c("Sep","Oct","Nov","Dec","Jan","Feb"))
 #adding a title to the plot 
-plot_Total_black_vax = plot_Total_black_vax + 
+plot_Gender_black_vax = plot_Gender_black_vax + 
   ggtitle("Vaccination Totals for Black population by Gender in 31701") + 
   theme(plot.title = 
           element_text(color="red", size=10, face="bold.italic")) + 
@@ -120,29 +120,29 @@ processed_combined_31705 = readRDS(save_data_location)
 
 ### Dropping all variables except for black males and black females within 31705
 
-#### Using the select() function to subset the data frame by columns that start with "total_black_vax" which are variables with a total count of Black population with at least one dose of the COVID-19 vaccine by month
+#### Using the select() function to subset the data frame by columns that start with "Gender_black_vax" which are variables with a total count of Black population with at least one dose of the COVID-19 vaccine by month
 
 ```{r}
-processed_combined_31705_total_black = processed_combined_31705 %>% select(matches("^total_(mblack|fblack)_vax"))
+processed_combined_31705_Gender_black = processed_combined_31705 %>% select(matches("^total_(mblack|fblack)_vax"))
 ```
 
 ### Summing each Month variable by census tract
 ```{r}
 #Summing for black males by month 
-sum(processed_combined_31705_total_black$total_mblack_vax_Sept_17) 
-sum(processed_combined_31705_total_black$total_mblack_vax_Oct_28) 
-sum(processed_combined_31705_total_black$total_mblack_vax_Nov_24) 
-sum(processed_combined_31705_total_black$total_mblack_vax_Dec_29) 
-sum(processed_combined_31705_total_black$total_mblack_vax_Jan_26) 
-sum(processed_combined_31705_total_black$total_mblack_vax_Feb_26)
+sum(processed_combined_31705_Gender_black$total_mblack_vax_Sept_17) 
+sum(processed_combined_31705_Gender_black$total_mblack_vax_Oct_28) 
+sum(processed_combined_31705_Gender_black$total_mblack_vax_Nov_24) 
+sum(processed_combined_31705_Gender_black$total_mblack_vax_Dec_29) 
+sum(processed_combined_31705_Gender_black$total_mblack_vax_Jan_26) 
+sum(processed_combined_31705_Gender_black$total_mblack_vax_Feb_26)
 
 #summing for black females by month 
-sum(processed_combined_31705_total_black$total_fblack_vax_Sept_17) 
-sum(processed_combined_31705_total_black$total_fblack_vax_Oct_28) 
-sum(processed_combined_31705_total_black$total_fblack_vax_Nov_24) 
-sum(processed_combined_31705_total_black$total_fblack_vax_Dec_29) 
-sum(processed_combined_31705_total_black$total_fblack_vax_Jan_26) 
-sum(processed_combined_31705_total_black$total_fblack_vax_Feb_26) 
+sum(processed_combined_31705_Gender_black$total_fblack_vax_Sept_17) 
+sum(processed_combined_31705_Gender_black$total_fblack_vax_Oct_28) 
+sum(processed_combined_31705_Gender_black$total_fblack_vax_Nov_24) 
+sum(processed_combined_31705_Gender_black$total_fblack_vax_Dec_29) 
+sum(processed_combined_31705_Gender_black$total_fblack_vax_Jan_26) 
+sum(processed_combined_31705_Gender_black$total_fblack_vax_Feb_26) 
 ```
 
 #Separating sums by month into a data fram consisting of two variables: Date and Total Date contains months September-February #Total contains the vaccination totals for each month
@@ -178,7 +178,7 @@ plot_Gender_black_vax_31705 = Gender_Sum_by_month_31705_long %>%
                      geom_point() + geom_line() + 
                      scale_x_discrete(limits = c("Sep","Oct","Nov","Dec","Jan","Feb"))
 #adding a title to the plot 
-plot_Total_black_vax = plot_Total_black_vax + 
+plot_Gender_black_vax = plot_Gender_black_vax + 
   ggtitle("Vaccination Totals for Black population by Gender in 31705") + 
   theme(plot.title = 
           element_text(color="red", size=10, face="bold.italic")) + 
@@ -207,29 +207,29 @@ processed_combined_31707 = readRDS(save_data_location)
 
 ### Dropping all variables except for black males and black females within 31707
 
-#### Using the select() function to subset the data frame by columns that start with "total_black_vax" which are variables with a total count of Black population with at least one dose of the COVID-19 vaccine by month
+#### Using the select() function to subset the data frame by columns that start with "Gender_black_vax" which are variables with a total count of Black population with at least one dose of the COVID-19 vaccine by month
 
 ```{r}
-processed_combined_31707_total_black = processed_combined_31707 %>% select(matches("^total_(mblack|fblack)_vax"))
+processed_combined_31707_Gender_black = processed_combined_31707 %>% select(matches("^total_(mblack|fblack)_vax"))
 ```
 
 ### Summing each Month variable by census tract
 ```{r}
 #Summing for black males by month 
-sum(processed_combined_31707_total_black$total_mblack_vax_Sept_17) 
-sum(processed_combined_31707_total_black$total_mblack_vax_Oct_28) 
-sum(processed_combined_31707_total_black$total_mblack_vax_Nov_24) 
-sum(processed_combined_31707_total_black$total_mblack_vax_Dec_29) 
-sum(processed_combined_31707_total_black$total_mblack_vax_Jan_26) 
-sum(processed_combined_31707_total_black$total_mblack_vax_Feb_26)
+sum(processed_combined_31707_Gender_black$total_mblack_vax_Sept_17) 
+sum(processed_combined_31707_Gender_black$total_mblack_vax_Oct_28) 
+sum(processed_combined_31707_Gender_black$total_mblack_vax_Nov_24) 
+sum(processed_combined_31707_Gender_black$total_mblack_vax_Dec_29) 
+sum(processed_combined_31707_Gender_black$total_mblack_vax_Jan_26) 
+sum(processed_combined_31707_Gender_black$total_mblack_vax_Feb_26)
 
 #summing for black females by month 
-sum(processed_combined_31707_total_black$total_fblack_vax_Sept_17) 
-sum(processed_combined_31707_total_black$total_fblack_vax_Oct_28) 
-sum(processed_combined_31707_total_black$total_fblack_vax_Nov_24) 
-sum(processed_combined_31707_total_black$total_fblack_vax_Dec_29) 
-sum(processed_combined_31707_total_black$total_fblack_vax_Jan_26) 
-sum(processed_combined_31707_total_black$total_fblack_vax_Feb_26) 
+sum(processed_combined_31707_Gender_black$total_fblack_vax_Sept_17) 
+sum(processed_combined_31707_Gender_black$total_fblack_vax_Oct_28) 
+sum(processed_combined_31707_Gender_black$total_fblack_vax_Nov_24) 
+sum(processed_combined_31707_Gender_black$total_fblack_vax_Dec_29) 
+sum(processed_combined_31707_Gender_black$total_fblack_vax_Jan_26) 
+sum(processed_combined_31707_Gender_black$total_fblack_vax_Feb_26) 
 ```
 
 #Separating sums by month into a data fram consisting of two variables: Date and Total Date contains months September-February #Total contains the vaccination totals for each month
@@ -265,7 +265,7 @@ plot_Gender_black_vax_31707 = Gender_Sum_by_month_31707_long %>%
                      geom_point() + geom_line() + 
                      scale_x_discrete(limits = c("Sep","Oct","Nov","Dec","Jan","Feb"))
 #adding a title to the plot 
-plot_Total_black_vax = plot_Total_black_vax + 
+plot_Gender_black_vax = plot_Gender_black_vax + 
   ggtitle("Vaccination Totals for Black population by Gender in 31707") + 
   theme(plot.title = 
           element_text(color="red", size=10, face="bold.italic")) + 
