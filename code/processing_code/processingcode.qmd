@@ -1,10 +1,12 @@
 ---
-title: "Processing Code for September Data"
+title: "Processing Code"
 output: 
   html_document
 ---
 
-# Processing 1
+# Processing Section for Vaccination Data in Albany, GA 
+
+## Processing 1: Getting Vaccination Totals by Target Zips 31701, 31705 & 31707 for the Month of September 
 
 Load needed packages. make sure they are installed.
 
@@ -34,7 +36,7 @@ codebook = read_excel(codebook_location)
 glimpse(Sept_17)
 ```
 
-## Cleaning
+
 
 ### Separating the data by zip code and removing negative values
 
@@ -151,7 +153,7 @@ Dougherty_Vax_Sept <- Dougherty_Vax_Sept %>% rowwise() %>% mutate(total_65Plus_v
 Dougherty_Vax_Sept_sums <- Dougherty_Vax_Sept[,c(1:4,185:204)]  
 ```
 
-### Filtering the data by zip code and creating a
+### Filtering the data by zip code 
 
 ```{r}
 #filtering data by zip: 31701  
@@ -204,16 +206,7 @@ saveRDS(Zip_31707_Sept, file = save_data_location3)
 ```
 
 
-# Processing 2
-
-Load needed packages. make sure they are installed.
-
-```{r}
-library(here)
-library(readxl) #for loading Excel files
-library(dplyr) #for data processing/cleaning
-library(tidyr) #for data processing/cleaning
-```
+## Processing 2: Getting Vaccination Totals by Target Zips 31701, 31705 & 31707 for the Month of October 
 
 ## Raw Data & Codebook loading
 
@@ -234,7 +227,7 @@ codebook = read_excel(codebook_location)
 glimpse(Oct_28)
 ```
 
-## Cleaning
+
 
 ### Separating the data by zip code and removing negative values
 
@@ -381,7 +374,7 @@ colnames(Zip_31707_Oct) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "tot
 
 ```
 
-# Cleaning is done, now lets save the processed data
+ is done, now lets save the processed data
 
 ### Deleting excess environment objects and saving data as processed_data_Oct
 
@@ -406,16 +399,7 @@ saveRDS(Zip_31707_Oct, file = save_data_location3)
 
 ```
 
-# Processing 3
-
-Load needed packages. make sure they are installed.
-
-```{r}
-library(here)
-library(readxl) #for loading Excel files
-library(dplyr) #for data processing/cleaning
-library(tidyr) #for data processing/cleaning
-```
+## Processing 3: : Getting Vaccination Totals by Target Zips 31701, 31705 & 31707 for the Month of November 
 
 ## Raw Data & Codebook loading
 
@@ -436,7 +420,7 @@ codebook = read_excel(codebook_location)
 glimpse(Nov_24)
 ```
 
-## Cleaning
+
 
 ### Separating the data by zip code and removing negative values
 
@@ -583,7 +567,7 @@ colnames(Zip_31707_Nov) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "tot
 
 ```
 
-# Cleaning is done, now lets save the processed data
+ is done, now lets save the processed data
 
 ### Deleting excess environment objects and saving data as processed_data_Nov
 
@@ -609,16 +593,7 @@ saveRDS(Zip_31707_Nov, file = save_data_location3)
 ```
 
 
-# Processing 4
-
-Load needed packages. make sure they are installed.
-
-```{r}
-library(here)
-library(readxl) #for loading Excel files
-library(dplyr) #for data processing/cleaning
-library(tidyr) #for data processing/cleaning
-```
+## Processing 4: Getting Vaccination Totals by Target Zips 31701, 31705 & 31707 for the Month of December 
 
 ## Raw Data & Codebook loading
 
@@ -639,7 +614,7 @@ codebook = read_excel(codebook_location)
 glimpse(Dec_29)
 ```
 
-## Cleaning
+
 
 ### Separating the data by zip code and removing negative values
 
@@ -786,7 +761,7 @@ colnames(Zip_31707_Dec) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "tot
 
 ```
 
-# Cleaning is done, now lets save the processed data
+ is done, now lets save the processed data
 
 ### Deleting excess environment objects and saving data as processed_data_Dec
 
@@ -811,16 +786,7 @@ saveRDS(Zip_31707_Dec, file = save_data_location3)
 
 ```
 
-# Processing script 5
-
-Load needed packages. make sure they are installed.
-
-```{r}
-library(here)
-library(readxl) #for loading Excel files
-library(dplyr) #for data processing/cleaning
-library(tidyr) #for data processing/cleaning
-```
+## Processing 5: Getting Vaccination Totals by Target Zips 31701, 31705 & 31707 for the Month of January 
 
 ## Raw Data & Codebook loading
 
@@ -841,7 +807,7 @@ codebook = read_excel(codebook_location)
 glimpse(Jan_26)
 ```
 
-## Cleaning
+
 
 ### Separating the data by zip code and removing negative values
 
@@ -988,7 +954,7 @@ colnames(Zip_31707_Jan) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "tot
 
 ```
 
-# Cleaning is done, now lets save the processed data
+ is done, now lets save the processed data
 
 ### Deleting excess environment objects and saving data as processed_data_Jan
 
@@ -1013,16 +979,7 @@ saveRDS(Zip_31707_Jan, file = save_data_location3)
 
 ```
 
-# Processing 6
-
-Load needed packages. make sure they are installed.
-
-```{r}
-library(here)
-library(readxl) #for loading Excel files
-library(dplyr) #for data processing/cleaning
-library(tidyr) #for data processing/cleaning
-```
+## Processing 6: : Getting Vaccination Totals by Target Zips 31701, 31705 & 31707 for the Month of February 
 
 ## Raw Data & Codebook loading
 
@@ -1043,7 +1000,7 @@ codebook = read_excel(codebook_location)
 glimpse(Feb_26)
 ```
 
-## Cleaning
+
 
 ### Separating the data by zip code and removing negative values
 
@@ -1190,7 +1147,7 @@ colnames(Zip_31707_Feb) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "tot
 
 ```
 
-# Cleaning is done, now lets save the processed data
+ is done, now lets save the processed data
 
 ### Deleting excess environment objects and saving data as processed_data_Feb
 
@@ -1214,3 +1171,9 @@ save_data_location3 = here("data", "processed_data", "Zip_31707", "processed_dat
 saveRDS(Zip_31707_Feb, file = save_data_location3)
 
 ```
+
+# Processing for Vaccination Data for Our Control Richmond County 
+
+## Processing 1: Getting Vaccination Totals by Control Zip 31701
+
+
