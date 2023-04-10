@@ -8,8 +8,7 @@ output:
 
 ## Processing 1: Getting Vaccination Totals by Target Zips 31701, 31705 & 31707 for the Month of September 
 
-Load needed packages. make sure they are installed.
-
+### Load needed packages. make sure they are installed.
 ```{r}
 library(here)
 library(readxl) #for loading Excel files
@@ -2156,5 +2155,905 @@ save_data_location4 = here("data", "processed_data","Zip_30815", "processed_data
 saveRDS(Zip_30815_Feb, file = save_data_location4)
 ```
 
+
+# Processing Section for Control Zip Code: 30907
+
+## Processing 1: Getting Vaccination Totals by Control Zip Code 30907 in the Month of September
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Sept_17.xlsx")
+Sept_17 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Vaccination from the 30907 zip code within which contains the following cenus tracts below 
+#by using filter() I am able to create a new dataset with vaccinations from Richmond County 
+Zip_30907_vax_Sept <-filter(Sept_17, FIPS=="13073030107" | FIPS=="13073030108" | FIPS=="13245010104" | FIPS=="13245010105" | FIPS=="13245010205" | FIPS=="13073030202" | FIPS=="13073030313" | FIPS=="13073030312" | FIPS=="13073030306" | FIPS=="13073030201" | FIPS=="13073030603" | FIPS=="13073030106" | FIPS=="13245010203"| FIPS=="13245010201")
+
+#taking a look at the data
+head(Zip_30907_vax_Sept)
+
+#notice that although the control zip 30907 is in Richmond county, there are some observartions from Columbia county. This is okay because census tracts are not completely contained by one county or zip code.
+
+#replacing negative values with 0
+Zip_30907_vax_Sept [Zip_30907_vax_Sept < 0] <- 0  
+```
+
+### Adding new columns: total vax sum, total vax of all males, total vax of all females
+
+```{r}
+#Adding a column of the total vax for each census tract (for each observation)  
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>% mutate(total_vax_Sept = sum(across(ends_with("VAX")), na.rm = T))  
+
+#total vax column for all males
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept  %>% rowwise() %>%   
+  mutate(total_male_vax = sum(across(starts_with("M") & ends_with("VAX")), na.rm = T)) 
+
+#total vax column for all females
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>%   
+  mutate(total_female_vax = sum(across(starts_with("F") & ends_with("VAX")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total vax column for Asian male residents 
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>%   
+  mutate(total_masian_vax = sum(across(starts_with("MAsianNHPI") & ends_with("VAX")), na.rm = T))
+
+#total vax column for African American male residents
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>%   
+  mutate(total_mblack_vax = sum(across(starts_with("MBlack") & ends_with("VAX")), na.rm = T))
+
+#total vax column for other race male residents
+Zip_30907_vax_Sept<- Zip_30907_vax_Sept %>% rowwise() %>%   
+  mutate(total_morace_vax = sum(across(starts_with("MOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White male residents 
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>%   
+  mutate(total_mwhite_vax = sum(across(starts_with("MWhite") & ends_with("VAX")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total vax column for Asian female residents    
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>%   
+  mutate(total_fasian_vax = sum(across(starts_with("FAsianNHPI") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for African American female residents
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>%   
+  mutate(total_fblack_vax = sum(across(starts_with("FBlack") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for other race female residents
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>%   
+  mutate(total_forace_vax = sum(across(starts_with("FOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White female residents 
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>%   
+  mutate(total_fwhite_vax = sum(across(starts_with("FWhite") & ends_with("VAX")), na.rm = T))  
+```
+
+### Adding new columns for Vax totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident vaccinations by adding all males and females of a specific race to get the the overall amount of resident vaccinations by race.
+
+For example(see below): I get the total Asian resident vaccinations by summing male Asian residents + female Asian residents.
+
+```{r}
+#Vax total Asian Residents
+Zip_30907_vax_Sept$total_asian_vax <- Zip_30907_vax_Sept$total_masian_vax + Zip_30907_vax_Sept$total_fasian_vax
+
+#Vax total for African American Residents 
+Zip_30907_vax_Sept$total_black_vax <- Zip_30907_vax_Sept$total_mblack_vax + Zip_30907_vax_Sept$total_fblack_vax  
+
+#Vax total for Other Race Residents
+Zip_30907_vax_Sept$total_orace_vax <- Zip_30907_vax_Sept$total_morace_vax + Zip_30907_vax_Sept$total_forace_vax  
+
+#Vax total for White Residents
+Zip_30907_vax_Sept$total_white_vax <- Zip_30907_vax_Sept$total_mwhite_vax + Zip_30907_vax_Sept$total_fwhite_vax  
+```
+
+### Adding new columns for Vax totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>% mutate(total_05_09_vax = sum(FAsianNHPI_05_09_VAX, MAsianNHPI_05_09_VAX, UAsianNHPI_05_09_VAX,FBlack_05_09_VAX, MBlack_05_09_VAX, UBlack_05_09_VAX,FNone_05_09_VAX, MNone_05_09_VAX, UNone_05_09_VAX,FOtherRace_05_09_VAX, MOtherRace_05_09_VAX, UOtherRace_05_09_VAX,FWhite_05_09_VAX, MWhite_05_09_VAX, UWhite_05_09_VAX, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>% mutate(total_10_17_vax = sum(FAsianNHPI_10_17_VAX, MAsianNHPI_10_17_VAX, UAsianNHPI_10_17_VAX,FBlack_10_17_VAX, MBlack_10_17_VAX, UBlack_10_17_VAX,FNone_10_17_VAX, MNone_10_17_VAX, UNone_10_17_VAX,FOtherRace_10_17_VAX, MOtherRace_10_17_VAX, UOtherRace_10_17_VAX,FWhite_10_17_VAX, MWhite_10_17_VAX, UWhite_10_17_VAX, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>% mutate(total_18_44_vax = sum(FAsianNHPI_18_44_VAX, MAsianNHPI_18_44_VAX, UAsianNHPI_18_44_VAX,FBlack_18_44_VAX, MBlack_18_44_VAX, UBlack_18_44_VAX,FNone_18_44_VAX, MNone_18_44_VAX, UNone_18_44_VAX,FOtherRace_18_44_VAX, MOtherRace_18_44_VAX, UOtherRace_18_44_VAX,FWhite_18_44_VAX, MWhite_18_44_VAX, UWhite_18_44_VAX, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>% mutate(total_45_64_vax = sum(FAsianNHPI_45_64_VAX, MAsianNHPI_45_64_VAX, UAsianNHPI_45_64_VAX,FBlack_45_64_VAX, MBlack_45_64_VAX, UBlack_45_64_VAX,FNone_45_64_VAX, MNone_45_64_VAX, UNone_45_64_VAX,FOtherRace_45_64_VAX, MOtherRace_45_64_VAX, UOtherRace_45_64_VAX,FWhite_45_64_VAX, MWhite_45_64_VAX, UWhite_45_64_VAX, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Zip_30907_vax_Sept <- Zip_30907_vax_Sept %>% rowwise() %>% mutate(total_65Plus_vax = sum(FAsianNHPI_65Plus_VAX, MAsianNHPI_65Plus_VAX, UAsianNHPI_65Plus_VAX,FBlack_65Plus_VAX, MBlack_65Plus_VAX, UBlack_65Plus_VAX,FNone_65Plus_VAX, MNone_65Plus_VAX, UNone_65Plus_VAX,FOtherRace_65Plus_VAX, MOtherRace_65Plus_VAX, UOtherRace_65Plus_VAX,FWhite_65Plus_VAX, MWhite_65Plus_VAX, UWhite_65Plus_VAX, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Zip_30907_vax_Sept_sums <- Zip_30907_vax_Sept[,c(1:4,185:204)]  
+```
+
+### Change the column names for 30907 Sept
+```{r}
+colnames(Zip_30907_vax_Sept_sums) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_vax_Sept_17", "total_male_vax_Sept_17", "total_female_vax_Sept_17", "total_masian_vax_Sept_17", "total_mblack_vax_Sept_17", "total_morace_vax_Sept_17", "total_mwhite_vax_Sept_17", "total_fasian_vax_Sept_17", "total_fblack_vax_Sept_17", "total_forace_vax_Sept_17", "total_fwhite_vax_Sept_17", "total_asian_vax_Sept_17","total_black_vax_Sept_17", "total_orace_vax_Sept_17", "total_white_vax_Sept_17", "total_05_09_vax_Sept_17", "total_10_17_vax_Sept_17", "total_18_44_vax_Sept_17", "total_45_64_vax_Sept_17", "total_65Plus_vax_Sept_17") 
+```
+
+### Saving data
+```{r}
+#saving clean data for 30907 to processed_data folder
+save_data_location4 = here("data", "processed_data", "Zip_30907", "processed_data_30907_Sept.rds")
+
+
+saveRDS(Zip_30907_vax_Sept_sums, save_data_location4)
+```
+
+
+## Processing 2: Getting Vaccination Totals by Control Zip Code 30907 in the Month of October
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Oct_28.xlsx")
+Oct_28 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Vaccination from the 30907 zip code within which contains the following cenus tracts below 
+#by using filter() I am able to create a new dataset with vaccinations from Richmond County 
+Zip_30907_vax_Oct <-filter(Oct_28, FIPS=="13073030107" | FIPS=="13073030108" | FIPS=="13245010104" | FIPS=="13245010105" | FIPS=="13245010205" | FIPS=="13073030202" | FIPS=="13073030313" | FIPS=="13073030312" | FIPS=="13073030306" | FIPS=="13073030201" | FIPS=="13073030603" | FIPS=="13073030106" | FIPS=="13245010203"| FIPS=="13245010201")
+
+#taking a look at the data
+head(Zip_30907_vax_Oct)
+
+#notice that although the control zip 30907 is in Richmond county, there are some observartions from Columbia county. This is okay because census tracts are not completely contained by one county or zip code.
+
+#replacing negative values with 0
+Zip_30907_vax_Oct [Zip_30907_vax_Oct < 0] <- 0  
+```
+
+### Adding new columns: total vax sum, total vax of all males, total vax of all females
+
+```{r}
+#Adding a column of the total vax for each census tract (for each observation)  
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>% mutate(total_vax_Oct = sum(across(ends_with("VAX")), na.rm = T))  
+
+#total vax column for all males
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct  %>% rowwise() %>%   
+  mutate(total_male_vax = sum(across(starts_with("M") & ends_with("VAX")), na.rm = T)) 
+
+#total vax column for all females
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>%   
+  mutate(total_female_vax = sum(across(starts_with("F") & ends_with("VAX")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total vax column for Asian male residents 
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>%   
+  mutate(total_masian_vax = sum(across(starts_with("MAsianNHPI") & ends_with("VAX")), na.rm = T))
+
+#total vax column for African American male residents
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>%   
+  mutate(total_mblack_vax = sum(across(starts_with("MBlack") & ends_with("VAX")), na.rm = T))
+
+#total vax column for other race male residents
+Zip_30907_vax_Oct<- Zip_30907_vax_Oct %>% rowwise() %>%   
+  mutate(total_morace_vax = sum(across(starts_with("MOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White male residents 
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>%   
+  mutate(total_mwhite_vax = sum(across(starts_with("MWhite") & ends_with("VAX")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total vax column for Asian female residents    
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>%   
+  mutate(total_fasian_vax = sum(across(starts_with("FAsianNHPI") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for African American female residents
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>%   
+  mutate(total_fblack_vax = sum(across(starts_with("FBlack") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for other race female residents
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>%   
+  mutate(total_forace_vax = sum(across(starts_with("FOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White female residents 
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>%   
+  mutate(total_fwhite_vax = sum(across(starts_with("FWhite") & ends_with("VAX")), na.rm = T))  
+```
+
+### Adding new columns for Vax totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident vaccinations by adding all males and females of a specific race to get the the overall amount of resident vaccinations by race.
+
+For example(see below): I get the total Asian resident vaccinations by summing male Asian residents + female Asian residents.
+
+```{r}
+#Vax total Asian Residents
+Zip_30907_vax_Oct$total_asian_vax <- Zip_30907_vax_Oct$total_masian_vax + Zip_30907_vax_Oct$total_fasian_vax
+
+#Vax total for African American Residents 
+Zip_30907_vax_Oct$total_black_vax <- Zip_30907_vax_Oct$total_mblack_vax + Zip_30907_vax_Oct$total_fblack_vax  
+
+#Vax total for Other Race Residents
+Zip_30907_vax_Oct$total_orace_vax <- Zip_30907_vax_Oct$total_morace_vax + Zip_30907_vax_Oct$total_forace_vax  
+
+#Vax total for White Residents
+Zip_30907_vax_Oct$total_white_vax <- Zip_30907_vax_Oct$total_mwhite_vax + Zip_30907_vax_Oct$total_fwhite_vax  
+```
+
+### Adding new columns for Vax totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>% mutate(total_05_09_vax = sum(FAsianNHPI_05_09_VAX, MAsianNHPI_05_09_VAX, UAsianNHPI_05_09_VAX,FBlack_05_09_VAX, MBlack_05_09_VAX, UBlack_05_09_VAX,FNone_05_09_VAX, MNone_05_09_VAX, UNone_05_09_VAX,FOtherRace_05_09_VAX, MOtherRace_05_09_VAX, UOtherRace_05_09_VAX,FWhite_05_09_VAX, MWhite_05_09_VAX, UWhite_05_09_VAX, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>% mutate(total_10_17_vax = sum(FAsianNHPI_10_17_VAX, MAsianNHPI_10_17_VAX, UAsianNHPI_10_17_VAX,FBlack_10_17_VAX, MBlack_10_17_VAX, UBlack_10_17_VAX,FNone_10_17_VAX, MNone_10_17_VAX, UNone_10_17_VAX,FOtherRace_10_17_VAX, MOtherRace_10_17_VAX, UOtherRace_10_17_VAX,FWhite_10_17_VAX, MWhite_10_17_VAX, UWhite_10_17_VAX, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>% mutate(total_18_44_vax = sum(FAsianNHPI_18_44_VAX, MAsianNHPI_18_44_VAX, UAsianNHPI_18_44_VAX,FBlack_18_44_VAX, MBlack_18_44_VAX, UBlack_18_44_VAX,FNone_18_44_VAX, MNone_18_44_VAX, UNone_18_44_VAX,FOtherRace_18_44_VAX, MOtherRace_18_44_VAX, UOtherRace_18_44_VAX,FWhite_18_44_VAX, MWhite_18_44_VAX, UWhite_18_44_VAX, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>% mutate(total_45_64_vax = sum(FAsianNHPI_45_64_VAX, MAsianNHPI_45_64_VAX, UAsianNHPI_45_64_VAX,FBlack_45_64_VAX, MBlack_45_64_VAX, UBlack_45_64_VAX,FNone_45_64_VAX, MNone_45_64_VAX, UNone_45_64_VAX,FOtherRace_45_64_VAX, MOtherRace_45_64_VAX, UOtherRace_45_64_VAX,FWhite_45_64_VAX, MWhite_45_64_VAX, UWhite_45_64_VAX, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Zip_30907_vax_Oct <- Zip_30907_vax_Oct %>% rowwise() %>% mutate(total_65Plus_vax = sum(FAsianNHPI_65Plus_VAX, MAsianNHPI_65Plus_VAX, UAsianNHPI_65Plus_VAX,FBlack_65Plus_VAX, MBlack_65Plus_VAX, UBlack_65Plus_VAX,FNone_65Plus_VAX, MNone_65Plus_VAX, UNone_65Plus_VAX,FOtherRace_65Plus_VAX, MOtherRace_65Plus_VAX, UOtherRace_65Plus_VAX,FWhite_65Plus_VAX, MWhite_65Plus_VAX, UWhite_65Plus_VAX, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Zip_30907_vax_Oct_sums <- Zip_30907_vax_Oct[,c(1:4,185:204)]  
+```
+
+### Change the column names for 30907 Oct
+```{r}
+colnames(Zip_30907_vax_Oct_sums) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_vax_Oct_28", "total_male_vax_Oct_28", "total_female_vax_Oct_28", "total_masian_vax_Oct_28", "total_mblack_vax_Oct_28", "total_morace_vax_Oct_28", "total_mwhite_vax_Oct_28", "total_fasian_vax_Oct_28", "total_fblack_vax_Oct_28", "total_forace_vax_Oct_28", "total_fwhite_vax_Oct_28", "total_asian_vax_Oct_28","total_black_vax_Oct_28", "total_orace_vax_Oct_28", "total_white_vax_Oct_28", "total_05_09_vax_Oct_28", "total_10_17_vax_Oct_28", "total_18_44_vax_Oct_28", "total_45_64_vax_Oct_28", "total_65Plus_vax_Oct_28") 
+```
+
+### Saving data
+```{r}
+#saving clean data for 30907 to processed_data folder
+save_data_location4 = here("data", "processed_data", "Zip_30907", "processed_data_30907_Oct.rds")
+
+
+saveRDS(Zip_30907_vax_Oct_sums, save_data_location4)
+```
+
+## Processing 3: : Getting Vaccination Totals by Control Zip Code 30907 in the Month of November
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Nov_24.xlsx")
+Nov_24 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Vaccination from the 30907 zip code within which contains the following cenus tracts below 
+#by using filter() I am able to create a new dataset with vaccinations from Richmond County 
+Zip_30907_vax_Nov <-filter(Nov_24, FIPS=="13073030107" | FIPS=="13073030108" | FIPS=="13245010104" | FIPS=="13245010105" | FIPS=="13245010205" | FIPS=="13073030202" | FIPS=="13073030313" | FIPS=="13073030312" | FIPS=="13073030306" | FIPS=="13073030201" | FIPS=="13073030603" | FIPS=="13073030106" | FIPS=="13245010203"| FIPS=="13245010201")
+
+#taking a look at the data
+head(Zip_30907_vax_Nov)
+
+#notice that although the control zip 30907 is in Richmond county, there are some observartions from Columbia county. This is okay because census tracts are not completely contained by one county or zip code.
+
+#replacing negative values with 0
+Zip_30907_vax_Nov [Zip_30907_vax_Nov < 0] <- 0  
+```
+
+### Adding new columns: total vax sum, total vax of all males, total vax of all females
+
+```{r}
+#Adding a column of the total vax for each census tract (for each observation)  
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>% mutate(total_vax_Nov = sum(across(ends_with("VAX")), na.rm = T))  
+
+#total vax column for all males
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov  %>% rowwise() %>%   
+  mutate(total_male_vax = sum(across(starts_with("M") & ends_with("VAX")), na.rm = T)) 
+
+#total vax column for all females
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>%   
+  mutate(total_female_vax = sum(across(starts_with("F") & ends_with("VAX")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total vax column for Asian male residents 
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>%   
+  mutate(total_masian_vax = sum(across(starts_with("MAsianNHPI") & ends_with("VAX")), na.rm = T))
+
+#total vax column for African American male residents
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>%   
+  mutate(total_mblack_vax = sum(across(starts_with("MBlack") & ends_with("VAX")), na.rm = T))
+
+#total vax column for other race male residents
+Zip_30907_vax_Nov<- Zip_30907_vax_Nov %>% rowwise() %>%   
+  mutate(total_morace_vax = sum(across(starts_with("MOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White male residents 
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>%   
+  mutate(total_mwhite_vax = sum(across(starts_with("MWhite") & ends_with("VAX")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total vax column for Asian female residents    
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>%   
+  mutate(total_fasian_vax = sum(across(starts_with("FAsianNHPI") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for African American female residents
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>%   
+  mutate(total_fblack_vax = sum(across(starts_with("FBlack") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for other race female residents
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>%   
+  mutate(total_forace_vax = sum(across(starts_with("FOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White female residents 
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>%   
+  mutate(total_fwhite_vax = sum(across(starts_with("FWhite") & ends_with("VAX")), na.rm = T))  
+```
+
+### Adding new columns for Vax totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident vaccinations by adding all males and females of a specific race to get the the overall amount of resident vaccinations by race.
+
+For example(see below): I get the total Asian resident vaccinations by summing male Asian residents + female Asian residents.
+
+```{r}
+#Vax total Asian Residents
+Zip_30907_vax_Nov$total_asian_vax <- Zip_30907_vax_Nov$total_masian_vax + Zip_30907_vax_Nov$total_fasian_vax
+
+#Vax total for African American Residents 
+Zip_30907_vax_Nov$total_black_vax <- Zip_30907_vax_Nov$total_mblack_vax + Zip_30907_vax_Nov$total_fblack_vax  
+
+#Vax total for Other Race Residents
+Zip_30907_vax_Nov$total_orace_vax <- Zip_30907_vax_Nov$total_morace_vax + Zip_30907_vax_Nov$total_forace_vax  
+
+#Vax total for White Residents
+Zip_30907_vax_Nov$total_white_vax <- Zip_30907_vax_Nov$total_mwhite_vax + Zip_30907_vax_Nov$total_fwhite_vax  
+```
+
+### Adding new columns for Vax totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>% mutate(total_05_09_vax = sum(FAsianNHPI_05_09_VAX, MAsianNHPI_05_09_VAX, UAsianNHPI_05_09_VAX,FBlack_05_09_VAX, MBlack_05_09_VAX, UBlack_05_09_VAX,FNone_05_09_VAX, MNone_05_09_VAX, UNone_05_09_VAX,FOtherRace_05_09_VAX, MOtherRace_05_09_VAX, UOtherRace_05_09_VAX,FWhite_05_09_VAX, MWhite_05_09_VAX, UWhite_05_09_VAX, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>% mutate(total_10_17_vax = sum(FAsianNHPI_10_17_VAX, MAsianNHPI_10_17_VAX, UAsianNHPI_10_17_VAX,FBlack_10_17_VAX, MBlack_10_17_VAX, UBlack_10_17_VAX,FNone_10_17_VAX, MNone_10_17_VAX, UNone_10_17_VAX,FOtherRace_10_17_VAX, MOtherRace_10_17_VAX, UOtherRace_10_17_VAX,FWhite_10_17_VAX, MWhite_10_17_VAX, UWhite_10_17_VAX, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>% mutate(total_18_44_vax = sum(FAsianNHPI_18_44_VAX, MAsianNHPI_18_44_VAX, UAsianNHPI_18_44_VAX,FBlack_18_44_VAX, MBlack_18_44_VAX, UBlack_18_44_VAX,FNone_18_44_VAX, MNone_18_44_VAX, UNone_18_44_VAX,FOtherRace_18_44_VAX, MOtherRace_18_44_VAX, UOtherRace_18_44_VAX,FWhite_18_44_VAX, MWhite_18_44_VAX, UWhite_18_44_VAX, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>% mutate(total_45_64_vax = sum(FAsianNHPI_45_64_VAX, MAsianNHPI_45_64_VAX, UAsianNHPI_45_64_VAX,FBlack_45_64_VAX, MBlack_45_64_VAX, UBlack_45_64_VAX,FNone_45_64_VAX, MNone_45_64_VAX, UNone_45_64_VAX,FOtherRace_45_64_VAX, MOtherRace_45_64_VAX, UOtherRace_45_64_VAX,FWhite_45_64_VAX, MWhite_45_64_VAX, UWhite_45_64_VAX, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Zip_30907_vax_Nov <- Zip_30907_vax_Nov %>% rowwise() %>% mutate(total_65Plus_vax = sum(FAsianNHPI_65Plus_VAX, MAsianNHPI_65Plus_VAX, UAsianNHPI_65Plus_VAX,FBlack_65Plus_VAX, MBlack_65Plus_VAX, UBlack_65Plus_VAX,FNone_65Plus_VAX, MNone_65Plus_VAX, UNone_65Plus_VAX,FOtherRace_65Plus_VAX, MOtherRace_65Plus_VAX, UOtherRace_65Plus_VAX,FWhite_65Plus_VAX, MWhite_65Plus_VAX, UWhite_65Plus_VAX, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Zip_30907_vax_Nov_sums <- Zip_30907_vax_Nov[,c(1:4,185:204)]  
+```
+
+### Change the column names for 30907 Nov
+```{r}
+colnames(Zip_30907_vax_Nov_sums) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_vax_Nov_24", "total_male_vax_Nov_24", "total_female_vax_Nov_24", "total_masian_vax_Nov_24", "total_mblack_vax_Nov_24", "total_morace_vax_Nov_24", "total_mwhite_vax_Nov_24", "total_fasian_vax_Nov_24", "total_fblack_vax_Nov_24", "total_forace_vax_Nov_24", "total_fwhite_vax_Nov_24", "total_asian_vax_Nov_24","total_black_vax_Nov_24", "total_orace_vax_Nov_24", "total_white_vax_Nov_24", "total_05_09_vax_Nov_24", "total_10_17_vax_Nov_24", "total_18_44_vax_Nov_24", "total_45_64_vax_Nov_24", "total_65Plus_vax_Nov_24") 
+```
+
+### Saving data
+```{r}
+#saving clean data for 30907 to processed_data folder
+save_data_location4 = here("data", "processed_data", "Zip_30907", "processed_data_30907_Nov.rds")
+
+
+saveRDS(Zip_30907_vax_Nov_sums, save_data_location4)
+```
+
+
+## Processing 4: : Getting Vaccination Totals by Control Zip Code 30907 in the Month of December
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Dec_29.xlsx")
+Dec_29 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Vaccination from the 30907 zip code within which contains the following cenus tracts below 
+#by using filter() I am able to create a new dataset with vaccinations from Richmond County 
+Zip_30907_vax_Dec <-filter(Dec_29, FIPS=="13073030107" | FIPS=="13073030108" | FIPS=="13245010104" | FIPS=="13245010105" | FIPS=="13245010205" | FIPS=="13073030202" | FIPS=="13073030313" | FIPS=="13073030312" | FIPS=="13073030306" | FIPS=="13073030201" | FIPS=="13073030603" | FIPS=="13073030106" | FIPS=="13245010203"| FIPS=="13245010201")
+
+#taking a look at the data
+head(Zip_30907_vax_Dec)
+
+#notice that although the control zip 30907 is in Richmond county, there are some observartions from Columbia county. This is okay because census tracts are not completely contained by one county or zip code.
+
+#replacing negative values with 0
+Zip_30907_vax_Dec [Zip_30907_vax_Dec < 0] <- 0  
+```
+
+### Adding new columns: total vax sum, total vax of all males, total vax of all females
+
+```{r}
+#Adding a column of the total vax for each census tract (for each observation)  
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>% mutate(total_vax_Dec = sum(across(ends_with("VAX")), na.rm = T))  
+
+#total vax column for all males
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec  %>% rowwise() %>%   
+  mutate(total_male_vax = sum(across(starts_with("M") & ends_with("VAX")), na.rm = T)) 
+
+#total vax column for all females
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>%   
+  mutate(total_female_vax = sum(across(starts_with("F") & ends_with("VAX")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total vax column for Asian male residents 
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>%   
+  mutate(total_masian_vax = sum(across(starts_with("MAsianNHPI") & ends_with("VAX")), na.rm = T))
+
+#total vax column for African American male residents
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>%   
+  mutate(total_mblack_vax = sum(across(starts_with("MBlack") & ends_with("VAX")), na.rm = T))
+
+#total vax column for other race male residents
+Zip_30907_vax_Dec<- Zip_30907_vax_Dec %>% rowwise() %>%   
+  mutate(total_morace_vax = sum(across(starts_with("MOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White male residents 
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>%   
+  mutate(total_mwhite_vax = sum(across(starts_with("MWhite") & ends_with("VAX")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total vax column for Asian female residents    
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>%   
+  mutate(total_fasian_vax = sum(across(starts_with("FAsianNHPI") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for African American female residents
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>%   
+  mutate(total_fblack_vax = sum(across(starts_with("FBlack") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for other race female residents
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>%   
+  mutate(total_forace_vax = sum(across(starts_with("FOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White female residents 
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>%   
+  mutate(total_fwhite_vax = sum(across(starts_with("FWhite") & ends_with("VAX")), na.rm = T))  
+```
+
+### Adding new columns for Vax totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident vaccinations by adding all males and females of a specific race to get the the overall amount of resident vaccinations by race.
+
+For example(see below): I get the total Asian resident vaccinations by summing male Asian residents + female Asian residents.
+
+```{r}
+#Vax total Asian Residents
+Zip_30907_vax_Dec$total_asian_vax <- Zip_30907_vax_Dec$total_masian_vax + Zip_30907_vax_Dec$total_fasian_vax
+
+#Vax total for African American Residents 
+Zip_30907_vax_Dec$total_black_vax <- Zip_30907_vax_Dec$total_mblack_vax + Zip_30907_vax_Dec$total_fblack_vax  
+
+#Vax total for Other Race Residents
+Zip_30907_vax_Dec$total_orace_vax <- Zip_30907_vax_Dec$total_morace_vax + Zip_30907_vax_Dec$total_forace_vax  
+
+#Vax total for White Residents
+Zip_30907_vax_Dec$total_white_vax <- Zip_30907_vax_Dec$total_mwhite_vax + Zip_30907_vax_Dec$total_fwhite_vax  
+```
+
+### Adding new columns for Vax totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>% mutate(total_05_09_vax = sum(FAsianNHPI_05_09_VAX, MAsianNHPI_05_09_VAX, UAsianNHPI_05_09_VAX,FBlack_05_09_VAX, MBlack_05_09_VAX, UBlack_05_09_VAX,FNone_05_09_VAX, MNone_05_09_VAX, UNone_05_09_VAX,FOtherRace_05_09_VAX, MOtherRace_05_09_VAX, UOtherRace_05_09_VAX,FWhite_05_09_VAX, MWhite_05_09_VAX, UWhite_05_09_VAX, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>% mutate(total_10_17_vax = sum(FAsianNHPI_10_17_VAX, MAsianNHPI_10_17_VAX, UAsianNHPI_10_17_VAX,FBlack_10_17_VAX, MBlack_10_17_VAX, UBlack_10_17_VAX,FNone_10_17_VAX, MNone_10_17_VAX, UNone_10_17_VAX,FOtherRace_10_17_VAX, MOtherRace_10_17_VAX, UOtherRace_10_17_VAX,FWhite_10_17_VAX, MWhite_10_17_VAX, UWhite_10_17_VAX, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>% mutate(total_18_44_vax = sum(FAsianNHPI_18_44_VAX, MAsianNHPI_18_44_VAX, UAsianNHPI_18_44_VAX,FBlack_18_44_VAX, MBlack_18_44_VAX, UBlack_18_44_VAX,FNone_18_44_VAX, MNone_18_44_VAX, UNone_18_44_VAX,FOtherRace_18_44_VAX, MOtherRace_18_44_VAX, UOtherRace_18_44_VAX,FWhite_18_44_VAX, MWhite_18_44_VAX, UWhite_18_44_VAX, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>% mutate(total_45_64_vax = sum(FAsianNHPI_45_64_VAX, MAsianNHPI_45_64_VAX, UAsianNHPI_45_64_VAX,FBlack_45_64_VAX, MBlack_45_64_VAX, UBlack_45_64_VAX,FNone_45_64_VAX, MNone_45_64_VAX, UNone_45_64_VAX,FOtherRace_45_64_VAX, MOtherRace_45_64_VAX, UOtherRace_45_64_VAX,FWhite_45_64_VAX, MWhite_45_64_VAX, UWhite_45_64_VAX, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Zip_30907_vax_Dec <- Zip_30907_vax_Dec %>% rowwise() %>% mutate(total_65Plus_vax = sum(FAsianNHPI_65Plus_VAX, MAsianNHPI_65Plus_VAX, UAsianNHPI_65Plus_VAX,FBlack_65Plus_VAX, MBlack_65Plus_VAX, UBlack_65Plus_VAX,FNone_65Plus_VAX, MNone_65Plus_VAX, UNone_65Plus_VAX,FOtherRace_65Plus_VAX, MOtherRace_65Plus_VAX, UOtherRace_65Plus_VAX,FWhite_65Plus_VAX, MWhite_65Plus_VAX, UWhite_65Plus_VAX, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Zip_30907_vax_Dec_sums <- Zip_30907_vax_Dec[,c(1:4,185:204)]  
+```
+
+### Change the column names for 30907 Dec
+```{r}
+colnames(Zip_30907_vax_Dec_sums) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_vax_Dec_29", "total_male_vax_Dec_29", "total_female_vax_Dec_29", "total_masian_vax_Dec_29", "total_mblack_vax_Dec_29", "total_morace_vax_Dec_29", "total_mwhite_vax_Dec_29", "total_fasian_vax_Dec_29", "total_fblack_vax_Dec_29", "total_forace_vax_Dec_29", "total_fwhite_vax_Dec_29", "total_asian_vax_Dec_29","total_black_vax_Dec_29", "total_orace_vax_Dec_29", "total_white_vax_Dec_29", "total_05_09_vax_Dec_29", "total_10_17_vax_Dec_29", "total_18_44_vax_Dec_29", "total_45_64_vax_Dec_29", "total_65Plus_vax_Dec_29") 
+```
+
+### Saving data
+```{r}
+#saving clean data for 30907 to processed_data folder
+save_data_location4 = here("data", "processed_data", "Zip_30907", "processed_data_30907_Dec.rds")
+
+
+saveRDS(Zip_30907_vax_Dec_sums, save_data_location4)
+```
+
+
+## Processing 5: : Getting Vaccination Totals by Control Zip Code 30907 in the Month of January
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Jan_26.xlsx")
+Jan_26 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Vaccination from the 30907 zip code within which contains the following cenus tracts below 
+#by using filter() I am able to create a new dataset with vaccinations from Richmond County 
+Zip_30907_vax_Jan <-filter(Jan_26, FIPS=="13073030107" | FIPS=="13073030108" | FIPS=="13245010104" | FIPS=="13245010105" | FIPS=="13245010205" | FIPS=="13073030202" | FIPS=="13073030313" | FIPS=="13073030312" | FIPS=="13073030306" | FIPS=="13073030201" | FIPS=="13073030603" | FIPS=="13073030106" | FIPS=="13245010203"| FIPS=="13245010201")
+
+#taking a look at the data
+head(Zip_30907_vax_Jan)
+
+#notice that although the control zip 30907 is in Richmond county, there are some observartions from Columbia county. This is okay because census tracts are not completely contained by one county or zip code.
+
+#replacing negative values with 0
+Zip_30907_vax_Jan [Zip_30907_vax_Jan < 0] <- 0  
+```
+
+### Adding new columns: total vax sum, total vax of all males, total vax of all females
+
+```{r}
+#Adding a column of the total vax for each census tract (for each observation)  
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>% mutate(total_vax_Jan = sum(across(ends_with("VAX")), na.rm = T))  
+
+#total vax column for all males
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan  %>% rowwise() %>%   
+  mutate(total_male_vax = sum(across(starts_with("M") & ends_with("VAX")), na.rm = T)) 
+
+#total vax column for all females
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>%   
+  mutate(total_female_vax = sum(across(starts_with("F") & ends_with("VAX")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total vax column for Asian male residents 
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>%   
+  mutate(total_masian_vax = sum(across(starts_with("MAsianNHPI") & ends_with("VAX")), na.rm = T))
+
+#total vax column for African American male residents
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>%   
+  mutate(total_mblack_vax = sum(across(starts_with("MBlack") & ends_with("VAX")), na.rm = T))
+
+#total vax column for other race male residents
+Zip_30907_vax_Jan<- Zip_30907_vax_Jan %>% rowwise() %>%   
+  mutate(total_morace_vax = sum(across(starts_with("MOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White male residents 
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>%   
+  mutate(total_mwhite_vax = sum(across(starts_with("MWhite") & ends_with("VAX")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total vax column for Asian female residents    
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>%   
+  mutate(total_fasian_vax = sum(across(starts_with("FAsianNHPI") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for African American female residents
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>%   
+  mutate(total_fblack_vax = sum(across(starts_with("FBlack") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for other race female residents
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>%   
+  mutate(total_forace_vax = sum(across(starts_with("FOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White female residents 
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>%   
+  mutate(total_fwhite_vax = sum(across(starts_with("FWhite") & ends_with("VAX")), na.rm = T))  
+```
+
+### Adding new columns for Vax totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident vaccinations by adding all males and females of a specific race to get the the overall amount of resident vaccinations by race.
+
+For example(see below): I get the total Asian resident vaccinations by summing male Asian residents + female Asian residents.
+
+```{r}
+#Vax total Asian Residents
+Zip_30907_vax_Jan$total_asian_vax <- Zip_30907_vax_Jan$total_masian_vax + Zip_30907_vax_Jan$total_fasian_vax
+
+#Vax total for African American Residents 
+Zip_30907_vax_Jan$total_black_vax <- Zip_30907_vax_Jan$total_mblack_vax + Zip_30907_vax_Jan$total_fblack_vax  
+
+#Vax total for Other Race Residents
+Zip_30907_vax_Jan$total_orace_vax <- Zip_30907_vax_Jan$total_morace_vax + Zip_30907_vax_Jan$total_forace_vax  
+
+#Vax total for White Residents
+Zip_30907_vax_Jan$total_white_vax <- Zip_30907_vax_Jan$total_mwhite_vax + Zip_30907_vax_Jan$total_fwhite_vax  
+```
+
+### Adding new columns for Vax totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>% mutate(total_05_09_vax = sum(FAsianNHPI_05_09_VAX, MAsianNHPI_05_09_VAX, UAsianNHPI_05_09_VAX,FBlack_05_09_VAX, MBlack_05_09_VAX, UBlack_05_09_VAX,FNone_05_09_VAX, MNone_05_09_VAX, UNone_05_09_VAX,FOtherRace_05_09_VAX, MOtherRace_05_09_VAX, UOtherRace_05_09_VAX,FWhite_05_09_VAX, MWhite_05_09_VAX, UWhite_05_09_VAX, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>% mutate(total_10_17_vax = sum(FAsianNHPI_10_17_VAX, MAsianNHPI_10_17_VAX, UAsianNHPI_10_17_VAX,FBlack_10_17_VAX, MBlack_10_17_VAX, UBlack_10_17_VAX,FNone_10_17_VAX, MNone_10_17_VAX, UNone_10_17_VAX,FOtherRace_10_17_VAX, MOtherRace_10_17_VAX, UOtherRace_10_17_VAX,FWhite_10_17_VAX, MWhite_10_17_VAX, UWhite_10_17_VAX, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>% mutate(total_18_44_vax = sum(FAsianNHPI_18_44_VAX, MAsianNHPI_18_44_VAX, UAsianNHPI_18_44_VAX,FBlack_18_44_VAX, MBlack_18_44_VAX, UBlack_18_44_VAX,FNone_18_44_VAX, MNone_18_44_VAX, UNone_18_44_VAX,FOtherRace_18_44_VAX, MOtherRace_18_44_VAX, UOtherRace_18_44_VAX,FWhite_18_44_VAX, MWhite_18_44_VAX, UWhite_18_44_VAX, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>% mutate(total_45_64_vax = sum(FAsianNHPI_45_64_VAX, MAsianNHPI_45_64_VAX, UAsianNHPI_45_64_VAX,FBlack_45_64_VAX, MBlack_45_64_VAX, UBlack_45_64_VAX,FNone_45_64_VAX, MNone_45_64_VAX, UNone_45_64_VAX,FOtherRace_45_64_VAX, MOtherRace_45_64_VAX, UOtherRace_45_64_VAX,FWhite_45_64_VAX, MWhite_45_64_VAX, UWhite_45_64_VAX, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Zip_30907_vax_Jan <- Zip_30907_vax_Jan %>% rowwise() %>% mutate(total_65Plus_vax = sum(FAsianNHPI_65Plus_VAX, MAsianNHPI_65Plus_VAX, UAsianNHPI_65Plus_VAX,FBlack_65Plus_VAX, MBlack_65Plus_VAX, UBlack_65Plus_VAX,FNone_65Plus_VAX, MNone_65Plus_VAX, UNone_65Plus_VAX,FOtherRace_65Plus_VAX, MOtherRace_65Plus_VAX, UOtherRace_65Plus_VAX,FWhite_65Plus_VAX, MWhite_65Plus_VAX, UWhite_65Plus_VAX, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Zip_30907_vax_Jan_sums <- Zip_30907_vax_Jan[,c(1:4,185:204)]  
+```
+
+### Change the column names for 30907 Jan
+```{r}
+colnames(Zip_30907_vax_Jan_sums) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_vax_Jan_26", "total_male_vax_Jan_26", "total_female_vax_Jan_26", "total_masian_vax_Jan_26", "total_mblack_vax_Jan_26", "total_morace_vax_Jan_26", "total_mwhite_vax_Jan_26", "total_fasian_vax_Jan_26", "total_fblack_vax_Jan_26", "total_forace_vax_Jan_26", "total_fwhite_vax_Jan_26", "total_asian_vax_Jan_26","total_black_vax_Jan_26", "total_orace_vax_Jan_26", "total_white_vax_Jan_26", "total_05_09_vax_Jan_26", "total_10_17_vax_Jan_26", "total_18_44_vax_Jan_26", "total_45_64_vax_Jan_26", "total_65Plus_vax_Jan_26") 
+```
+
+### Saving data
+```{r}
+#saving clean data for 30907 to processed_data folder
+save_data_location4 = here("data", "processed_data", "Zip_30907", "processed_data_30907_Jan.rds")
+
+
+saveRDS(Zip_30907_vax_Jan_sums, save_data_location4)
+```
+
+
+## Processing 6: : Getting Vaccination Totals by Control Zip Code 30907 in the Month of February
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Feb_26.xlsx")
+Feb_26 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Vaccination from the 30907 zip code within which contains the following cenus tracts below 
+#by using filter() I am able to create a new dataset with vaccinations from Richmond County 
+Zip_30907_vax_Feb <-filter(Feb_26, FIPS=="13073030107" | FIPS=="13073030108" | FIPS=="13245010104" | FIPS=="13245010105" | FIPS=="13245010205" | FIPS=="13073030202" | FIPS=="13073030313" | FIPS=="13073030312" | FIPS=="13073030306" | FIPS=="13073030201" | FIPS=="13073030603" | FIPS=="13073030106" | FIPS=="13245010203"| FIPS=="13245010201")
+
+#taking a look at the data
+head(Zip_30907_vax_Feb)
+
+#notice that although the control zip 30907 is in Richmond county, there are some observartions from Columbia county. This is okay because census tracts are not completely contained by one county or zip code.
+
+#replacing negative values with 0
+Zip_30907_vax_Feb [Zip_30907_vax_Feb < 0] <- 0  
+```
+
+### Adding new columns: total vax sum, total vax of all males, total vax of all females
+
+```{r}
+#Adding a column of the total vax for each census tract (for each observation)  
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>% mutate(total_vax_Feb = sum(across(ends_with("VAX")), na.rm = T))  
+
+#total vax column for all males
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb  %>% rowwise() %>%   
+  mutate(total_male_vax = sum(across(starts_with("M") & ends_with("VAX")), na.rm = T)) 
+
+#total vax column for all females
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>%   
+  mutate(total_female_vax = sum(across(starts_with("F") & ends_with("VAX")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total vax column for Asian male residents 
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>%   
+  mutate(total_masian_vax = sum(across(starts_with("MAsianNHPI") & ends_with("VAX")), na.rm = T))
+
+#total vax column for African American male residents
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>%   
+  mutate(total_mblack_vax = sum(across(starts_with("MBlack") & ends_with("VAX")), na.rm = T))
+
+#total vax column for other race male residents
+Zip_30907_vax_Feb<- Zip_30907_vax_Feb %>% rowwise() %>%   
+  mutate(total_morace_vax = sum(across(starts_with("MOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White male residents 
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>%   
+  mutate(total_mwhite_vax = sum(across(starts_with("MWhite") & ends_with("VAX")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total vax column for Asian female residents    
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>%   
+  mutate(total_fasian_vax = sum(across(starts_with("FAsianNHPI") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for African American female residents
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>%   
+  mutate(total_fblack_vax = sum(across(starts_with("FBlack") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for other race female residents
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>%   
+  mutate(total_forace_vax = sum(across(starts_with("FOtherRace") & ends_with("VAX")), na.rm = T))  
+
+#total vax column for White female residents 
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>%   
+  mutate(total_fwhite_vax = sum(across(starts_with("FWhite") & ends_with("VAX")), na.rm = T))  
+```
+
+### Adding new columns for Vax totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident vaccinations by adding all males and females of a specific race to get the the overall amount of resident vaccinations by race.
+
+For example(see below): I get the total Asian resident vaccinations by summing male Asian residents + female Asian residents.
+
+```{r}
+#Vax total Asian Residents
+Zip_30907_vax_Feb$total_asian_vax <- Zip_30907_vax_Feb$total_masian_vax + Zip_30907_vax_Feb$total_fasian_vax
+
+#Vax total for African American Residents 
+Zip_30907_vax_Feb$total_black_vax <- Zip_30907_vax_Feb$total_mblack_vax + Zip_30907_vax_Feb$total_fblack_vax  
+
+#Vax total for Other Race Residents
+Zip_30907_vax_Feb$total_orace_vax <- Zip_30907_vax_Feb$total_morace_vax + Zip_30907_vax_Feb$total_forace_vax  
+
+#Vax total for White Residents
+Zip_30907_vax_Feb$total_white_vax <- Zip_30907_vax_Feb$total_mwhite_vax + Zip_30907_vax_Feb$total_fwhite_vax  
+```
+
+### Adding new columns for Vax totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>% mutate(total_05_09_vax = sum(FAsianNHPI_05_09_VAX, MAsianNHPI_05_09_VAX, UAsianNHPI_05_09_VAX,FBlack_05_09_VAX, MBlack_05_09_VAX, UBlack_05_09_VAX,FNone_05_09_VAX, MNone_05_09_VAX, UNone_05_09_VAX,FOtherRace_05_09_VAX, MOtherRace_05_09_VAX, UOtherRace_05_09_VAX,FWhite_05_09_VAX, MWhite_05_09_VAX, UWhite_05_09_VAX, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>% mutate(total_10_17_vax = sum(FAsianNHPI_10_17_VAX, MAsianNHPI_10_17_VAX, UAsianNHPI_10_17_VAX,FBlack_10_17_VAX, MBlack_10_17_VAX, UBlack_10_17_VAX,FNone_10_17_VAX, MNone_10_17_VAX, UNone_10_17_VAX,FOtherRace_10_17_VAX, MOtherRace_10_17_VAX, UOtherRace_10_17_VAX,FWhite_10_17_VAX, MWhite_10_17_VAX, UWhite_10_17_VAX, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>% mutate(total_18_44_vax = sum(FAsianNHPI_18_44_VAX, MAsianNHPI_18_44_VAX, UAsianNHPI_18_44_VAX,FBlack_18_44_VAX, MBlack_18_44_VAX, UBlack_18_44_VAX,FNone_18_44_VAX, MNone_18_44_VAX, UNone_18_44_VAX,FOtherRace_18_44_VAX, MOtherRace_18_44_VAX, UOtherRace_18_44_VAX,FWhite_18_44_VAX, MWhite_18_44_VAX, UWhite_18_44_VAX, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>% mutate(total_45_64_vax = sum(FAsianNHPI_45_64_VAX, MAsianNHPI_45_64_VAX, UAsianNHPI_45_64_VAX,FBlack_45_64_VAX, MBlack_45_64_VAX, UBlack_45_64_VAX,FNone_45_64_VAX, MNone_45_64_VAX, UNone_45_64_VAX,FOtherRace_45_64_VAX, MOtherRace_45_64_VAX, UOtherRace_45_64_VAX,FWhite_45_64_VAX, MWhite_45_64_VAX, UWhite_45_64_VAX, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Zip_30907_vax_Feb <- Zip_30907_vax_Feb %>% rowwise() %>% mutate(total_65Plus_vax = sum(FAsianNHPI_65Plus_VAX, MAsianNHPI_65Plus_VAX, UAsianNHPI_65Plus_VAX,FBlack_65Plus_VAX, MBlack_65Plus_VAX, UBlack_65Plus_VAX,FNone_65Plus_VAX, MNone_65Plus_VAX, UNone_65Plus_VAX,FOtherRace_65Plus_VAX, MOtherRace_65Plus_VAX, UOtherRace_65Plus_VAX,FWhite_65Plus_VAX, MWhite_65Plus_VAX, UWhite_65Plus_VAX, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Zip_30907_vax_Feb_sums <- Zip_30907_vax_Feb[,c(1:4,185:204)]  
+```
+
+### Change the column names for 30907 Feb
+```{r}
+colnames(Zip_30907_vax_Feb_sums) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_vax_Feb_26", "total_male_vax_Feb_26", "total_female_vax_Feb_26", "total_masian_vax_Feb_26", "total_mblack_vax_Feb_26", "total_morace_vax_Feb_26", "total_mwhite_vax_Feb_26", "total_fasian_vax_Feb_26", "total_fblack_vax_Feb_26", "total_forace_vax_Feb_26", "total_fwhite_vax_Feb_26", "total_asian_vax_Feb_26","total_black_vax_Feb_26", "total_orace_vax_Feb_26", "total_white_vax_Feb_26", "total_05_09_vax_Feb_26", "total_10_17_vax_Feb_26", "total_18_44_vax_Feb_26", "total_45_64_vax_Feb_26", "total_65Plus_vax_Feb_26") 
+```
+
+### Saving data
+```{r}
+#saving clean data for 30907 to processed_data folder
+save_data_location4 = here("data", "processed_data", "Zip_30907", "processed_data_30907_Feb.rds")
+
+
+saveRDS(Zip_30907_vax_Feb_sums, save_data_location4)
+```
 
 

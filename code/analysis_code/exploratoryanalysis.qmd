@@ -106,13 +106,19 @@ plot_31701_total_black_vax = plot_31701_total_black_vax +
 plot_31701_total_black_vax
 ```
 
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","31701_total_black_vax.png"), plot=plot_31701_total_black_vax)
+```
+
+
 ### Turning ggplot into an interactive plot
 
 ```{r}
 plotly_31701_total_black_vax = ggplotly(plot_31701_total_black_vax)
 plotly_31701_total_black_vax
 ```
-
 
 
 ## Zip code: 31705
@@ -207,6 +213,18 @@ plot_31705_total_black_vax = plot_31705_total_black_vax +
           element_text(color="red", size=10, face="bold.italic"))
 ```
 
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","31705_total_black_vax.png"), plot=plot_31705_total_black_vax)
+```
+
+### Turning ggplot into an interactive plot
+
+```{r}
+plotly_31705_total_black_vax = ggplotly(plot_31705_total_black_vax)
+plotly_31705_total_black_vax
+```
 
 
 ## Zip code: 31707
@@ -296,6 +314,11 @@ plot_31707_total_black_vax = plot_31707_total_black_vax +
           element_text(color="red", size=10, face="bold.italic"))
 ```
 
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","31707_total_black_vax.png"), plot=plot_31707_total_black_vax)
+```
 
 
 ## Comparing plots the 3 target zip codes
@@ -371,6 +394,13 @@ plot_Total_black_vax = plot_Total_black_vax +
 plot_Total_black_vax
 ```
 
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","total_black_vax.png"), plot=plot_Total_black_vax)
+```
+
+
 ### Turning ggplot into an interactive plot
 
 ```{r}
@@ -379,8 +409,6 @@ plotly_Total_black_vax
 ```
 
 # Total Amount of vaccinations by Gender Among Black Population in the Target Zip Codes
-
-
 
 ## Zip code: 31701
 
@@ -459,6 +487,12 @@ plot_Gender_black_vax = plot_Gender_black_vax +
 plot_Gender_black_vax
 ```
 
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","31701_Gender_black_vax.png"), plot=plot_Gender_black_vax)
+```
+
 
 ### Turning ggplot into an interactive plot
 
@@ -466,8 +500,6 @@ plot_Gender_black_vax
 plotly_plot_Gender_black_vax = ggplotly(plot_Gender_black_vax)
 plotly_plot_Gender_black_vax
 ```
-
-
 
 
 ## Zip code: 31705
@@ -545,6 +577,12 @@ plot_Gender_black_vax = plot_Gender_black_vax +
           element_text(color="red", size=10, face="bold.italic")) + 
   labs(y = "Vaccination Total")
 plot_Gender_black_vax_31705
+```
+
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","31705_Gender_black_vax.png"), plot=plot_Gender_black_vax_31705)
 ```
 
 
@@ -633,6 +671,13 @@ plot_Gender_black_vax = plot_Gender_black_vax +
   labs(y = "Vaccination Total")
 plot_Gender_black_vax_31707
 ```
+
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","31707_Gender_black_vax.png"), plot=plot_Gender_black_vax_31707)
+```
+
 
 ### Turning ggplot into an interactive plot
 
@@ -755,6 +800,13 @@ plot_Age_black_vax
 ```
 
 
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","31701_Age_black_vax.png"), plot=plot_Age_black_vax)
+```
+
+
 ### Turning ggplot into an interactive plot
 
 ```{r}
@@ -763,7 +815,6 @@ plotly_plot_Age_black_vax
 ```
 
 
-------------------------------------------------------------------------
 ## Zip code: 31705
 
 ### Loading the `processed_combined_31705.rds` file from `analysiscode.qmd`
@@ -872,6 +923,12 @@ plot_Age_black_vax = plot_Age_black_vax +
 plot_Age_black_vax
 ```
 
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","31705_Age_black_vax.png"), plot=plot_Age_black_vax)
+```
+
 
 ### Turning ggplot into an interactive plot
 
@@ -880,8 +937,6 @@ plotly_plot_Age_black_vax = ggplotly(plot_Age_black_vax)
 plotly_plot_Age_black_vax
 ```
 
-
-------------------------------------------------------------------------
 
 ## Zip code: 31707
 
@@ -900,6 +955,7 @@ processed_combined_31707 = readRDS(save_data_location)
 processed_combined_31707_Age_black = processed_combined_31707 %>% 
   select(starts_with("total_05_09"), starts_with("total_10_17"), starts_with("total_18_44"), starts_with("total_45_64"), starts_with("total_65Plus"))
 ```
+
 
 ### Summing each Month variable by age group by month
 ```{r}
@@ -944,6 +1000,70 @@ sum(processed_combined_31707_Age_black$total_65Plus_vax_Jan_26)
 sum(processed_combined_31707_Age_black$total_65Plus_vax_Feb_26)
 
 ```
+
+
+### Separating sums by month into a data fram consisting of two variables: Date and Total Date contains months September-February 
+### Total contains the vaccination totals for each month
+
+```{r}
+Age_Sum_by_month_31707 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
+                          Age_05_09 = c(275, 277, 280, 282, 284, 283),
+                          Age_10_17 = c(1109, 1120, 1125, 1134, 1136, 1142),
+                          Age_18_44 = c(5903, 5931, 5943, 5947, 5960, 5958), #pretty notable increase for ages 18-44 
+                          Age_45_64 = c(5130, 5120, 5125, 5123, 5133, 5140),
+                          Age_65Plus = c(4200, 4204, 4195, 4206, 4202, 4189))
+                          
+```
+
+### Converting the Age_Sum_by_month_31707 to long data in order to plot
+```{r}
+Age_Sum_by_month_31707_long = reshape2::melt(Age_Sum_by_month_31707, id = "Date")
+```
+
+
+### Changing "variable" to "Age" and "value" to "Vaccination_total"
+
+```{r}
+Age_Sum_by_month_31707_long <- Age_Sum_by_month_31707_long %>% 
+  rename("Age" = "variable") %>% 
+  rename("Vaccination_total" = "value")
+```
+
+
+### gglot2: Creating a line plot for the vaccination totals by month for the Black population by Age in the 31707 zip code
+
+```{r}
+plot_Age_black_vax = Age_Sum_by_month_31707_long %>% 
+                     ggplot(aes(Date, Vaccination_total, 
+                                group = Age, 
+                                color = Age)) + 
+                     geom_point() + geom_line() + 
+                     scale_x_discrete(limits = c("Sep","Oct","Nov","Dec","Jan","Feb"))
+#adding a title to the plot 
+plot_Age_black_vax = plot_Age_black_vax + 
+  ggtitle("Vaccination Totals for Black population by Age in 31707") + 
+  theme(plot.title = 
+          element_text(color="red", size=10, face="bold.italic")) + 
+  labs(y = "Vaccination Total")
+plot_Age_black_vax
+```
+
+
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","31707_Age_black_vax.png"), plot=plot_Age_black_vax)
+```
+
+
+
+### Turning ggplot into an interactive plot
+
+```{r}
+plotly_plot_Age_black_vax = ggplotly(plot_Age_black_vax)
+plotly_plot_Age_black_vax
+```
+
 
 # The Amount of Vaccinations Among Black population in the Control Zip Code
 
@@ -1009,7 +1129,7 @@ sum(processed_combined_30815_total_black$total_black_vax_Jan_26)
 sum(processed_combined_30815_total_black$total_black_vax_Feb_26) 
 ```
 
-#Separating sums by month into a data fram consisting of two variables: Date and Total #Date contains months September-February #Total contains the vaccination totals for each month
+### Separating sums by month into a data fram consisting of two variables: Date and Total #Date contains months September-February ### Total contains the vaccination totals for each month
 
 ```{r}
 Sum_by_month_30815 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
@@ -1031,6 +1151,13 @@ plot_30815_total_black_vax = plot_30815_total_black_vax +
           element_text(color="red", size=10, face="bold.italic"))
 plot_30815_total_black_vax
 ```
+
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","30815_total_black_vax.png"), plot=plot_30815_total_black_vax)
+```
+
 ### Turning ggplot into an interactive plot
 
 ```{r}
@@ -1116,6 +1243,13 @@ plot_Gender_black_vax = plot_Gender_black_vax +
           element_text(color="red", size=10, face="bold.italic")) + 
   labs(y = "Vaccination Total")
 plot_Gender_black_vax
+```
+
+
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","30815_Gender_black_vax.png"), plot=plot_Gender_black_vax)
 ```
 
 
@@ -1233,6 +1367,329 @@ plot_Age_black_vax = plot_Age_black_vax +
           element_text(color="red", size=10, face="bold.italic")) + 
   labs(y = "Vaccination Total")
 plot_Age_black_vax
+```
+
+
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","30815_Age_black_vax.png"), plot=plot_Gender_black_vax)
+```
+
+
+### Turning ggplot into an interactive plot
+
+```{r}
+plotly_plot_Age_black_vax = ggplotly(plot_Age_black_vax)
+plotly_plot_Age_black_vax
+```
+
+# The Amount of Vaccinations Among Black population in the Control Zip Code
+
+## Zip code: 30907
+
+### Loading the processed data in order to begin analysis for the 30907 zip code
+
+```{r}
+# Loading September 30907
+data_location1 = here("data", "processed_data", "Zip_30907", "processed_data_30907_Sept.rds")
+processed_data_30907_Sept = readRDS(data_location1)
+
+# Loading October 30907 and joining september and october 
+data_location2 = here("data", "processed_data", "Zip_30907", "processed_data_30907_Oct.rds")
+processed_data_30907_Oct = readRDS(data_location2)
+processed_combined <- left_join(processed_data_30907_Sept, processed_data_30907_Oct, by = c("FIPS" = "FIPS"))
+
+# Loading November 30907
+data_location3 = here("data", "processed_data", "Zip_30907", "processed_data_30907_Nov.rds")
+processed_data_30907_Nov = readRDS(data_location3)
+processed_combined <- left_join(processed_combined, processed_data_30907_Nov, by = c("FIPS" = "FIPS"))
+
+# Loading December 30907
+data_location4 = here("data", "processed_data", "Zip_30907", "processed_data_30907_Dec.rds")
+processed_data_30907_Dec = readRDS(data_location4)
+processed_combined <- left_join(processed_combined, processed_data_30907_Dec, by = c("FIPS" = "FIPS"))
+
+# Loading January 30907
+data_location5 = here("data", "processed_data", "Zip_30907", "processed_data_30907_Jan.rds")
+processed_data_30907_Jan = readRDS(data_location5)
+processed_combined <- left_join(processed_combined, processed_data_30907_Jan, by = c("FIPS" = "FIPS"))
+
+# Loading February 30907
+data_location6 = here("data", "processed_data", "Zip_30907", "processed_data_30907_Feb.rds")
+processed_data_30907_Feb = readRDS(data_location6)
+processed_combined_30907 <- left_join(processed_combined, processed_data_30907_Feb, by = c("FIPS" = "FIPS"))
+```
+
+### Saving the combined data for Black population for future use. Will be useful when stratifying the African American population by age and gender
+
+```{r}
+save_data_location = here("data", "processed_data","Zip_30907", "processed_combined_30907.rds")
+saveRDS(processed_combined_30907, file = save_data_location)
+```
+
+### Dropping all variables except for total black variables in order to obtain vaccination rates of all Black population in the 30907 zip code
+
+#### Using the select() function to subset the data frame by columns that start with "total_black_vax" which are variables with a total count of Black population with at least one dose of the COVID-19 vaccine by month
+
+```{r}
+processed_combined_30907_total_black = processed_combined_30907 %>% select(starts_with("total_black_vax"))
+```
+
+### Summing each Month variable by census tract
+
+```{r}
+#Summing each column for each month 
+sum(processed_combined_30907_total_black$total_black_vax_Sept_17) 
+sum(processed_combined_30907_total_black$total_black_vax_Oct_28) 
+sum(processed_combined_30907_total_black$total_black_vax_Nov_24) 
+sum(processed_combined_30907_total_black$total_black_vax_Dec_29) 
+sum(processed_combined_30907_total_black$total_black_vax_Jan_26) 
+sum(processed_combined_30907_total_black$total_black_vax_Feb_26) 
+```
+
+### Separating sums by month into a data fram consisting of two variables: Date and Total #Date contains months September-February ### Total contains the vaccination totals for each month
+
+```{r}
+Sum_by_month_30907 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
+                          Total = c(4956, 4917, 4888, 4851, 4866, 4894)) 
+```
+
+### gglot2: Creating a line plot for the vaccination totals by month for the African American population in the 30907 zip code
+
+```{r}
+plot_30907_total_black_vax = Sum_by_month_30907 %>% 
+  ggplot(aes(Date, Total, group=1)) + 
+  geom_point() + geom_line() + 
+  scale_x_discrete(limits = c("Sep","Oct","Nov","Dec","Jan","Feb"))
+
+#Adding a customization title for the plot 
+plot_30907_total_black_vax = plot_30907_total_black_vax + 
+  ggtitle("Vaccination Totals for Black population in the 30907 Zipcode") + 
+  theme(plot.title = 
+          element_text(color="red", size=10, face="bold.italic"))
+plot_30907_total_black_vax
+```
+
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","30907_total_black_vax.png"), plot=plot_30907_total_black_vax)
+```
+
+### Turning ggplot into an interactive plot
+
+```{r}
+plotly_30907_total_black_vax = ggplotly(plot_30907_total_black_vax)
+plotly_30907_total_black_vax
+```
+
+
+# The Amount of Vaccinations by Gender Among Black Population in the Control Zip Code
+
+## Zip code: 30907
+
+### Loading the `processed_combined_30907.rds` file from `analysiscode.qmd`
+
+```{r}
+save_data_location = here("data", "processed_data","Zip_30907", "processed_combined_30907.rds")
+processed_combined_30907 = readRDS(save_data_location)
+```
+
+### Dropping all variables except for black males and black females within 30907
+
+#### Using the select() function to subset the data frame by columns that start with "Gender_black_vax" which are variables with a total count of Black population with at least one dose of the COVID-19 vaccine by month
+
+```{r}
+processed_combined_30907_Gender_black = processed_combined_30907 %>% select(matches("^total_(mblack|fblack)_vax"))
+```
+
+### Summing each Month variable by census tract
+```{r}
+#Summing for black males by month 
+sum(processed_combined_30907_Gender_black$total_mblack_vax_Sept_17) 
+sum(processed_combined_30907_Gender_black$total_mblack_vax_Oct_28) 
+sum(processed_combined_30907_Gender_black$total_mblack_vax_Nov_24) 
+sum(processed_combined_30907_Gender_black$total_mblack_vax_Dec_29) 
+sum(processed_combined_30907_Gender_black$total_mblack_vax_Jan_26) 
+sum(processed_combined_30907_Gender_black$total_mblack_vax_Feb_26)
+
+#summing for black females by month 
+sum(processed_combined_30907_Gender_black$total_fblack_vax_Sept_17) 
+sum(processed_combined_30907_Gender_black$total_fblack_vax_Oct_28) 
+sum(processed_combined_30907_Gender_black$total_fblack_vax_Nov_24) 
+sum(processed_combined_30907_Gender_black$total_fblack_vax_Dec_29) 
+sum(processed_combined_30907_Gender_black$total_fblack_vax_Jan_26) 
+sum(processed_combined_30907_Gender_black$total_fblack_vax_Feb_26) 
+```
+
+#Separating sums by month into a data fram consisting of two variables: Date and Total Date contains months September-February #Total contains the vaccination totals for each month
+
+```{r}
+Gender_Sum_by_month_30907 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
+                          Male_Total = c(1947, 1943, 1926, 1900, 1913, 1919),
+                          Female_Total = c(3009, 2974, 2962, 2951, 2953, 2975))
+```
+
+### Converting the Gender_Sum_by_month_30907 to long data in order to plot
+```{r}
+Gender_Sum_by_month_30907_long = reshape2::melt(Gender_Sum_by_month_30907, id = "Date")
+```
+
+
+### Changing "variable" to "Gender" and "value" to "Vaccination_total"
+
+```{r}
+Gender_Sum_by_month_30907_long <- Gender_Sum_by_month_30907_long %>% 
+  rename("Gender" = "variable") %>% 
+  rename("Vaccination_total" = "value")
+```
+
+
+### gglot2: Creating a line plot for the vaccination totals by month for the Black population by gender in the 30907 zip code
+
+```{r}
+plot_Gender_black_vax = Gender_Sum_by_month_30907_long %>% 
+                     ggplot(aes(Date, Vaccination_total, 
+                                group = Gender, 
+                                color = Gender)) + 
+                     geom_point() + geom_line() + 
+                     scale_x_discrete(limits = c("Sep","Oct","Nov","Dec","Jan","Feb"))
+#adding a title to the plot 
+plot_Gender_black_vax = plot_Gender_black_vax + 
+  ggtitle("Vaccination Totals for Black population by Gender in 30907") + 
+  theme(plot.title = 
+          element_text(color="red", size=10, face="bold.italic")) + 
+  labs(y = "Vaccination Total")
+plot_Gender_black_vax
+```
+
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","30907_Gender_black_vax.png"), plot=plot_Gender_black_vax)
+```
+
+### Turning ggplot into an interactive plot
+
+```{r}
+plotly_plot_Gender_black_vax = ggplotly(plot_Gender_black_vax)
+plotly_plot_Gender_black_vax
+```
+
+# Total Amount of vaccinations by Age among Black population in the Control Zip Code
+
+## Zip code: 30907
+
+### Loading the `processed_combined_30907.rds` file from `analysiscode.qmd`
+
+```{r}
+save_data_location = here("data", "processed_data","Zip_30907", "processed_combined_30907.rds")
+processed_combined_30907 = readRDS(save_data_location)
+```
+
+### Dropping all variables except for black age groups within 30907
+
+#### Using the select() function to subset the data frame by columns that start with an age group 
+
+```{r}
+processed_combined_30907_Age_black = processed_combined_30907 %>% 
+  select(starts_with("total_05_09"), starts_with("total_10_17"), starts_with("total_18_44"), starts_with("total_45_64"), starts_with("total_65Plus"))
+```
+
+### Summing each Month variable by age group by month
+```{r}
+#Summing for ages 5-9 by month 
+sum(processed_combined_30907_Age_black$total_05_09_vax_Sept_17) 
+sum(processed_combined_30907_Age_black$total_05_09_vax_Oct_28) 
+sum(processed_combined_30907_Age_black$total_05_09_vax_Nov_24) 
+sum(processed_combined_30907_Age_black$total_05_09_vax_Dec_29) 
+sum(processed_combined_30907_Age_black$total_05_09_vax_Jan_26) 
+sum(processed_combined_30907_Age_black$total_05_09_vax_Feb_26)
+
+#Summing for ages 10-17 by month 
+sum(processed_combined_30907_Age_black$total_10_17_vax_Sept_17) 
+sum(processed_combined_30907_Age_black$total_10_17_vax_Oct_28) 
+sum(processed_combined_30907_Age_black$total_10_17_vax_Nov_24) 
+sum(processed_combined_30907_Age_black$total_10_17_vax_Dec_29) 
+sum(processed_combined_30907_Age_black$total_10_17_vax_Jan_26) 
+sum(processed_combined_30907_Age_black$total_10_17_vax_Feb_26)
+
+#Summing for ages 18-44 by month 
+sum(processed_combined_30907_Age_black$total_18_44_vax_Sept_17) 
+sum(processed_combined_30907_Age_black$total_18_44_vax_Oct_28) 
+sum(processed_combined_30907_Age_black$total_18_44_vax_Nov_24) 
+sum(processed_combined_30907_Age_black$total_18_44_vax_Dec_29) 
+sum(processed_combined_30907_Age_black$total_18_44_vax_Jan_26) 
+sum(processed_combined_30907_Age_black$total_18_44_vax_Feb_26)
+
+#Summing for ages 45-64 by month 
+sum(processed_combined_30907_Age_black$total_45_64_vax_Sept_17) 
+sum(processed_combined_30907_Age_black$total_45_64_vax_Oct_28) 
+sum(processed_combined_30907_Age_black$total_45_64_vax_Nov_24) 
+sum(processed_combined_30907_Age_black$total_45_64_vax_Dec_29) 
+sum(processed_combined_30907_Age_black$total_45_64_vax_Jan_26) 
+sum(processed_combined_30907_Age_black$total_45_64_vax_Feb_26)
+
+#Summing for ages 65+ by month 
+sum(processed_combined_30907_Age_black$total_65Plus_vax_Sept_17) 
+sum(processed_combined_30907_Age_black$total_65Plus_vax_Oct_28) 
+sum(processed_combined_30907_Age_black$total_65Plus_vax_Nov_24) 
+sum(processed_combined_30907_Age_black$total_65Plus_vax_Dec_29) 
+sum(processed_combined_30907_Age_black$total_65Plus_vax_Jan_26) 
+sum(processed_combined_30907_Age_black$total_65Plus_vax_Feb_26)
+
+```
+
+### Separating sums by month into a data fram consisting of two variables: Date and Total Date contains months September-February #Total contains the vaccination totals for each month
+
+```{r}
+Age_Sum_by_month_30907 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
+                          Age_05_09 = c(244, 239, 241, 236, 240, 242),
+                          Age_10_17 = c(1344, 1358, 1357, 1341, 1343, 1335),
+                          Age_18_44 = c(9203, 9217, 9238, 9245, 9253, 9246),
+                          Age_45_64 = c(6740, 6700, 6667, 6626, 6617, 6624),
+                          Age_65Plus = c(6632, 6633, 6639, 6635, 6633, 6623))
+                          
+```
+
+### Converting the Age_Sum_by_month_30907 to long data in order to plot
+```{r}
+Age_Sum_by_month_30907_long = reshape2::melt(Age_Sum_by_month_30907, id = "Date")
+```
+
+
+### Changing "variable" to "Age" and "value" to "Vaccination_total"
+
+```{r}
+Age_Sum_by_month_30907_long <- Age_Sum_by_month_30907_long %>% 
+  rename("Age" = "variable") %>% 
+  rename("Vaccination_total" = "value")
+```
+
+
+### gglot2: Creating a line plot for the vaccination totals by month for the Black population by Age in the 30907 zip code
+
+```{r}
+plot_Age_black_vax = Age_Sum_by_month_30907_long %>% 
+                     ggplot(aes(Date, Vaccination_total, 
+                                group = Age, 
+                                color = Age)) + 
+                     geom_point() + geom_line() + 
+                     scale_x_discrete(limits = c("Sep","Oct","Nov","Dec","Jan","Feb"))
+#adding a title to the plot 
+plot_Age_black_vax = plot_Age_black_vax + 
+  ggtitle("Vaccination Totals for Black population by Age in 30907") + 
+  theme(plot.title = 
+          element_text(color="red", size=10, face="bold.italic")) + 
+  labs(y = "Vaccination Total")
+plot_Age_black_vax
+```
+
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","30907_Age_black_vax.png"), plot=plot_Age_black_vax)
 ```
 
 

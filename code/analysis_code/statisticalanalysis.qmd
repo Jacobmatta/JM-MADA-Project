@@ -1,0 +1,243 @@
+### Library
+```{r}
+library(tidymodels)
+library(vip) #most important variables in LASSO Model
+library(forcats)
+library(tidyverse)
+```
+ 
+### creating a data frame that contains the variables that will be included in new linear regression mode. Just copying and pasting all of the totals generated from the `exploratoryanalysis.qmd` file
+```{r}
+#combined all relevant variables into 5 different data sets for each zip code. Got the black population totals for each zip code from  https://www.unitedstateszipcodes.org/31701/
+
+Sum_by_month_31701 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
+                          Total = c(7797, 7780, 7755, 7773, 7792, 7817),
+                          Intervention = c(1, 1, 1, 1, 1, 1),
+                          Male_Total = c(3371, 3358, 3368, 3379, 3387, 3397),
+                          Female_Total = c(4426, 4422, 4387, 4394, 4405, 4420),
+                          Age_05_09 = c(123, 126, 126, 127, 127, 128),
+                          Age_10_17 = c(642, 635, 633, 637, 630, 629),
+                          Age_18_44 = c(3310, 3316, 3313, 3323, 3325, 3331),
+                          Age_45_64 = c(3229, 3244, 3239, 3259, 3264, 3258),
+                          Age_65Plus = c(2576, 2570, 2569, 2574, 2568, 2572),
+                          Pop = c(16475, 16475, 16475, 16475, 16475, 16475)) 
+
+Sum_by_month_31705 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
+                                Total = c(10383, 10327, 10303, 10301, 10337, 10348),                                 Intervention = c(1, 1, 1, 1, 1, 1),
+                          Male_Total = c(4394, 4397, 4399, 4391, 4403, 4399),
+                          Female_Total = c(5989, 5930, 5904, 5910, 5934, 5949),
+                          Age_05_09 = c(210, 211, 209, 201, 202, 202),
+                          Age_10_17 = c(1159, 1171, 1169, 1163, 1168, 1167),
+                          Age_18_44 = c(5201, 5215, 5239, 5263, 5278, 5281),
+                          Age_45_64 = c(4380, 4381, 4366, 4364, 4367, 4367),
+                          Age_65Plus = c(2983, 3000, 2997, 2997, 2994, 2989),
+                          Pop = c(24779, 24779, 24779, 24779, 24779, 24779))
+
+Sum_by_month_31707 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
+                                Total = c(9035, 8985, 8997, 9005, 9035, 9042),                                 Intervention = c(1, 1, 1, 1, 1, 1),
+                          Male_Total = c(3698, 3674, 3678, 3680, 3684, 3681),
+                          Female_Total = c(5337, 5311, 5319, 5325, 5351, 5361),
+                          Age_05_09 = c(275, 277, 280, 282, 284, 283),
+                          Age_10_17 = c(1109, 1120, 1125, 1134, 1136, 1142),
+                          Age_18_44 = c(5903, 5931, 5943, 5947, 5960, 5958),  
+                          Age_45_64 = c(5130, 5120, 5125, 5123, 5133, 5140),
+                          Age_65Plus = c(4200, 4204, 4195, 4206, 4202, 4189),
+                          Pop = c(13884, 13884, 13884, 13884, 13884, 13884)) 
+
+Sum_by_month_30815 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
+                          Total = c(8758, 8688, 8639, 8593, 8623, 8666),                                      Intervention = c(0, 0, 0, 0, 0, 0),
+                          Male_Total = c(3526, 3514, 3503, 3484, 3489, 3498),
+                          Female_Total = c(5232, 5174, 5136, 5109, 5134, 5168),
+                          Age_05_09 = c(201, 213, 211, 215, 211, 211),
+                          Age_10_17 = c(1116, 1113, 1115, 1118, 1115, 1114),
+                          Age_18_44 = c(5001, 5009, 5020, 5026, 5025, 5032),
+                          Age_45_64 = c(5026, 5017, 5020, 5009, 5013, 5020),
+                          Age_65Plus = c(2816, 2825, 2827, 2814, 2828, 2832),
+                          Pop = c(23481, 23481, 23481, 23481, 23481, 23481)) 
+
+#um_by_month_30907 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
+                          #Total = c(4956, 4917, 4888, 4851, 4866, 4894),                                      Zip = c(30907, 30907, 30907, 30907, 30907, 30907),
+                          #Male_Total = c(1947, 1943, 1926, 1900, 1913, 1919),
+                          #Female_Total = c(3009, 2974, 2962, 2951, 2953, 2975),
+                          #Age_05_09 = c(244, 239, 241, 236, 240, 242),
+                          #Age_10_17 = c(1344, 1358, 1357, 1341, 1343, 1335),
+                          #Age_18_44 = c(9203, 9217, 9238, 9245, 9253, 9246),
+                          #Age_45_64 = c(6740, 6700, 6667, 6626, 6617, 6624),
+                          #Age_65Plus = c(6632, 6633, 6639, 6635, 6633, 6623),
+                          #Pop = c(7744, 7744, 7744, 7744, 7744, 7744)) 
+#the 30907 zip code population of residents that are black does not match the vaccination data. also this zip code does not have a majority of residents that are black like other other 4 zip codes so I am going to leave it out of the statistical analysis 
+
+#combining all of the zip codes into one data set except for the 30907 data 
+combined = rbind(Sum_by_month_31701, Sum_by_month_31705, Sum_by_month_31707, Sum_by_month_30815)
+```
+
+
+### creating a vaccination rate variable as the outcome 
+```{r}
+combined$Vax_rate = (combined$Total / combined$Pop) * 100
+```
+
+
+### Creating a linear regression model 
+```{r}
+lm_model2 <- lm(Vax_rate ~ Intervention + Male_Total + Female_Total + Age_05_09 + Age_10_17 + Age_18_44 + Age_45_64 + Age_65Plus, data = combined)
+
+summary(lm_model2)
+```
+The results indicate that Intervention is a significant predictor of Vax_rate, as indicated by its estimate of 16.23 and its marginally significant p-value of 0.067. This means that there is some evidence that the intervention has an effect on the vaccination rate
+
+Male_Total is a significant negative predictor of Vax_rate, with a coefficient of -0.0133 and a significant p-value of 0.0054. This suggests that a higher male population is associated with a lower vaccination rate
+
+Among the age groups, Age_65Plus is a significant positive predictor of Vax_rate, with a coefficient of 0.0114 and a marginally significant p-value of 0.055. This means that a higher proportion of the population in the age group 65 and above is associated with a higher vaccination rate
+
+Overall, the model has a high adjusted R-squared value of 0.9995, indicating that the predictor variables account for a large proportion of the variation in Vax_rate. However, it is important to note that with such a high R-squared value, overfitting may be a concern, and it may be necessary to perform additional checks, such as cross-validation or regularization
+
+### evaluating this model using RMSE 
+```{r}
+# Split the data into training and testing sets
+train <- combined[1:15,]
+test <- combined[16:24,]
+
+# Train the linear regression model
+model <- lm(Vax_rate ~ Intervention + Male_Total + Female_Total + 
+             Age_05_09 + Age_10_17 + Age_18_44 + Age_45_64 + Age_65Plus, 
+           data = train)
+
+# Generate predictions for the test data
+predictions <- predict(model, newdata = test)
+
+# Calculate RMSE
+rmse <- sqrt(mean((test$Vax_rate - predictions)^2))
+
+rmse
+```
+
+### Train a LASSO model 
+```{r}
+Vax_split <- initial_split(combined, strata = Intervention)
+Vax_train <- training(Vax_split)
+Vax_test <- testing(Vax_split)
+```
+
+```{r}
+Vax_rec <- recipe(Vax_rate ~ Intervention + Male_Total + Female_Total + 
+             Age_05_09 + Age_10_17 + Age_18_44 + Age_45_64 + Age_65Plus, data = Vax_train) %>%
+  step_zv(all_numeric(), -all_outcomes()) %>%
+  step_normalize(all_numeric(), -all_outcomes()) #centering and scaling data 
+```
+
+```{r}
+lasso_Vax <- linear_reg(penalty = 0.1, mixture = 1) %>%
+  set_engine("glmnet")
+
+wf <- workflow() %>%
+  add_recipe(Vax_rec)
+
+lasso_fit <- wf %>%
+  add_model(lasso_Vax) %>%
+  fit(data = Vax_train)
+
+lasso_fit %>%
+  pull_workflow_fit() %>%
+  tidy()
+```
+
+### Tuning LASSO Parameters
+```{r}
+set.seed(1234)
+Vax_boot <- bootstraps(Vax_train, strata = Intervention)
+
+tune_spec <- linear_reg(penalty = tune(), mixture = 1) %>%
+  set_engine("glmnet")
+
+lambda_grid <- grid_regular(penalty(), levels = 50)
+```
+
+### Tune the grid
+```{r}
+set.seed(2020)
+lasso_grid <- tune_grid(
+  wf %>% add_model(tune_spec),
+  resamples = Vax_boot,
+  grid = lambda_grid
+)
+```
+
+### Results 
+```{r}
+lasso_grid %>%
+  collect_metrics()
+```
+
+### Visualizing the LASSO results 
+```{r}
+lasso_grid %>%
+  collect_metrics() 
+
+lasso_grid_plot = lasso_grid %>%
+  collect_metrics() %>%
+  ggplot(aes(penalty, mean, color = .metric)) +
+  geom_errorbar(aes(
+    ymin = mean - std_err,
+    ymax = mean + std_err
+  ),
+  alpha = 0.5
+  ) +
+  geom_line(size = 1.5) +
+  facet_wrap(~.metric, scales = "free", nrow = 2) +
+  scale_x_log10() +
+  theme(legend.position = "none")
+
+lasso_grid_plot
+```
+
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","lasso_grid_plot.png"), plot=lasso_grid_plot)
+```
+
+
+### Lets pick the LASSO model with the lowest RMSE 
+```{r}
+lowest_rmse <- lasso_grid %>%
+  select_best("rmse", maximize = FALSE)
+
+final_lasso <- finalize_workflow(
+  wf %>% add_model(tune_spec),
+  lowest_rmse
+)
+```
+
+### Final fit and viewing most important variables 
+```{r}
+final_lasso_plot = final_lasso %>%
+  fit(Vax_train) %>%
+  pull_workflow_fit() %>%
+  vi(lambda = lowest_rmse$penalty) %>%
+  mutate(
+    Importance = abs(Importance),
+    Variable = fct_reorder(Variable, Importance)
+  ) %>%
+  ggplot(aes(x = Importance, y = Variable, fill = Sign)) +
+  geom_col() +
+  scale_x_continuous(expand = c(0, 0)) +
+  labs(y = NULL)
+final_lasso_plot
+```
+
+### Looking at final fit 
+```{r}
+last_fit(
+  final_lasso,
+  Vax_split
+) %>%
+  collect_metrics()
+```
+
+### Save plot
+```{r}
+#save figure
+ggsave(filename = here("results","final_lasso_plot.png"), plot=final_lasso_plot)
+```
+

@@ -1,6 +1,0 @@
-quarto:
-  render:
-    - file: processingcode.qmd
-      to: html
-    - file: analysiscode.qmd
-      to: html

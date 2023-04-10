@@ -8,8 +8,8 @@ format:
     toc: false
     number-sections: true
     highlight-style: github
-bibliography: ../My_Library.bib
-csl: ../apa.csl
+bibliography: ./My_Library.bib
+csl: ./apa.csl
 ---
 
 # Summary
@@ -26,7 +26,7 @@ This study aims to conduct a secondary analysis of residents in Albany, GA that 
 
 ## Description of data and data source
 
-The data is a count of residents with at least one COVID-19 vaccination by demographic in the state of Georgia released by the Georgia Department of Public Health. The data has 1962 observations which are 1962 different census tracts in Georgia. There are 187 variables each are a different combination of gender, race and age. The data is uploaded weekly.
+The data is a count of residents with at least one COVID-19 vaccination by demographic in the state of Georgia released by the Georgia Department of Public Health. The data has 1962 observations which are 1962 different census tracts in Georgia. There are 187 variables each are a different combination of gender, race and age. The data is uploaded monthly.
 
 The data is downloaded from the Georgia Department of Public Health Distribution Dashboard ([citation for dashboard pasted here](https://experience.arcgis.com/experience/3d8eea39f5c1443db1743a4cb8948a9c)) which is a publicly available dashboard that displays the current vaccination administered and the up-to-date count of Georgia residents that have been vaccinated. 
 
@@ -52,9 +52,83 @@ After downloading the data the excel file containing the vaccination counts by c
 
 ## Data Processing
 
-In preparation for analysis, the raw data was first sub-setted by  Dougherty County, the county in which Albany, Georgia lies. This allowed me to work only with census tracts from Dougherty county. I then summed the data by demographic to get demographic totals 
+In preparation for analysis, the raw data was first sub-setted by  Dougherty County, the county in which Albany, Georgia lies. This allowed me to work only with census tracts from Dougherty county. I then summed the data by demographic to get demographic totals.
 
 # Results
+
+## Vaccination Trends of the Black Community for Each Zip Code 
+```{r}
+knitr::include_graphics("../results/31701_total_black_vax.png")
+```
+
+```{r}
+knitr::include_graphics("../results/31705_total_black_vax.png")
+```
+
+```{r}
+knitr::include_graphics("../results/31707_total_black_vax.png")
+```
+
+```{r}
+knitr::include_graphics("../results/30815_total_black_vax.png")
+```
+
+```{r}
+knitr::include_graphics("../results/30907_total_black_vax.png")
+```
+
+## Vaccination Trends of the Black Community for Each Zip Code by Gender
+```{r}
+knitr::include_graphics("../results/31701_Gender_black_vax.png")
+```
+
+```{r}
+knitr::include_graphics("../results/31705_Gender_black_vax.png")
+```
+
+```{r}
+knitr::include_graphics("../results/31707_Gender_black_vax.png")
+```
+
+```{r}
+knitr::include_graphics("../results/30815_Gender_black_vax.png")
+```
+
+```{r}
+knitr::include_graphics("../results/30907_Gender_black_vax.png")
+```
+
+## Vaccination Trends of the Black Community for Each Zip Code by Gender
+```{r}
+knitr::include_graphics("../results/31701_Age_black_vax.png")
+```
+
+```{r}
+knitr::include_graphics("../results/31705_Age_black_vax.png")
+```
+
+```{r}
+knitr::include_graphics("../results/31707_Age_black_vax.png")
+```
+
+```{r}
+knitr::include_graphics("../results/30815_Age_black_vax.png")
+```
+
+```{r}
+knitr::include_graphics("../results/30907_Age_black_vax.png")
+```
+
+## LASSO Results Visual 
+```{r}
+knitr::include_graphics("../results/lasso_grid_plot.png")
+```
+
+## Final LASSO Results Variable Importance 
+```{r}
+knitr::include_graphics("../results/final_lasso_plot.png")
+```
+
 
 # References
 
