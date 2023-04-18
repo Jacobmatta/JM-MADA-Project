@@ -1,0 +1,2792 @@
+---
+title: "Processing Code for Populations of Zips"
+output: 
+  html_document
+---
+# Processing Section for Populations of Target Zip Codes
+
+## Processing 1: Getting Population Totals by Target Zips 31701, 31705 & 31707 for the Month of September 
+
+### Load needed packages. make sure they are installed.
+```{r}
+library(here)
+library(readxl) #for loading Excel files
+library(dplyr) #for data processing/cleaning
+library(tidyr) #for data processing/cleaning
+```
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Sept_17.xlsx")
+Sept_17 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Vaccination from Dougherty County which contains the target zip codes of 31701, 31705 and 31707
+#by using filter() I am able to create a new dataset with vaccinations from Dougherty County 
+Dougherty_POP_Sept <- filter(Sept_17, COUNTY_NAME == "Dougherty County")  
+
+#replacing negative values with 0
+Dougherty_POP_Sept [Dougherty_POP_Sept < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>% mutate(total_POP_Sept = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Dougherty_POP_Sept <- Dougherty_POP_Sept  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Dougherty_POP_Sept<- Dougherty_POP_Sept %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+```{r}
+#POP total Asian Residents
+Dougherty_POP_Sept$total_asian_POP <- Dougherty_POP_Sept$total_masian_POP + Dougherty_POP_Sept$total_fasian_POP
+
+#POP total for African American Residents 
+Dougherty_POP_Sept$total_black_POP <- Dougherty_POP_Sept$total_mblack_POP + Dougherty_POP_Sept$total_fblack_POP  
+
+#POP total for Other Race Residents
+Dougherty_POP_Sept$total_orace_POP <- Dougherty_POP_Sept$total_morace_POP + Dougherty_POP_Sept$total_forace_POP  
+
+#POP total for White Residents
+Dougherty_POP_Sept$total_white_POP <- Dougherty_POP_Sept$total_mwhite_POP + Dougherty_POP_Sept$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Dougherty_POP_Sept <- Dougherty_POP_Sept %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Dougherty_POP_Sept_sums <- Dougherty_POP_Sept[,c(1:4,185:204)]  
+```
+
+### Filtering the data by zip code 
+
+```{r}
+#filtering data by zip: 31701  
+#All of the following FIPS or census tracts correspond to the 31701 zip code
+Zip_31701_Sept_POP <-filter(Dougherty_POP_Sept_sums,FIPS=="13095000700" | FIPS=="13095000800" | FIPS=="13095001403" | FIPS=="13095001500" | FIPS=="13095010601" | FIPS=="13095011300" | FIPS=="13095011400" | FIPS=="13095010602")  
+
+#filtering data by zip: 31705  
+#All of the following FIPS or census tracts correspond to the 31705 zip code
+Zip_31705_Sept_POP <- filter(Dougherty_POP_Sept_sums, FIPS=="13095000100" | FIPS=="13095000200" | FIPS=="13095010302" | FIPS=="13095010700" | FIPS=="13095010900" | FIPS=="13095011000" | FIPS=="13095011200" | FIPS=="13095011600")  
+
+#filtering data by zip: 31707  
+#All of the following FIPS or census tracts correspond to the 31707 zip code
+Zip_31707_Sep_POP <- filter(Dougherty_POP_Sept_sums, FIPS=="13095000400" | FIPS=="13095000501" | FIPS=="13095000502" | FIPS=="13095000600" | FIPS=="13095000900" | FIPS=="13095001000" | FIPS=="13095001100")  
+
+```
+
+### Change the column names for 31701 Sept
+
+```{r}
+colnames(Zip_31701_Sept_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Sept_17", "total_male_POP_Sept_17", "total_female_POP_Sept_17", "total_masian_POP_Sept_17", "total_mblack_POP_Sept_17", "total_morace_POP_Sept_17", "total_mwhite_POP_Sept_17", "total_fasian_POP_Sept_17", "total_fblack_POP_Sept_17", "total_forace_POP_Sept_17", "total_fwhite_POP_Sept_17", "total_asian_POP_Sept_17","total_black_POP_Sept_17", "total_orace_POP_Sept_17", "total_white_POP_Sept_17", "total_05_09_POP_Sept_17", "total_10_17_POP_Sept_17", "total_18_44_POP_Sept_17", "total_45_64_POP_Sept_17", "total_65Plus_POP_Sept_17") 
+
+#change column names for 31705 Sept  
+colnames(Zip_31705_Sept_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Sept_17", "total_male_POP_Sept_17", "total_female_POP_Sept_17", "total_masian_POP_Sept_17", "total_mblack_POP_Sept_17", "total_morace_POP_Sept_17", "total_mwhite_POP_Sept_17", "total_fasian_POP_Sept_17", "total_fblack_POP_Sept_17", "total_forace_POP_Sept_17", "total_fwhite_POP_Sept_17", "total_asian_POP_Sept_17","total_black_POP_Sept_17", "total_orace_POP_Sept_17", "total_white_POP_Sept_17", "total_05_09_POP_Sept_17", "total_10_17_POP_Sept_17", "total_18_44_POP_Sept_17", "total_45_64_POP_Sept_17", "total_65Plus_POP_Sept_17") 
+
+#change column names for 31707 Sept  
+colnames(Zip_31707_Sep_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Sept_17", "total_male_POP_Sept_17", "total_female_POP_Sept_17", "total_masian_POP_Sept_17", "total_mblack_POP_Sept_17", "total_morace_POP_Sept_17", "total_mwhite_POP_Sept_17", "total_fasian_POP_Sept_17", "total_fblack_POP_Sept_17", "total_forace_POP_Sept_17", "total_fwhite_POP_Sept_17", "total_asian_POP_Sept_17","total_black_POP_Sept_17", "total_orace_POP_Sept_17", "total_white_POP_Sept_17", "total_05_09_POP_Sept_17", "total_10_17_POP_Sept_17", "total_18_44_POP_Sept_17", "total_45_64_POP_Sept_17", "total_65Plus_POP_Sept_17") 
+
+```
+
+### Deleting excess environment objects and saving data as processed_data_sept
+```{r}
+#Only need to save processed data for the three zip codes
+rm(Dougherty_POP_Sept,Sept_17, codebook, Dougherty_POP_Sept_sums) 
+
+#saving clean data for 31701 to processed_data folder
+save_data_location = here("data", "processed_data", "Zip_31701", "processed_POP_data_31701_Sept.rds")
+
+saveRDS(Zip_31701_Sept_POP, file = save_data_location)
+
+#saving clean data for 31705 to processed_data folder
+save_data_location2 = here("data", "processed_data", "Zip_31705", "processed_POP_data_31705_Sept.rds")
+
+saveRDS(Zip_31705_Sept_POP, file = save_data_location2)
+
+#saving clean data for 31707 to processed_data folder
+save_data_location3 = here("data", "processed_data", "Zip_31707", "processed_POP_data_31707_Sept.rds")
+
+saveRDS(Zip_31707_Sep_POP, file = save_data_location3)
+
+```
+
+## Processing 2: Getting Population Totals by Target Zips 31701, 31705 & 31707 for the Month of October 
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Oct_28.xlsx")
+Oct_28 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Octarating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Vaccination from Dougherty County which contains the target zip codes of 31701, 31705 and 31707
+#by using filter() I am able to create a new dataset with vaccinations from Dougherty County 
+Dougherty_POP_Oct <- filter(Oct_28, COUNTY_NAME == "Dougherty County")  
+
+#replacing negative values with 0
+Dougherty_POP_Oct [Dougherty_POP_Oct < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>% mutate(total_POP_Oct = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Dougherty_POP_Oct <- Dougherty_POP_Oct  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Dougherty_POP_Oct<- Dougherty_POP_Oct %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+```{r}
+#POP total Asian Residents
+Dougherty_POP_Oct$total_asian_POP <- Dougherty_POP_Oct$total_masian_POP + Dougherty_POP_Oct$total_fasian_POP
+
+#POP total for African American Residents 
+Dougherty_POP_Oct$total_black_POP <- Dougherty_POP_Oct$total_mblack_POP + Dougherty_POP_Oct$total_fblack_POP  
+
+#POP total for Other Race Residents
+Dougherty_POP_Oct$total_orace_POP <- Dougherty_POP_Oct$total_morace_POP + Dougherty_POP_Oct$total_forace_POP  
+
+#POP total for White Residents
+Dougherty_POP_Oct$total_white_POP <- Dougherty_POP_Oct$total_mwhite_POP + Dougherty_POP_Oct$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Dougherty_POP_Oct <- Dougherty_POP_Oct %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Dougherty_POP_Oct_sums <- Dougherty_POP_Oct[,c(1:4,185:204)]  
+```
+
+### Filtering the data by zip code 
+
+```{r}
+#filtering data by zip: 31701  
+#All of the following FIPS or census tracts correspond to the 31701 zip code
+Zip_31701_Oct_POP <-filter(Dougherty_POP_Oct_sums,FIPS=="13095000700" | FIPS=="13095000800" | FIPS=="13095001403" | FIPS=="13095001500" | FIPS=="13095010601" | FIPS=="13095011300" | FIPS=="13095011400" | FIPS=="13095010602")  
+
+#filtering data by zip: 31705  
+#All of the following FIPS or census tracts correspond to the 31705 zip code
+Zip_31705_Oct_POP <- filter(Dougherty_POP_Oct_sums, FIPS=="13095000100" | FIPS=="13095000200" | FIPS=="13095010302" | FIPS=="13095010700" | FIPS=="13095010900" | FIPS=="13095011000" | FIPS=="13095011200" | FIPS=="13095011600")  
+
+#filtering data by zip: 31707  
+#All of the following FIPS or census tracts correspond to the 31707 zip code
+Zip_31707_Oct_POP <- filter(Dougherty_POP_Oct_sums, FIPS=="13095000400" | FIPS=="13095000501" | FIPS=="13095000502" | FIPS=="13095000600" | FIPS=="13095000900" | FIPS=="13095001000" | FIPS=="13095001100")  
+
+```
+
+### Change the column names for 31701 Oct
+
+```{r}
+colnames(Zip_31701_Oct_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Oct_28", "total_male_POP_Oct_28", "total_female_POP_Oct_28", "total_masian_POP_Oct_28", "total_mblack_POP_Oct_28", "total_morace_POP_Oct_28", "total_mwhite_POP_Oct_28", "total_fasian_POP_Oct_28", "total_fblack_POP_Oct_28", "total_forace_POP_Oct_28", "total_fwhite_POP_Oct_28", "total_asian_POP_Oct_28","total_black_POP_Oct_28", "total_orace_POP_Oct_28", "total_white_POP_Oct_28", "total_05_09_POP_Oct_28", "total_10_17_POP_Oct_28", "total_18_44_POP_Oct_28", "total_45_64_POP_Oct_28", "total_65Plus_POP_Oct_28") 
+
+#change column names for 31705 Oct  
+colnames(Zip_31705_Oct_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Oct_28", "total_male_POP_Oct_28", "total_female_POP_Oct_28", "total_masian_POP_Oct_28", "total_mblack_POP_Oct_28", "total_morace_POP_Oct_28", "total_mwhite_POP_Oct_28", "total_fasian_POP_Oct_28", "total_fblack_POP_Oct_28", "total_forace_POP_Oct_28", "total_fwhite_POP_Oct_28", "total_asian_POP_Oct_28","total_black_POP_Oct_28", "total_orace_POP_Oct_28", "total_white_POP_Oct_28", "total_05_09_POP_Oct_28", "total_10_17_POP_Oct_28", "total_18_44_POP_Oct_28", "total_45_64_POP_Oct_28", "total_65Plus_POP_Oct_28") 
+
+#change column names for 31707 Oct  
+colnames(Zip_31707_Oct_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Oct_28", "total_male_POP_Oct_28", "total_female_POP_Oct_28", "total_masian_POP_Oct_28", "total_mblack_POP_Oct_28", "total_morace_POP_Oct_28", "total_mwhite_POP_Oct_28", "total_fasian_POP_Oct_28", "total_fblack_POP_Oct_28", "total_forace_POP_Oct_28", "total_fwhite_POP_Oct_28", "total_asian_POP_Oct_28","total_black_POP_Oct_28", "total_orace_POP_Oct_28", "total_white_POP_Oct_28", "total_05_09_POP_Oct_28", "total_10_17_POP_Oct_28", "total_18_44_POP_Oct_28", "total_45_64_POP_Oct_28", "total_65Plus_POP_Oct_28") 
+
+```
+
+### Deleting excess environment objects and saving data as processed_data_Oct
+```{r}
+#Only need to save processed data for the three zip codes
+rm(Dougherty_POP_Oct,Oct_28, codebook, Dougherty_POP_Oct_sums) 
+
+#saving clean data for 31701 to processed_data folder
+save_data_location = here("data", "processed_data", "Zip_31701", "processed_POP_data_31701_Oct.rds")
+
+saveRDS(Zip_31701_Oct_POP, file = save_data_location)
+
+#saving clean data for 31705 to processed_data folder
+save_data_location2 = here("data", "processed_data", "Zip_31705", "processed_POP_data_31705_Oct.rds")
+
+saveRDS(Zip_31705_Oct_POP, file = save_data_location2)
+
+#saving clean data for 31707 to processed_data folder
+save_data_location3 = here("data", "processed_data", "Zip_31707", "processed_POP_data_31707_Oct.rds")
+
+saveRDS(Zip_31707_Oct_POP, file = save_data_location3)
+
+```
+
+## Processing 3: Getting Population Totals by Target Zips 31701, 31705 & 31707 for the Month of November 
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Nov_24.xlsx")
+Nov_24 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Novarating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Vaccination from Dougherty County which contains the target zip codes of 31701, 31705 and 31707
+#by using filter() I am able to create a new dataset with vaccinations from Dougherty County 
+Dougherty_POP_Nov <- filter(Nov_24, COUNTY_NAME == "Dougherty County")  
+
+#replacing negative values with 0
+Dougherty_POP_Nov [Dougherty_POP_Nov < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>% mutate(total_POP_Nov = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Dougherty_POP_Nov <- Dougherty_POP_Nov  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Dougherty_POP_Nov<- Dougherty_POP_Nov %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+```{r}
+#POP total Asian Residents
+Dougherty_POP_Nov$total_asian_POP <- Dougherty_POP_Nov$total_masian_POP + Dougherty_POP_Nov$total_fasian_POP
+
+#POP total for African American Residents 
+Dougherty_POP_Nov$total_black_POP <- Dougherty_POP_Nov$total_mblack_POP + Dougherty_POP_Nov$total_fblack_POP  
+
+#POP total for Other Race Residents
+Dougherty_POP_Nov$total_orace_POP <- Dougherty_POP_Nov$total_morace_POP + Dougherty_POP_Nov$total_forace_POP  
+
+#POP total for White Residents
+Dougherty_POP_Nov$total_white_POP <- Dougherty_POP_Nov$total_mwhite_POP + Dougherty_POP_Nov$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Dougherty_POP_Nov <- Dougherty_POP_Nov %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Dougherty_POP_Nov_sums <- Dougherty_POP_Nov[,c(1:4,185:204)]  
+```
+
+### Filtering the data by zip code 
+
+```{r}
+#filtering data by zip: 31701  
+#All of the following FIPS or census tracts correspond to the 31701 zip code
+Zip_31701_Nov_POP <-filter(Dougherty_POP_Nov_sums,FIPS=="13095000700" | FIPS=="13095000800" | FIPS=="13095001403" | FIPS=="13095001500" | FIPS=="13095010601" | FIPS=="13095011300" | FIPS=="13095011400" | FIPS=="13095010602")  
+
+#filtering data by zip: 31705  
+#All of the following FIPS or census tracts correspond to the 31705 zip code
+Zip_31705_Nov_POP <- filter(Dougherty_POP_Nov_sums, FIPS=="13095000100" | FIPS=="13095000200" | FIPS=="13095010302" | FIPS=="13095010700" | FIPS=="13095010900" | FIPS=="13095011000" | FIPS=="13095011200" | FIPS=="13095011600")  
+
+#filtering data by zip: 31707  
+#All of the following FIPS or census tracts correspond to the 31707 zip code
+Zip_31707_Nov_POP <- filter(Dougherty_POP_Nov_sums, FIPS=="13095000400" | FIPS=="13095000501" | FIPS=="13095000502" | FIPS=="13095000600" | FIPS=="13095000900" | FIPS=="13095001000" | FIPS=="13095001100")  
+
+```
+
+### Change the column names for 31701 Nov
+
+```{r}
+colnames(Zip_31701_Nov_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Nov_24", "total_male_POP_Nov_24", "total_female_POP_Nov_24", "total_masian_POP_Nov_24", "total_mblack_POP_Nov_24", "total_morace_POP_Nov_24", "total_mwhite_POP_Nov_24", "total_fasian_POP_Nov_24", "total_fblack_POP_Nov_24", "total_forace_POP_Nov_24", "total_fwhite_POP_Nov_24", "total_asian_POP_Nov_24","total_black_POP_Nov_24", "total_orace_POP_Nov_24", "total_white_POP_Nov_24", "total_05_09_POP_Nov_24", "total_10_17_POP_Nov_24", "total_18_44_POP_Nov_24", "total_45_64_POP_Nov_24", "total_65Plus_POP_Nov_24") 
+
+#change column names for 31705 Nov  
+colnames(Zip_31705_Nov_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Nov_24", "total_male_POP_Nov_24", "total_female_POP_Nov_24", "total_masian_POP_Nov_24", "total_mblack_POP_Nov_24", "total_morace_POP_Nov_24", "total_mwhite_POP_Nov_24", "total_fasian_POP_Nov_24", "total_fblack_POP_Nov_24", "total_forace_POP_Nov_24", "total_fwhite_POP_Nov_24", "total_asian_POP_Nov_24","total_black_POP_Nov_24", "total_orace_POP_Nov_24", "total_white_POP_Nov_24", "total_05_09_POP_Nov_24", "total_10_17_POP_Nov_24", "total_18_44_POP_Nov_24", "total_45_64_POP_Nov_24", "total_65Plus_POP_Nov_24") 
+
+#change column names for 31707 Nov  
+colnames(Zip_31707_Nov_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Nov_24", "total_male_POP_Nov_24", "total_female_POP_Nov_24", "total_masian_POP_Nov_24", "total_mblack_POP_Nov_24", "total_morace_POP_Nov_24", "total_mwhite_POP_Nov_24", "total_fasian_POP_Nov_24", "total_fblack_POP_Nov_24", "total_forace_POP_Nov_24", "total_fwhite_POP_Nov_24", "total_asian_POP_Nov_24","total_black_POP_Nov_24", "total_orace_POP_Nov_24", "total_white_POP_Nov_24", "total_05_09_POP_Nov_24", "total_10_17_POP_Nov_24", "total_18_44_POP_Nov_24", "total_45_64_POP_Nov_24", "total_65Plus_POP_Nov_24") 
+
+```
+
+### Deleting excess environment objects and saving data as processed_data_Nov
+```{r}
+#Only need to save processed data for the three zip codes
+rm(Dougherty_POP_Nov,Nov_24, codebook, Dougherty_POP_Nov_sums) 
+
+#saving clean data for 31701 to processed_data folder
+save_data_location = here("data", "processed_data", "Zip_31701", "processed_POP_data_31701_Nov.rds")
+
+saveRDS(Zip_31701_Nov_POP, file = save_data_location)
+
+#saving clean data for 31705 to processed_data folder
+save_data_location2 = here("data", "processed_data", "Zip_31705", "processed_POP_data_31705_Nov.rds")
+
+saveRDS(Zip_31705_Nov_POP, file = save_data_location2)
+
+#saving clean data for 31707 to processed_data folder
+save_data_location3 = here("data", "processed_data", "Zip_31707", "processed_POP_data_31707_Nov.rds")
+
+saveRDS(Zip_31707_Nov_POP, file = save_data_location3)
+
+```
+
+## Processing 4: Getting Population Totals by Target Zips 31701, 31705 & 31707 for the Month of December 
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Dec_29.xlsx")
+Dec_29 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Decarating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Vaccination from Dougherty County which contains the target zip codes of 31701, 31705 and 31707
+#by using filter() I am able to create a new dataset with vaccinations from Dougherty County 
+Dougherty_POP_Dec <- filter(Dec_29, COUNTY_NAME == "Dougherty County")  
+
+#replacing negative values with 0
+Dougherty_POP_Dec [Dougherty_POP_Dec < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>% mutate(total_POP_Dec = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Dougherty_POP_Dec <- Dougherty_POP_Dec  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Dougherty_POP_Dec<- Dougherty_POP_Dec %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+```{r}
+#POP total Asian Residents
+Dougherty_POP_Dec$total_asian_POP <- Dougherty_POP_Dec$total_masian_POP + Dougherty_POP_Dec$total_fasian_POP
+
+#POP total for African American Residents 
+Dougherty_POP_Dec$total_black_POP <- Dougherty_POP_Dec$total_mblack_POP + Dougherty_POP_Dec$total_fblack_POP  
+
+#POP total for Other Race Residents
+Dougherty_POP_Dec$total_orace_POP <- Dougherty_POP_Dec$total_morace_POP + Dougherty_POP_Dec$total_forace_POP  
+
+#POP total for White Residents
+Dougherty_POP_Dec$total_white_POP <- Dougherty_POP_Dec$total_mwhite_POP + Dougherty_POP_Dec$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Dougherty_POP_Dec <- Dougherty_POP_Dec %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Dougherty_POP_Dec_sums <- Dougherty_POP_Dec[,c(1:4,185:204)]  
+```
+
+### Filtering the data by zip code 
+
+```{r}
+#filtering data by zip: 31701  
+#All of the following FIPS or census tracts correspond to the 31701 zip code
+Zip_31701_Dec_POP <-filter(Dougherty_POP_Dec_sums,FIPS=="13095000700" | FIPS=="13095000800" | FIPS=="13095001403" | FIPS=="13095001500" | FIPS=="13095010601" | FIPS=="13095011300" | FIPS=="13095011400" | FIPS=="13095010602")  
+
+#filtering data by zip: 31705  
+#All of the following FIPS or census tracts correspond to the 31705 zip code
+Zip_31705_Dec_POP <- filter(Dougherty_POP_Dec_sums, FIPS=="13095000100" | FIPS=="13095000200" | FIPS=="13095010302" | FIPS=="13095010700" | FIPS=="13095010900" | FIPS=="13095011000" | FIPS=="13095011200" | FIPS=="13095011600")  
+
+#filtering data by zip: 31707  
+#All of the following FIPS or census tracts correspond to the 31707 zip code
+Zip_31707_Dec_POP <- filter(Dougherty_POP_Dec_sums, FIPS=="13095000400" | FIPS=="13095000501" | FIPS=="13095000502" | FIPS=="13095000600" | FIPS=="13095000900" | FIPS=="13095001000" | FIPS=="13095001100")  
+
+```
+
+### Change the column names for 31701 Dec
+
+```{r}
+colnames(Zip_31701_Dec_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Dec_29", "total_male_POP_Dec_29", "total_female_POP_Dec_29", "total_masian_POP_Dec_29", "total_mblack_POP_Dec_29", "total_morace_POP_Dec_29", "total_mwhite_POP_Dec_29", "total_fasian_POP_Dec_29", "total_fblack_POP_Dec_29", "total_forace_POP_Dec_29", "total_fwhite_POP_Dec_29", "total_asian_POP_Dec_29","total_black_POP_Dec_29", "total_orace_POP_Dec_29", "total_white_POP_Dec_29", "total_05_09_POP_Dec_29", "total_10_17_POP_Dec_29", "total_18_44_POP_Dec_29", "total_45_64_POP_Dec_29", "total_65Plus_POP_Dec_29") 
+
+#change column names for 31705 Dec  
+colnames(Zip_31705_Dec_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Dec_29", "total_male_POP_Dec_29", "total_female_POP_Dec_29", "total_masian_POP_Dec_29", "total_mblack_POP_Dec_29", "total_morace_POP_Dec_29", "total_mwhite_POP_Dec_29", "total_fasian_POP_Dec_29", "total_fblack_POP_Dec_29", "total_forace_POP_Dec_29", "total_fwhite_POP_Dec_29", "total_asian_POP_Dec_29","total_black_POP_Dec_29", "total_orace_POP_Dec_29", "total_white_POP_Dec_29", "total_05_09_POP_Dec_29", "total_10_17_POP_Dec_29", "total_18_44_POP_Dec_29", "total_45_64_POP_Dec_29", "total_65Plus_POP_Dec_29") 
+
+#change column names for 31707 Dec  
+colnames(Zip_31707_Dec_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Dec_29", "total_male_POP_Dec_29", "total_female_POP_Dec_29", "total_masian_POP_Dec_29", "total_mblack_POP_Dec_29", "total_morace_POP_Dec_29", "total_mwhite_POP_Dec_29", "total_fasian_POP_Dec_29", "total_fblack_POP_Dec_29", "total_forace_POP_Dec_29", "total_fwhite_POP_Dec_29", "total_asian_POP_Dec_29","total_black_POP_Dec_29", "total_orace_POP_Dec_29", "total_white_POP_Dec_29", "total_05_09_POP_Dec_29", "total_10_17_POP_Dec_29", "total_18_44_POP_Dec_29", "total_45_64_POP_Dec_29", "total_65Plus_POP_Dec_29") 
+
+```
+
+### Deleting excess environment objects and saving data as processed_data_Dec
+```{r}
+#Only need to save processed data for the three zip codes
+rm(Dougherty_POP_Dec,Dec_29, codebook, Dougherty_POP_Dec_sums) 
+
+#saving clean data for 31701 to processed_data folder
+save_data_location = here("data", "processed_data", "Zip_31701", "processed_POP_data_31701_Dec.rds")
+
+saveRDS(Zip_31701_Dec_POP, file = save_data_location)
+
+#saving clean data for 31705 to processed_data folder
+save_data_location2 = here("data", "processed_data", "Zip_31705", "processed_POP_data_31705_Dec.rds")
+
+saveRDS(Zip_31705_Dec_POP, file = save_data_location2)
+
+#saving clean data for 31707 to processed_data folder
+save_data_location3 = here("data", "processed_data", "Zip_31707", "processed_POP_data_31707_Dec.rds")
+
+saveRDS(Zip_31707_Dec_POP, file = save_data_location3)
+
+```
+
+## Processing 6: Getting Population Totals by Target Zips 31701, 31705 & 31707 for the Month of February 
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Feb_26.xlsx")
+Feb_26 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Febarating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Vaccination from Dougherty County which contains the target zip codes of 31701, 31705 and 31707
+#by using filter() I am able to create a new dataset with vaccinations from Dougherty County 
+Dougherty_POP_Feb <- filter(Feb_26, COUNTY_NAME == "Dougherty County")  
+
+#replacing negative values with 0
+Dougherty_POP_Feb [Dougherty_POP_Feb < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>% mutate(total_POP_Feb = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Dougherty_POP_Feb <- Dougherty_POP_Feb  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Dougherty_POP_Feb<- Dougherty_POP_Feb %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+```{r}
+#POP total Asian Residents
+Dougherty_POP_Feb$total_asian_POP <- Dougherty_POP_Feb$total_masian_POP + Dougherty_POP_Feb$total_fasian_POP
+
+#POP total for African American Residents 
+Dougherty_POP_Feb$total_black_POP <- Dougherty_POP_Feb$total_mblack_POP + Dougherty_POP_Feb$total_fblack_POP  
+
+#POP total for Other Race Residents
+Dougherty_POP_Feb$total_orace_POP <- Dougherty_POP_Feb$total_morace_POP + Dougherty_POP_Feb$total_forace_POP  
+
+#POP total for White Residents
+Dougherty_POP_Feb$total_white_POP <- Dougherty_POP_Feb$total_mwhite_POP + Dougherty_POP_Feb$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Dougherty_POP_Feb <- Dougherty_POP_Feb %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Dougherty_POP_Feb_sums <- Dougherty_POP_Feb[,c(1:4,185:204)]  
+```
+
+### Filtering the data by zip code 
+
+```{r}
+#filtering data by zip: 31701  
+#All of the following FIPS or census tracts correspond to the 31701 zip code
+Zip_31701_Feb_POP <-filter(Dougherty_POP_Feb_sums,FIPS=="13095000700" | FIPS=="13095000800" | FIPS=="13095001403" | FIPS=="13095001500" | FIPS=="13095010601" | FIPS=="13095011300" | FIPS=="13095011400" | FIPS=="13095010602")  
+
+#filtering data by zip: 31705  
+#All of the following FIPS or census tracts correspond to the 31705 zip code
+Zip_31705_Feb_POP <- filter(Dougherty_POP_Feb_sums, FIPS=="13095000100" | FIPS=="13095000200" | FIPS=="13095010302" | FIPS=="13095010700" | FIPS=="13095010900" | FIPS=="13095011000" | FIPS=="13095011200" | FIPS=="13095011600")  
+
+#filtering data by zip: 31707  
+#All of the following FIPS or census tracts correspond to the 31707 zip code
+Zip_31707_Feb_POP <- filter(Dougherty_POP_Feb_sums, FIPS=="13095000400" | FIPS=="13095000501" | FIPS=="13095000502" | FIPS=="13095000600" | FIPS=="13095000900" | FIPS=="13095001000" | FIPS=="13095001100")  
+
+```
+
+### Change the column names for 31701 Feb
+
+```{r}
+colnames(Zip_31701_Feb_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Feb_26", "total_male_POP_Feb_26", "total_female_POP_Feb_26", "total_masian_POP_Feb_26", "total_mblack_POP_Feb_26", "total_morace_POP_Feb_26", "total_mwhite_POP_Feb_26", "total_fasian_POP_Feb_26", "total_fblack_POP_Feb_26", "total_forace_POP_Feb_26", "total_fwhite_POP_Feb_26", "total_asian_POP_Feb_26","total_black_POP_Feb_26", "total_orace_POP_Feb_26", "total_white_POP_Feb_26", "total_05_09_POP_Feb_26", "total_10_17_POP_Feb_26", "total_18_44_POP_Feb_26", "total_45_64_POP_Feb_26", "total_65Plus_POP_Feb_26") 
+
+#change column names for 31705 Feb  
+colnames(Zip_31705_Feb_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Feb_26", "total_male_POP_Feb_26", "total_female_POP_Feb_26", "total_masian_POP_Feb_26", "total_mblack_POP_Feb_26", "total_morace_POP_Feb_26", "total_mwhite_POP_Feb_26", "total_fasian_POP_Feb_26", "total_fblack_POP_Feb_26", "total_forace_POP_Feb_26", "total_fwhite_POP_Feb_26", "total_asian_POP_Feb_26","total_black_POP_Feb_26", "total_orace_POP_Feb_26", "total_white_POP_Feb_26", "total_05_09_POP_Feb_26", "total_10_17_POP_Feb_26", "total_18_44_POP_Feb_26", "total_45_64_POP_Feb_26", "total_65Plus_POP_Feb_26") 
+
+#change column names for 31707 Feb  
+colnames(Zip_31707_Feb_POP) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Feb_26", "total_male_POP_Feb_26", "total_female_POP_Feb_26", "total_masian_POP_Feb_26", "total_mblack_POP_Feb_26", "total_morace_POP_Feb_26", "total_mwhite_POP_Feb_26", "total_fasian_POP_Feb_26", "total_fblack_POP_Feb_26", "total_forace_POP_Feb_26", "total_fwhite_POP_Feb_26", "total_asian_POP_Feb_26","total_black_POP_Feb_26", "total_orace_POP_Feb_26", "total_white_POP_Feb_26", "total_05_09_POP_Feb_26", "total_10_17_POP_Feb_26", "total_18_44_POP_Feb_26", "total_45_64_POP_Feb_26", "total_65Plus_POP_Feb_26") 
+
+```
+
+### Deleting excess environment objects and saving data as processed_data_Feb
+```{r}
+#Only need to save processed data for the three zip codes
+rm(Dougherty_POP_Feb,Feb_26, codebook, Dougherty_POP_Feb_sums) 
+
+#saving clean data for 31701 to processed_data folder
+save_data_location = here("data", "processed_data", "Zip_31701", "processed_POP_data_31701_Feb.rds")
+
+saveRDS(Zip_31701_Feb_POP, file = save_data_location)
+
+#saving clean data for 31705 to processed_data folder
+save_data_location2 = here("data", "processed_data", "Zip_31705", "processed_POP_data_31705_Feb.rds")
+
+saveRDS(Zip_31705_Feb_POP, file = save_data_location2)
+
+#saving clean data for 31707 to processed_data folder
+save_data_location3 = here("data", "processed_data", "Zip_31707", "processed_POP_data_31707_Feb.rds")
+
+saveRDS(Zip_31707_Feb_POP, file = save_data_location3)
+
+```
+
+# Processing Section for Control Zip Code
+
+## Processing 1: Getting Population Totals by Control Zip Code 30815 in the Month of September
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Sept_17.xlsx")
+Sept_17 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Population from Richmond County which contains the target zip codes of 30815, 31705 and 31707
+#by using filter() I am able to create a new dataset with Populations from Richmond County 
+Richmond_POP_Sept <- filter(Sept_17, COUNTY_NAME == "Richmond County")  
+
+#replacing negative values with 0
+Richmond_POP_Sept [Richmond_POP_Sept < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>% mutate(total_POP_Sept = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Richmond_POP_Sept <- Richmond_POP_Sept  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Richmond_POP_Sept<- Richmond_POP_Sept %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident Populations by adding all males and females of a specific race to get the the overall amount of resident Populations by race.
+
+For example(see below): I get the total Asian resident Populations by summing male Asian residents + female Asian residents.
+
+```{r}
+#POP total Asian Residents
+Richmond_POP_Sept$total_asian_POP <- Richmond_POP_Sept$total_masian_POP + Richmond_POP_Sept$total_fasian_POP
+
+#POP total for African American Residents 
+Richmond_POP_Sept$total_black_POP <- Richmond_POP_Sept$total_mblack_POP + Richmond_POP_Sept$total_fblack_POP  
+
+#POP total for Other Race Residents
+Richmond_POP_Sept$total_orace_POP <- Richmond_POP_Sept$total_morace_POP + Richmond_POP_Sept$total_forace_POP  
+
+#POP total for White Residents
+Richmond_POP_Sept$total_white_POP <- Richmond_POP_Sept$total_mwhite_POP + Richmond_POP_Sept$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Richmond_POP_Sept <- Richmond_POP_Sept %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Richmond_POP_Sept_sums <- Richmond_POP_Sept[,c(1:4,185:204)]  
+```
+
+### Filtering the data by census tract within the 30815 zip code 
+
+```{r}
+#filtering data by zip: 30815  
+#All of the following FIPS or census tracts correspond to the 30815 zip code
+Zip_30815_POP_Sept <-filter(Richmond_POP_Sept_sums, FIPS=="13245010904" | FIPS=="13245010907" | FIPS=="13245010908" | FIPS=="13245010713" | FIPS=="13245010714" | FIPS=="13245010711" | FIPS=="13245010708" | FIPS=="13245010707" | FIPS=="13245010709" | FIPS=="13245010710" | FIPS=="13033950101" | FIPS=="13245010905" | FIPS=="13033950200")
+```
+Not that the new data set `Zip_30815_POP_Sept` only has 7 observations because the orinigal data set only had 7 of the 13 census tracts found within the zip code 30815
+
+
+### Change the column names for 30815 Sept
+```{r}
+colnames(Zip_30815_POP_Sept) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Sept_17", "total_male_POP_Sept_17", "total_female_POP_Sept_17", "total_masian_POP_Sept_17", "total_mblack_POP_Sept_17", "total_morace_POP_Sept_17", "total_mwhite_POP_Sept_17", "total_fasian_POP_Sept_17", "total_fblack_POP_Sept_17", "total_forace_POP_Sept_17", "total_fwhite_POP_Sept_17", "total_asian_POP_Sept_17","total_black_POP_Sept_17", "total_orace_POP_Sept_17", "total_white_POP_Sept_17", "total_05_09_POP_Sept_17", "total_10_17_POP_Sept_17", "total_18_44_POP_Sept_17", "total_45_64_POP_Sept_17", "total_65Plus_POP_Sept_17") 
+```
+
+### Deleting excess environment objects and saving data as processed_data_POP_sept
+```{r}
+#Only need to save processed data for the three zip codes
+rm(Richmond_POP_Sept,Sept_17, codebook, Richmond_POP_Sept_sums) 
+
+#saving clean data for 30815 to processed_data_POP folder
+save_data_location4 = here("data", "processed_data", "Zip_30815", "processed_data_POP_30815_Sept.rds")
+
+saveRDS(Zip_30815_POP_Sept, save_data_location4)
+```
+
+
+## Processing 2: Getting Population Totals by Target Zips 30815 for the Month of October 
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Oct_28.xlsx")
+Oct_28 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Population from Richmond County which contains the target zip codes of 30815, 31705 and 31707
+#by using filter() I am able to create a new dataset with Populations from Richmond County 
+Richmond_POP_Oct <- filter(Oct_28, COUNTY_NAME == "Richmond County")  
+
+#replacing negative values with 0
+Richmond_POP_Oct [Richmond_POP_Oct < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>% mutate(total_POP_Oct = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Richmond_POP_Oct <- Richmond_POP_Oct  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Richmond_POP_Oct<- Richmond_POP_Oct %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident Populations by adding all males and females of a specific race to get the the overall amount of resident Populations by race.
+
+For example(see below): I get the total Asian resident Populations by summing male Asian residents + female Asain residents.
+
+```{r}
+#POP total Asian Residents
+Richmond_POP_Oct$total_asian_POP <- Richmond_POP_Oct$total_masian_POP + Richmond_POP_Oct$total_fasian_POP
+
+#POP total for African American Residents 
+Richmond_POP_Oct$total_black_POP <- Richmond_POP_Oct$total_mblack_POP + Richmond_POP_Oct$total_fblack_POP  
+
+#POP total for Other Race Residents
+Richmond_POP_Oct$total_orace_POP <- Richmond_POP_Oct$total_morace_POP + Richmond_POP_Oct$total_forace_POP  
+
+#POP total for White Residents
+Richmond_POP_Oct$total_white_POP <- Richmond_POP_Oct$total_mwhite_POP + Richmond_POP_Oct$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Richmond_POP_Oct <- Richmond_POP_Oct %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Richmond_POP_Oct_sums <- Richmond_POP_Oct[,c(1:4,185:204)]  
+```
+
+### Filtering the data by census tract within the 30815 zip code
+
+```{r}
+#filtering data by zip: 30815  
+#All of the following FIPS or census tracts correspond to the 30815 zip code 
+
+Zip_30815_POP_Oct <-filter(Richmond_POP_Oct_sums, FIPS=="13245010904" | FIPS=="13245010907" | FIPS=="13245010908" | FIPS=="13245010713" | FIPS=="13245010714" | FIPS=="13245010711" | FIPS=="13245010708" | FIPS=="13245010707" | FIPS=="13245010709" | FIPS=="13245010710" | FIPS=="13033950101" | FIPS=="13245010905" | FIPS=="13033950200")
+```
+
+### Change the column names for 30815 Oct
+
+```{r}
+colnames(Zip_30815_POP_Oct) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Oct_28", "total_male_POP_Oct_28", "total_female_POP_Oct_28", "total_masian_POP_Oct_28", "total_mblack_POP_Oct_28", "total_morace_POP_Oct_28", "total_mwhite_POP_Oct_28", "total_fasian_POP_Oct_28", "total_fblack_POP_Oct_28", "total_forace_POP_Oct_28", "total_fwhite_POP_Oct_28", "total_asian_POP_Oct_28","total_black_POP_Oct_28", "total_orace_POP_Oct_28", "total_white_POP_Oct_28", "total_05_09_POP_Oct_28", "total_10_17_POP_Oct_28", "total_18_44_POP_Oct_28", "total_45_64_POP_Oct_28", "total_65Plus_POP_Oct_28") 
+```
+
+ 
+
+### Deleting excess environment objects and saving data as processed_data_POP_Oct
+
+```{r}
+#Only need to save processed data for the three zip codes
+rm(Richmond_POP_Oct,Oct_28, codebook, Richmond_POP_Oct_sums) 
+
+#saving clean data for 30815 to processed_data_POP folder
+save_data_location4 = here("data", "processed_data","Zip_30815", "processed_data_POP_30815_Oct.rds")
+
+saveRDS(Zip_30815_POP_Oct, file = save_data_location4)
+```
+
+## Processing 3: : Getting Population Totals by Target Zips 30815 for the Month of November 
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Nov_24.xlsx")
+Nov_24 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+## Summary of data
+
+```{r}
+glimpse(Nov_24)
+```
+
+
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Population from Richmond County which contains the target zip codes of 30815, 31705 and 31707
+#by using filter() I am able to create a new dataset with Populations from Richmond County 
+Richmond_POP_Nov <- filter(Nov_24, COUNTY_NAME == "Richmond County")  
+
+#replacing negative values with 0
+Richmond_POP_Nov [Richmond_POP_Nov < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>% mutate(total_POP_Nov = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Richmond_POP_Nov <- Richmond_POP_Nov  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Richmond_POP_Nov<- Richmond_POP_Nov %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident Populations by adding all males and females of a specific race to get the the overall amount of resident Populations by race.
+
+For example(see below): I get the total Asian resident Populations by summing male Asian residents + female Asain residents.
+
+```{r}
+#POP total Asian Residents
+Richmond_POP_Nov$total_asian_POP <- Richmond_POP_Nov$total_masian_POP + Richmond_POP_Nov$total_fasian_POP
+
+#POP total for African American Residents 
+Richmond_POP_Nov$total_black_POP <- Richmond_POP_Nov$total_mblack_POP + Richmond_POP_Nov$total_fblack_POP  
+
+#POP total for Other Race Residents
+Richmond_POP_Nov$total_orace_POP <- Richmond_POP_Nov$total_morace_POP + Richmond_POP_Nov$total_forace_POP  
+
+#POP total for White Residents
+Richmond_POP_Nov$total_white_POP <- Richmond_POP_Nov$total_mwhite_POP + Richmond_POP_Nov$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Richmond_POP_Nov <- Richmond_POP_Nov %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Richmond_POP_Nov_sums <- Richmond_POP_Nov[,c(1:4,185:204)]  
+```
+
+### Filtering the data by census tract within the 30815 zip code
+
+```{r}
+#filtering data by zip: 30815  
+#All of the following FIPS or census tracts correspond to the 30815 zip code 
+
+Zip_30815_POP_Nov <-filter(Richmond_POP_Nov_sums, FIPS=="13245010904" | FIPS=="13245010907" | FIPS=="13245010908" | FIPS=="13245010713" | FIPS=="13245010714" | FIPS=="13245010711" | FIPS=="13245010708" | FIPS=="13245010707" | FIPS=="13245010709" | FIPS=="13245010710" | FIPS=="13033950101" | FIPS=="13245010905" | FIPS=="13033950200")
+
+```
+
+### Change the column names for 30815 Nov
+
+```{r}
+colnames(Zip_30815_POP_Nov) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Nov_24", "total_male_POP_Nov_24", "total_female_POP_Nov_24", "total_masian_POP_Nov_24", "total_mblack_POP_Nov_24", "total_morace_POP_Nov_24", "total_mwhite_POP_Nov_24", "total_fasian_POP_Nov_24", "total_fblack_POP_Nov_24", "total_forace_POP_Nov_24", "total_fwhite_POP_Nov_24", "total_asian_POP_Nov_24","total_black_POP_Nov_24", "total_orace_POP_Nov_24", "total_white_POP_Nov_24", "total_05_09_POP_Nov_24", "total_10_17_POP_Nov_24", "total_18_44_POP_Nov_24", "total_45_64_POP_Nov_24", "total_65Plus_POP_Nov_24") 
+```
+
+ 
+
+### Deleting excess environment objects and saving data as processed_data_POP_Nov
+
+```{r}
+#Only need to save processed data for the three zip codes
+rm(Richmond_POP_Nov,Nov_24, codebook, Richmond_POP_Nov_sums) 
+
+#saving clean data for 30815 to processed_data_POP folder
+save_data_location4 = here("data", "processed_data","Zip_30815", "processed_data_POP_30815_Nov.rds")
+
+saveRDS(Zip_30815_POP_Nov, file = save_data_location4)
+
+```
+
+
+## Processing 4: Getting Population Totals by Target Zips 30815 for the Month of December 
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Dec_29.xlsx")
+Dec_29 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+## Summary of data
+
+```{r}
+glimpse(Dec_29)
+```
+
+
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Population from Richmond County which contains the target zip codes of 30815, 31705 and 31707
+#by using filter() I am able to create a new dataset with Populations from Richmond County 
+Richmond_POP_Dec <- filter(Dec_29, COUNTY_NAME == "Richmond County")  
+
+#replacing negative values with 0
+Richmond_POP_Dec [Richmond_POP_Dec < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>% mutate(total_POP_Dec = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Richmond_POP_Dec <- Richmond_POP_Dec  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Richmond_POP_Dec<- Richmond_POP_Dec %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident Populations by adding all males and females of a specific race to get the the overall amount of resident Populations by race.
+
+For example(see below): I get the total Asian resident Populations by summing male Asian residents + female Asain residents.
+
+```{r}
+#POP total Asian Residents
+Richmond_POP_Dec$total_asian_POP <- Richmond_POP_Dec$total_masian_POP + Richmond_POP_Dec$total_fasian_POP
+
+#POP total for African American Residents 
+Richmond_POP_Dec$total_black_POP <- Richmond_POP_Dec$total_mblack_POP + Richmond_POP_Dec$total_fblack_POP  
+
+#POP total for Other Race Residents
+Richmond_POP_Dec$total_orace_POP <- Richmond_POP_Dec$total_morace_POP + Richmond_POP_Dec$total_forace_POP  
+
+#POP total for White Residents
+Richmond_POP_Dec$total_white_POP <- Richmond_POP_Dec$total_mwhite_POP + Richmond_POP_Dec$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Richmond_POP_Dec <- Richmond_POP_Dec %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Richmond_POP_Dec_sums <- Richmond_POP_Dec[,c(1:4,185:204)]  
+```
+
+### Filtering the data by census tract within the 30815 zip code
+
+```{r}
+#filtering data by zip: 30815  
+Zip_30815_POP_Dec <-filter(Richmond_POP_Dec_sums, FIPS=="13245010904" | FIPS=="13245010907" | FIPS=="13245010908" | FIPS=="13245010713" | FIPS=="13245010714" | FIPS=="13245010711" | FIPS=="13245010708" | FIPS=="13245010707" | FIPS=="13245010709" | FIPS=="13245010710" | FIPS=="13033950101" | FIPS=="13245010905" | FIPS=="13033950200")
+
+
+```
+
+### Change the column names for 30815 zip code data 
+
+```{r}
+colnames(Zip_30815_POP_Dec) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Dec_29", "total_male_POP_Dec_29", "total_female_POP_Dec_29", "total_masian_POP_Dec_29", "total_mblack_POP_Dec_29", "total_morace_POP_Dec_29", "total_mwhite_POP_Dec_29", "total_fasian_POP_Dec_29", "total_fblack_POP_Dec_29", "total_forace_POP_Dec_29", "total_fwhite_POP_Dec_29", "total_asian_POP_Dec_29","total_black_POP_Dec_29", "total_orace_POP_Dec_29", "total_white_POP_Dec_29", "total_05_09_POP_Dec_29", "total_10_17_POP_Dec_29", "total_18_44_POP_Dec_29", "total_45_64_POP_Dec_29", "total_65Plus_POP_Dec_29") 
+
+```
+
+### Deleting excess environment objects and saving data as processed_data_POP_Dec
+
+```{r}
+#Only need to save processed data for the three zip codes
+rm(Richmond_POP_Dec,Dec_29, codebook, Richmond_POP_Dec_sums) 
+
+#saving clean data for 30815 to processed_data_POP folder
+save_data_location4 = here("data", "processed_data","Zip_30815", "processed_data_POP_30815_Dec.rds")
+
+saveRDS(Zip_30815_POP_Dec, file = save_data_location4)
+```
+
+## Processing 5: Getting Population Totals by Target Zips 30815 for the Month of January 
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Jan_26.xlsx")
+Jan_26 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+## Summary of data
+
+```{r}
+glimpse(Jan_26)
+```
+
+
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Population from Richmond County which contains the target zip codes of 30815, 31705 and 31707
+#by using filter() I am able to create a new dataset with Populations from Richmond County 
+Richmond_POP_Jan <- filter(Jan_26, COUNTY_NAME == "Richmond County")  
+
+#replacing negative values with 0
+Richmond_POP_Jan [Richmond_POP_Jan < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>% mutate(total_POP_Jan = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Richmond_POP_Jan <- Richmond_POP_Jan  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Richmond_POP_Jan<- Richmond_POP_Jan %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident Populations by adding all males and females of a specific race to get the the overall amount of resident Populations by race.
+
+For example(see below): I get the total Asian resident Populations by summing male Asian residents + female Asain residents.
+
+```{r}
+#POP total Asian Residents
+Richmond_POP_Jan$total_asian_POP <- Richmond_POP_Jan$total_masian_POP + Richmond_POP_Jan$total_fasian_POP
+
+#POP total for African American Residents 
+Richmond_POP_Jan$total_black_POP <- Richmond_POP_Jan$total_mblack_POP + Richmond_POP_Jan$total_fblack_POP  
+
+#POP total for Other Race Residents
+Richmond_POP_Jan$total_orace_POP <- Richmond_POP_Jan$total_morace_POP + Richmond_POP_Jan$total_forace_POP  
+
+#POP total for White Residents
+Richmond_POP_Jan$total_white_POP <- Richmond_POP_Jan$total_mwhite_POP + Richmond_POP_Jan$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Richmond_POP_Jan <- Richmond_POP_Jan %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Richmond_POP_Jan_sums <- Richmond_POP_Jan[,c(1:4,185:204)]  
+```
+
+### Filtering the data by census tract within the 30815 zip code
+
+```{r}
+#filtering data by zip: 30815  
+Zip_30815_POP_Jan <-filter(Richmond_POP_Jan_sums, FIPS=="13245010904" | FIPS=="13245010907" | FIPS=="13245010908" | FIPS=="13245010713" | FIPS=="13245010714" | FIPS=="13245010711" | FIPS=="13245010708" | FIPS=="13245010707" | FIPS=="13245010709" | FIPS=="13245010710" | FIPS=="13033950101" | FIPS=="13245010905" | FIPS=="13033950200")
+
+```
+
+### Change the column names for 30815 Jan
+
+```{r}
+colnames(Zip_30815_POP_Jan) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Jan_26", "total_male_POP_Jan_26", "total_female_POP_Jan_26", "total_masian_POP_Jan_26", "total_mblack_POP_Jan_26", "total_morace_POP_Jan_26", "total_mwhite_POP_Jan_26", "total_fasian_POP_Jan_26", "total_fblack_POP_Jan_26", "total_forace_POP_Jan_26", "total_fwhite_POP_Jan_26", "total_asian_POP_Jan_26","total_black_POP_Jan_26", "total_orace_POP_Jan_26", "total_white_POP_Jan_26", "total_05_09_POP_Jan_26", "total_10_17_POP_Jan_26", "total_18_44_POP_Jan_26", "total_45_64_POP_Jan_26", "total_65Plus_POP_Jan_26") 
+```
+
+ 
+
+### Deleting excess environment objects and saving data as processed_data_POP_Jan
+
+```{r}
+#Only need to save processed data for the three zip codes
+rm(Richmond_POP_Jan,Jan_26, codebook, Richmond_POP_Jan_sums) 
+
+#saving clean data for 30815 to processed_data_POP folder
+save_data_location4 = here("data", "processed_data","Zip_30815", "processed_data_POP_30815_Jan.rds")
+
+saveRDS(Zip_30815_POP_Jan, file = save_data_location4)
+```
+
+## Processing 6: : Getting Population Totals by Target Zips 30815 for the Month of February 
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Feb_26.xlsx")
+Feb_26 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+## Summary of data
+
+```{r}
+glimpse(Feb_26)
+```
+
+
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Population from Richmond County which contains the target zip codes of 30815, 31705 and 31707
+#by using filter() I am able to create a new dataset with Populations from Richmond County 
+Richmond_POP_Feb <- filter(Feb_26, COUNTY_NAME == "Richmond County")  
+
+#replacing negative values with 0
+Richmond_POP_Feb [Richmond_POP_Feb < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>% mutate(total_POP_Feb = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Richmond_POP_Feb <- Richmond_POP_Feb  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Richmond_POP_Feb<- Richmond_POP_Feb %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident Populations by adding all males and females of a specific race to get the the overall amount of resident Populations by race.
+
+For example(see below): I get the total Asian resident Populations by summing male Asian residents + female Asain residents.
+
+```{r}
+#POP total Asian Residents
+Richmond_POP_Feb$total_asian_POP <- Richmond_POP_Feb$total_masian_POP + Richmond_POP_Feb$total_fasian_POP
+
+#POP total for African American Residents 
+Richmond_POP_Feb$total_black_POP <- Richmond_POP_Feb$total_mblack_POP + Richmond_POP_Feb$total_fblack_POP  
+
+#POP total for Other Race Residents
+Richmond_POP_Feb$total_orace_POP <- Richmond_POP_Feb$total_morace_POP + Richmond_POP_Feb$total_forace_POP  
+
+#POP total for White Residents
+Richmond_POP_Feb$total_white_POP <- Richmond_POP_Feb$total_mwhite_POP + Richmond_POP_Feb$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Richmond_POP_Feb <- Richmond_POP_Feb %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Richmond_POP_Feb_sums <- Richmond_POP_Feb[,c(1:4,185:204)]  
+```
+
+### Filtering the data by census tract within the 30815 zip code
+
+```{r}
+#filtering data by zip: 30815  
+Zip_30815_POP_Feb <-filter(Richmond_POP_Feb_sums, FIPS=="13245010904" | FIPS=="13245010907" | FIPS=="13245010908" | FIPS=="13245010713" | FIPS=="13245010714" | FIPS=="13245010711" | FIPS=="13245010708" | FIPS=="13245010707" | FIPS=="13245010709" | FIPS=="13245010710" | FIPS=="13033950101" | FIPS=="13245010905" | FIPS=="13033950200") 
+
+```
+
+### Change the column names for 30815 Feb
+
+```{r}
+colnames(Zip_30815_POP_Feb) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Feb_26", "total_male_POP_Feb_26", "total_female_POP_Feb_26", "total_masian_POP_Feb_26", "total_mblack_POP_Feb_26", "total_morace_POP_Feb_26", "total_mwhite_POP_Feb_26", "total_fasian_POP_Feb_26", "total_fblack_POP_Feb_26", "total_forace_POP_Feb_26", "total_fwhite_POP_Feb_26", "total_asian_POP_Feb_26","total_black_POP_Feb_26", "total_orace_POP_Feb_26", "total_white_POP_Feb_26", "total_05_09_POP_Feb_26", "total_10_17_POP_Feb_26", "total_18_44_POP_Feb_26", "total_45_64_POP_Feb_26", "total_65Plus_POP_Feb_26") 
+```
+
+
+### Deleting excess environment objects and saving data as processed_data_POP_Feb
+
+```{r}
+#Only need to save processed data for the three zip codes
+rm(Richmond_POP_Feb,Feb_26, codebook, Richmond_POP_Feb_sums) 
+
+#saving clean data for 30815 to processed_data_POP folder
+save_data_location4 = here("data", "processed_data","Zip_30815", "processed_data_POP_30815_Feb.rds")
+
+saveRDS(Zip_30815_POP_Feb, file = save_data_location4)
+```
+
+
+# Processing Section for Control Zip Code: 30907
+
+## Processing 1: Getting Population Totals by Control Zip Code 30907 in the Month of September
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Sept_17.xlsx")
+Sept_17 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Population from the 30907 zip code within which contains the following cenus tracts below 
+#by using filter() I am able to create a new dataset with Populations from Richmond County 
+Zip_30907_POP_Sept <-filter(Sept_17, FIPS=="13073030107" | FIPS=="13073030108" | FIPS=="13245010104" | FIPS=="13245010105" | FIPS=="13245010205" | FIPS=="13073030202" | FIPS=="13073030313" | FIPS=="13073030312" | FIPS=="13073030306" | FIPS=="13073030201" | FIPS=="13073030603" | FIPS=="13073030106" | FIPS=="13245010203"| FIPS=="13245010201")
+
+#taking a look at the data
+head(Zip_30907_POP_Sept)
+
+#notice that although the control zip 30907 is in Richmond county, there are some observartions from Columbia county. This is okay because census tracts are not completely contained by one county or zip code.
+
+#replacing negative values with 0
+Zip_30907_POP_Sept [Zip_30907_POP_Sept < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>% mutate(total_POP_Sept = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Zip_30907_POP_Sept<- Zip_30907_POP_Sept %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident Populations by adding all males and females of a specific race to get the the overall amount of resident Populations by race.
+
+For example(see below): I get the total Asian resident Populations by summing male Asian residents + female Asian residents.
+
+```{r}
+#POP total Asian Residents
+Zip_30907_POP_Sept$total_asian_POP <- Zip_30907_POP_Sept$total_masian_POP + Zip_30907_POP_Sept$total_fasian_POP
+
+#POP total for African American Residents 
+Zip_30907_POP_Sept$total_black_POP <- Zip_30907_POP_Sept$total_mblack_POP + Zip_30907_POP_Sept$total_fblack_POP  
+
+#POP total for Other Race Residents
+Zip_30907_POP_Sept$total_orace_POP <- Zip_30907_POP_Sept$total_morace_POP + Zip_30907_POP_Sept$total_forace_POP  
+
+#POP total for White Residents
+Zip_30907_POP_Sept$total_white_POP <- Zip_30907_POP_Sept$total_mwhite_POP + Zip_30907_POP_Sept$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Zip_30907_POP_Sept <- Zip_30907_POP_Sept %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Zip_30907_POP_Sept_sums <- Zip_30907_POP_Sept[,c(1:4,185:204)]  
+```
+
+### Change the column names for 30907 Sept
+```{r}
+colnames(Zip_30907_POP_Sept_sums) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Sept_17", "total_male_POP_Sept_17", "total_female_POP_Sept_17", "total_masian_POP_Sept_17", "total_mblack_POP_Sept_17", "total_morace_POP_Sept_17", "total_mwhite_POP_Sept_17", "total_fasian_POP_Sept_17", "total_fblack_POP_Sept_17", "total_forace_POP_Sept_17", "total_fwhite_POP_Sept_17", "total_asian_POP_Sept_17","total_black_POP_Sept_17", "total_orace_POP_Sept_17", "total_white_POP_Sept_17", "total_05_09_POP_Sept_17", "total_10_17_POP_Sept_17", "total_18_44_POP_Sept_17", "total_45_64_POP_Sept_17", "total_65Plus_POP_Sept_17") 
+```
+
+### Saving data
+```{r}
+#saving clean data for 30907 to processed_data_POP folder
+save_data_location4 = here("data", "processed_data", "Zip_30907", "processed_data_POP_30907_Sept.rds")
+
+
+saveRDS(Zip_30907_POP_Sept_sums, save_data_location4)
+```
+
+
+## Processing 2: Getting Population Totals by Control Zip Code 30907 in the Month of October
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Oct_28.xlsx")
+Oct_28 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Population from the 30907 zip code within which contains the following cenus tracts below 
+#by using filter() I am able to create a new dataset with Populations from Richmond County 
+Zip_30907_POP_Oct <-filter(Oct_28, FIPS=="13073030107" | FIPS=="13073030108" | FIPS=="13245010104" | FIPS=="13245010105" | FIPS=="13245010205" | FIPS=="13073030202" | FIPS=="13073030313" | FIPS=="13073030312" | FIPS=="13073030306" | FIPS=="13073030201" | FIPS=="13073030603" | FIPS=="13073030106" | FIPS=="13245010203"| FIPS=="13245010201")
+
+#taking a look at the data
+head(Zip_30907_POP_Oct)
+
+#notice that although the control zip 30907 is in Richmond county, there are some observartions from Columbia county. This is okay because census tracts are not completely contained by one county or zip code.
+
+#replacing negative values with 0
+Zip_30907_POP_Oct [Zip_30907_POP_Oct < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>% mutate(total_POP_Oct = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Zip_30907_POP_Oct<- Zip_30907_POP_Oct %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident Populations by adding all males and females of a specific race to get the the overall amount of resident Populations by race.
+
+For example(see below): I get the total Asian resident Populations by summing male Asian residents + female Asian residents.
+
+```{r}
+#POP total Asian Residents
+Zip_30907_POP_Oct$total_asian_POP <- Zip_30907_POP_Oct$total_masian_POP + Zip_30907_POP_Oct$total_fasian_POP
+
+#POP total for African American Residents 
+Zip_30907_POP_Oct$total_black_POP <- Zip_30907_POP_Oct$total_mblack_POP + Zip_30907_POP_Oct$total_fblack_POP  
+
+#POP total for Other Race Residents
+Zip_30907_POP_Oct$total_orace_POP <- Zip_30907_POP_Oct$total_morace_POP + Zip_30907_POP_Oct$total_forace_POP  
+
+#POP total for White Residents
+Zip_30907_POP_Oct$total_white_POP <- Zip_30907_POP_Oct$total_mwhite_POP + Zip_30907_POP_Oct$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Zip_30907_POP_Oct <- Zip_30907_POP_Oct %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Zip_30907_POP_Oct_sums <- Zip_30907_POP_Oct[,c(1:4,185:204)]  
+```
+
+### Change the column names for 30907 Oct
+```{r}
+colnames(Zip_30907_POP_Oct_sums) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Oct_28", "total_male_POP_Oct_28", "total_female_POP_Oct_28", "total_masian_POP_Oct_28", "total_mblack_POP_Oct_28", "total_morace_POP_Oct_28", "total_mwhite_POP_Oct_28", "total_fasian_POP_Oct_28", "total_fblack_POP_Oct_28", "total_forace_POP_Oct_28", "total_fwhite_POP_Oct_28", "total_asian_POP_Oct_28","total_black_POP_Oct_28", "total_orace_POP_Oct_28", "total_white_POP_Oct_28", "total_05_09_POP_Oct_28", "total_10_17_POP_Oct_28", "total_18_44_POP_Oct_28", "total_45_64_POP_Oct_28", "total_65Plus_POP_Oct_28") 
+```
+
+### Saving data
+```{r}
+#saving clean data for 30907 to processed_data_POP folder
+save_data_location4 = here("data", "processed_data", "Zip_30907", "processed_data_POP_30907_Oct.rds")
+
+
+saveRDS(Zip_30907_POP_Oct_sums, save_data_location4)
+```
+
+## Processing 3: : Getting Population Totals by Control Zip Code 30907 in the Month of November
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Nov_24.xlsx")
+Nov_24 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Population from the 30907 zip code within which contains the following cenus tracts below 
+#by using filter() I am able to create a new dataset with Populations from Richmond County 
+Zip_30907_POP_Nov <-filter(Nov_24, FIPS=="13073030107" | FIPS=="13073030108" | FIPS=="13245010104" | FIPS=="13245010105" | FIPS=="13245010205" | FIPS=="13073030202" | FIPS=="13073030313" | FIPS=="13073030312" | FIPS=="13073030306" | FIPS=="13073030201" | FIPS=="13073030603" | FIPS=="13073030106" | FIPS=="13245010203"| FIPS=="13245010201")
+
+#taking a look at the data
+head(Zip_30907_POP_Nov)
+
+#notice that although the control zip 30907 is in Richmond county, there are some observartions from Columbia county. This is okay because census tracts are not completely contained by one county or zip code.
+
+#replacing negative values with 0
+Zip_30907_POP_Nov [Zip_30907_POP_Nov < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>% mutate(total_POP_Nov = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Zip_30907_POP_Nov<- Zip_30907_POP_Nov %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident Populations by adding all males and females of a specific race to get the the overall amount of resident Populations by race.
+
+For example(see below): I get the total Asian resident Populations by summing male Asian residents + female Asian residents.
+
+```{r}
+#POP total Asian Residents
+Zip_30907_POP_Nov$total_asian_POP <- Zip_30907_POP_Nov$total_masian_POP + Zip_30907_POP_Nov$total_fasian_POP
+
+#POP total for African American Residents 
+Zip_30907_POP_Nov$total_black_POP <- Zip_30907_POP_Nov$total_mblack_POP + Zip_30907_POP_Nov$total_fblack_POP  
+
+#POP total for Other Race Residents
+Zip_30907_POP_Nov$total_orace_POP <- Zip_30907_POP_Nov$total_morace_POP + Zip_30907_POP_Nov$total_forace_POP  
+
+#POP total for White Residents
+Zip_30907_POP_Nov$total_white_POP <- Zip_30907_POP_Nov$total_mwhite_POP + Zip_30907_POP_Nov$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Zip_30907_POP_Nov <- Zip_30907_POP_Nov %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Zip_30907_POP_Nov_sums <- Zip_30907_POP_Nov[,c(1:4,185:204)]  
+```
+
+### Change the column names for 30907 Nov
+```{r}
+colnames(Zip_30907_POP_Nov_sums) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Nov_24", "total_male_POP_Nov_24", "total_female_POP_Nov_24", "total_masian_POP_Nov_24", "total_mblack_POP_Nov_24", "total_morace_POP_Nov_24", "total_mwhite_POP_Nov_24", "total_fasian_POP_Nov_24", "total_fblack_POP_Nov_24", "total_forace_POP_Nov_24", "total_fwhite_POP_Nov_24", "total_asian_POP_Nov_24","total_black_POP_Nov_24", "total_orace_POP_Nov_24", "total_white_POP_Nov_24", "total_05_09_POP_Nov_24", "total_10_17_POP_Nov_24", "total_18_44_POP_Nov_24", "total_45_64_POP_Nov_24", "total_65Plus_POP_Nov_24") 
+```
+
+### Saving data
+```{r}
+#saving clean data for 30907 to processed_data_POP folder
+save_data_location4 = here("data", "processed_data", "Zip_30907", "processed_data_POP_30907_Nov.rds")
+
+
+saveRDS(Zip_30907_POP_Nov_sums, save_data_location4)
+```
+
+
+## Processing 4: : Getting Population Totals by Control Zip Code 30907 in the Month of December
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Dec_29.xlsx")
+Dec_29 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Population from the 30907 zip code within which contains the following cenus tracts below 
+#by using filter() I am able to create a new dataset with Populations from Richmond County 
+Zip_30907_POP_Dec <-filter(Dec_29, FIPS=="13073030107" | FIPS=="13073030108" | FIPS=="13245010104" | FIPS=="13245010105" | FIPS=="13245010205" | FIPS=="13073030202" | FIPS=="13073030313" | FIPS=="13073030312" | FIPS=="13073030306" | FIPS=="13073030201" | FIPS=="13073030603" | FIPS=="13073030106" | FIPS=="13245010203"| FIPS=="13245010201")
+
+#taking a look at the data
+head(Zip_30907_POP_Dec)
+
+#notice that although the control zip 30907 is in Richmond county, there are some observartions from Columbia county. This is okay because census tracts are not completely contained by one county or zip code.
+
+#replacing negative values with 0
+Zip_30907_POP_Dec [Zip_30907_POP_Dec < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>% mutate(total_POP_Dec = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Zip_30907_POP_Dec<- Zip_30907_POP_Dec %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident Populations by adding all males and females of a specific race to get the the overall amount of resident Populations by race.
+
+For example(see below): I get the total Asian resident Populations by summing male Asian residents + female Asian residents.
+
+```{r}
+#POP total Asian Residents
+Zip_30907_POP_Dec$total_asian_POP <- Zip_30907_POP_Dec$total_masian_POP + Zip_30907_POP_Dec$total_fasian_POP
+
+#POP total for African American Residents 
+Zip_30907_POP_Dec$total_black_POP <- Zip_30907_POP_Dec$total_mblack_POP + Zip_30907_POP_Dec$total_fblack_POP  
+
+#POP total for Other Race Residents
+Zip_30907_POP_Dec$total_orace_POP <- Zip_30907_POP_Dec$total_morace_POP + Zip_30907_POP_Dec$total_forace_POP  
+
+#POP total for White Residents
+Zip_30907_POP_Dec$total_white_POP <- Zip_30907_POP_Dec$total_mwhite_POP + Zip_30907_POP_Dec$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Zip_30907_POP_Dec <- Zip_30907_POP_Dec %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Zip_30907_POP_Dec_sums <- Zip_30907_POP_Dec[,c(1:4,185:204)]  
+```
+
+### Change the column names for 30907 Dec
+```{r}
+colnames(Zip_30907_POP_Dec_sums) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Dec_29", "total_male_POP_Dec_29", "total_female_POP_Dec_29", "total_masian_POP_Dec_29", "total_mblack_POP_Dec_29", "total_morace_POP_Dec_29", "total_mwhite_POP_Dec_29", "total_fasian_POP_Dec_29", "total_fblack_POP_Dec_29", "total_forace_POP_Dec_29", "total_fwhite_POP_Dec_29", "total_asian_POP_Dec_29","total_black_POP_Dec_29", "total_orace_POP_Dec_29", "total_white_POP_Dec_29", "total_05_09_POP_Dec_29", "total_10_17_POP_Dec_29", "total_18_44_POP_Dec_29", "total_45_64_POP_Dec_29", "total_65Plus_POP_Dec_29") 
+```
+
+### Saving data
+```{r}
+#saving clean data for 30907 to processed_data_POP folder
+save_data_location4 = here("data", "processed_data", "Zip_30907", "processed_data_POP_30907_Dec.rds")
+
+
+saveRDS(Zip_30907_POP_Dec_sums, save_data_location4)
+```
+
+
+## Processing 5: : Getting Population Totals by Control Zip Code 30907 in the Month of January
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Jan_26.xlsx")
+Jan_26 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Population from the 30907 zip code within which contains the following cenus tracts below 
+#by using filter() I am able to create a new dataset with Populations from Richmond County 
+Zip_30907_POP_Jan <-filter(Jan_26, FIPS=="13073030107" | FIPS=="13073030108" | FIPS=="13245010104" | FIPS=="13245010105" | FIPS=="13245010205" | FIPS=="13073030202" | FIPS=="13073030313" | FIPS=="13073030312" | FIPS=="13073030306" | FIPS=="13073030201" | FIPS=="13073030603" | FIPS=="13073030106" | FIPS=="13245010203"| FIPS=="13245010201")
+
+#taking a look at the data
+head(Zip_30907_POP_Jan)
+
+#notice that although the control zip 30907 is in Richmond county, there are some observartions from Columbia county. This is okay because census tracts are not completely contained by one county or zip code.
+
+#replacing negative values with 0
+Zip_30907_POP_Jan [Zip_30907_POP_Jan < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>% mutate(total_POP_Jan = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Zip_30907_POP_Jan<- Zip_30907_POP_Jan %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident Populations by adding all males and females of a specific race to get the the overall amount of resident Populations by race.
+
+For example(see below): I get the total Asian resident Populations by summing male Asian residents + female Asian residents.
+
+```{r}
+#POP total Asian Residents
+Zip_30907_POP_Jan$total_asian_POP <- Zip_30907_POP_Jan$total_masian_POP + Zip_30907_POP_Jan$total_fasian_POP
+
+#POP total for African American Residents 
+Zip_30907_POP_Jan$total_black_POP <- Zip_30907_POP_Jan$total_mblack_POP + Zip_30907_POP_Jan$total_fblack_POP  
+
+#POP total for Other Race Residents
+Zip_30907_POP_Jan$total_orace_POP <- Zip_30907_POP_Jan$total_morace_POP + Zip_30907_POP_Jan$total_forace_POP  
+
+#POP total for White Residents
+Zip_30907_POP_Jan$total_white_POP <- Zip_30907_POP_Jan$total_mwhite_POP + Zip_30907_POP_Jan$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Zip_30907_POP_Jan <- Zip_30907_POP_Jan %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Zip_30907_POP_Jan_sums <- Zip_30907_POP_Jan[,c(1:4,185:204)]  
+```
+
+### Change the column names for 30907 Jan
+```{r}
+colnames(Zip_30907_POP_Jan_sums) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Jan_26", "total_male_POP_Jan_26", "total_female_POP_Jan_26", "total_masian_POP_Jan_26", "total_mblack_POP_Jan_26", "total_morace_POP_Jan_26", "total_mwhite_POP_Jan_26", "total_fasian_POP_Jan_26", "total_fblack_POP_Jan_26", "total_forace_POP_Jan_26", "total_fwhite_POP_Jan_26", "total_asian_POP_Jan_26","total_black_POP_Jan_26", "total_orace_POP_Jan_26", "total_white_POP_Jan_26", "total_05_09_POP_Jan_26", "total_10_17_POP_Jan_26", "total_18_44_POP_Jan_26", "total_45_64_POP_Jan_26", "total_65Plus_POP_Jan_26") 
+```
+
+### Saving data
+```{r}
+#saving clean data for 30907 to processed_data_POP folder
+save_data_location4 = here("data", "processed_data", "Zip_30907", "processed_data_POP_30907_Jan.rds")
+
+
+saveRDS(Zip_30907_POP_Jan_sums, save_data_location4)
+```
+
+
+## Processing 6: : Getting Population Totals by Control Zip Code 30907 in the Month of February
+
+## Raw Data & Codebook loading
+
+```{r}
+# Loading the rawdata containing GA residents with at least one dose of the Covid-19 vaccine
+rawdata_location = here("data","raw_data","Feb_26.xlsx")
+Feb_26 <- read_excel(rawdata_location)
+
+
+#loading data code book for reference 
+codebook_location = here("data","raw_data","Codebook.xlsx")
+codebook = read_excel(codebook_location)
+```
+
+### Separating the data by zip code and removing negative values
+
+```{r}
+#I am only interested in Covid-19 Population from the 30907 zip code within which contains the following cenus tracts below 
+#by using filter() I am able to create a new dataset with Populations from Richmond County 
+Zip_30907_POP_Feb <-filter(Feb_26, FIPS=="13073030107" | FIPS=="13073030108" | FIPS=="13245010104" | FIPS=="13245010105" | FIPS=="13245010205" | FIPS=="13073030202" | FIPS=="13073030313" | FIPS=="13073030312" | FIPS=="13073030306" | FIPS=="13073030201" | FIPS=="13073030603" | FIPS=="13073030106" | FIPS=="13245010203"| FIPS=="13245010201")
+
+#taking a look at the data
+head(Zip_30907_POP_Feb)
+
+#notice that although the control zip 30907 is in Richmond county, there are some observartions from Columbia county. This is okay because census tracts are not completely contained by one county or zip code.
+
+#replacing negative values with 0
+Zip_30907_POP_Feb [Zip_30907_POP_Feb < 0] <- 0  
+```
+
+### Adding new columns: total POP sum, total POP of all males, total POP of all females
+
+```{r}
+#Adding a column of the total POP for each census tract (for each observation)  
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>% mutate(total_POP_Feb = sum(across(ends_with("POP")), na.rm = T))  
+
+#total POP column for all males
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb  %>% rowwise() %>%   
+  mutate(total_male_POP = sum(across(starts_with("M") & ends_with("POP")), na.rm = T)) 
+
+#total POP column for all females
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>%   
+  mutate(total_female_POP = sum(across(starts_with("F") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Male Residents by race
+
+```{r}
+#total POP column for Asian male residents 
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>%   
+  mutate(total_masian_POP = sum(across(starts_with("MAsianNHPI") & ends_with("POP")), na.rm = T))
+
+#total POP column for African American male residents
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>%   
+  mutate(total_mblack_POP = sum(across(starts_with("MBlack") & ends_with("POP")), na.rm = T))
+
+#total POP column for other race male residents
+Zip_30907_POP_Feb<- Zip_30907_POP_Feb %>% rowwise() %>%   
+  mutate(total_morace_POP = sum(across(starts_with("MOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White male residents 
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>%   
+  mutate(total_mwhite_POP = sum(across(starts_with("MWhite") & ends_with("POP")), na.rm = T))
+
+```
+
+### Adding new columns for Female Residents by race
+
+```{r}
+#total POP column for Asian female residents    
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>%   
+  mutate(total_fasian_POP = sum(across(starts_with("FAsianNHPI") & ends_with("POP")), na.rm = T))  
+
+#total POP column for African American female residents
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>%   
+  mutate(total_fblack_POP = sum(across(starts_with("FBlack") & ends_with("POP")), na.rm = T))  
+
+#total POP column for other race female residents
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>%   
+  mutate(total_forace_POP = sum(across(starts_with("FOtherRace") & ends_with("POP")), na.rm = T))  
+
+#total POP column for White female residents 
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>%   
+  mutate(total_fwhite_POP = sum(across(starts_with("FWhite") & ends_with("POP")), na.rm = T))  
+```
+
+### Adding new columns for POP totals by race
+
+Note that these columns are different than the previous columns because here I am summing the total amount of resident Populations by adding all males and females of a specific race to get the the overall amount of resident Populations by race.
+
+For example(see below): I get the total Asian resident Populations by summing male Asian residents + female Asian residents.
+
+```{r}
+#POP total Asian Residents
+Zip_30907_POP_Feb$total_asian_POP <- Zip_30907_POP_Feb$total_masian_POP + Zip_30907_POP_Feb$total_fasian_POP
+
+#POP total for African American Residents 
+Zip_30907_POP_Feb$total_black_POP <- Zip_30907_POP_Feb$total_mblack_POP + Zip_30907_POP_Feb$total_fblack_POP  
+
+#POP total for Other Race Residents
+Zip_30907_POP_Feb$total_orace_POP <- Zip_30907_POP_Feb$total_morace_POP + Zip_30907_POP_Feb$total_forace_POP  
+
+#POP total for White Residents
+Zip_30907_POP_Feb$total_white_POP <- Zip_30907_POP_Feb$total_mwhite_POP + Zip_30907_POP_Feb$total_fwhite_POP  
+```
+
+### Adding new columns for POP totals by age ranges: 05-09, 10-17, 18-44, 45-64, 65+
+
+```{r}
+#summing all residents in the age range of 05-09
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>% mutate(total_05_09_POP = sum(FAsianNHPI_05_09_POP, MAsianNHPI_05_09_POP, UAsianNHPI_05_09_POP,FBlack_05_09_POP, MBlack_05_09_POP, UBlack_05_09_POP,FNone_05_09_POP, MNone_05_09_POP, UNone_05_09_POP,FOtherRace_05_09_POP, MOtherRace_05_09_POP, UOtherRace_05_09_POP,FWhite_05_09_POP, MWhite_05_09_POP, UWhite_05_09_POP, na.rm = T))  
+
+#summing all residents in the age range of 10-17
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>% mutate(total_10_17_POP = sum(FAsianNHPI_10_17_POP, MAsianNHPI_10_17_POP, UAsianNHPI_10_17_POP,FBlack_10_17_POP, MBlack_10_17_POP, UBlack_10_17_POP,FNone_10_17_POP, MNone_10_17_POP, UNone_10_17_POP,FOtherRace_10_17_POP, MOtherRace_10_17_POP, UOtherRace_10_17_POP,FWhite_10_17_POP, MWhite_10_17_POP, UWhite_10_17_POP, na.rm = T))  
+
+#summing all residents in the age range of 18-44
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>% mutate(total_18_44_POP = sum(FAsianNHPI_18_44_POP, MAsianNHPI_18_44_POP, UAsianNHPI_18_44_POP,FBlack_18_44_POP, MBlack_18_44_POP, UBlack_18_44_POP,FNone_18_44_POP, MNone_18_44_POP, UNone_18_44_POP,FOtherRace_18_44_POP, MOtherRace_18_44_POP, UOtherRace_18_44_POP,FWhite_18_44_POP, MWhite_18_44_POP, UWhite_18_44_POP, na.rm = T))  
+
+#summing all residents in the age range of 45-64
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>% mutate(total_45_64_POP = sum(FAsianNHPI_45_64_POP, MAsianNHPI_45_64_POP, UAsianNHPI_45_64_POP,FBlack_45_64_POP, MBlack_45_64_POP, UBlack_45_64_POP,FNone_45_64_POP, MNone_45_64_POP, UNone_45_64_POP,FOtherRace_45_64_POP, MOtherRace_45_64_POP, UOtherRace_45_64_POP,FWhite_45_64_POP, MWhite_45_64_POP, UWhite_45_64_POP, na.rm = T))  
+
+#summing all residents in the age range of 65+ 
+Zip_30907_POP_Feb <- Zip_30907_POP_Feb %>% rowwise() %>% mutate(total_65Plus_POP = sum(FAsianNHPI_65Plus_POP, MAsianNHPI_65Plus_POP, UAsianNHPI_65Plus_POP,FBlack_65Plus_POP, MBlack_65Plus_POP, UBlack_65Plus_POP,FNone_65Plus_POP, MNone_65Plus_POP, UNone_65Plus_POP,FOtherRace_65Plus_POP, MOtherRace_65Plus_POP, UOtherRace_65Plus_POP,FWhite_65Plus_POP, MWhite_65Plus_POP, UWhite_65Plus_POP, na.rm = T))  
+
+```
+
+### Creating a data set with only the sums columns I just created via the previous code
+
+```{r}
+#Extract necessary variables only  
+Zip_30907_POP_Feb_sums <- Zip_30907_POP_Feb[,c(1:4,185:204)]  
+```
+
+### Change the column names for 30907 Feb
+```{r}
+colnames(Zip_30907_POP_Feb_sums) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "total_POP_Feb_26", "total_male_POP_Feb_26", "total_female_POP_Feb_26", "total_masian_POP_Feb_26", "total_mblack_POP_Feb_26", "total_morace_POP_Feb_26", "total_mwhite_POP_Feb_26", "total_fasian_POP_Feb_26", "total_fblack_POP_Feb_26", "total_forace_POP_Feb_26", "total_fwhite_POP_Feb_26", "total_asian_POP_Feb_26","total_black_POP_Feb_26", "total_orace_POP_Feb_26", "total_white_POP_Feb_26", "total_05_09_POP_Feb_26", "total_10_17_POP_Feb_26", "total_18_44_POP_Feb_26", "total_45_64_POP_Feb_26", "total_65Plus_POP_Feb_26") 
+```
+
+### Saving data
+```{r}
+#saving clean data for 30907 to processed_data_POP folder
+save_data_location4 = here("data", "processed_data", "Zip_30907", "processed_data_POP_30907_Feb.rds")
+
+
+saveRDS(Zip_30907_POP_Feb_sums, save_data_location4)
+```
+
+

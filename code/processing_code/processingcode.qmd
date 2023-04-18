@@ -567,7 +567,6 @@ colnames(Zip_31707_Nov) <- c("FIPS", "GEONAME", "COUNTY_ID", "COUNTY_NAME", "tot
 ```
 
 
-
 ### Deleting excess environment objects and saving data as processed_data_Nov
 
 ```{r}

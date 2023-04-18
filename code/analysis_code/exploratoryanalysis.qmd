@@ -87,7 +87,7 @@ sum(processed_combined_31701_total_black$total_black_vax_Feb_26)
 
 ```{r}
 Sum_by_month_31701 = data.frame(Date = c("Sep","Oct","Nov","Dec","Jan","Feb"),
-                          Total = c(7797, 7780, 7755, 7773, 7792, 7817)) 
+                               Total = c(7797, 7780, 7755, 7773, 7792, 7817)) 
 ```
 
 ### gglot2: Creating a line plot for the vaccination totals by month for the African American population in the 31701 zip code
