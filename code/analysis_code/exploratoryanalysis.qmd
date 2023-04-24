@@ -157,7 +157,7 @@ plot_31701_total_black_vax_rate
 ### Save plot
 ```{r}
 #save figure
-ggsave(filename = here("results","plot_31701_total_black_vax_rate.png"), plot=plot_31701_total_black_vax_rate)
+ggsave(filename = here("results","31701_total_black_vax_rate.png"), plot=plot_31701_total_black_vax_rate)
 ```
 
 
@@ -307,7 +307,7 @@ plot_31705_total_black_vax_rate
 ### Save plot
 ```{r}
 #save figure
-ggsave(filename = here("results","plot_31705_total_black_vax_rate.png"), plot=plot_31705_total_black_vax_rate)
+ggsave(filename = here("results","31705_total_black_vax_rate.png"), plot=plot_31705_total_black_vax_rate)
 ```
 
 
@@ -457,7 +457,7 @@ plot_31707_total_black_vax_rate
 ### Save plot
 ```{r}
 #save figure
-ggsave(filename = here("results","plot_31707_total_black_vax_rate.png"), plot=plot_31707_total_black_vax_rate)
+ggsave(filename = here("results","31707_total_black_vax_rate.png"), plot=plot_31707_total_black_vax_rate)
 ```
 
 
@@ -1510,7 +1510,7 @@ plot_30815_total_black_vax_rate
 ### Save plot
 ```{r}
 #save figure
-ggsave(filename = here("results","plot_30815_total_black_vax_rate.png"), plot=plot_30815_total_black_vax_rate)
+ggsave(filename = here("results","30815_total_black_vax_rate.png"), plot=plot_30815_total_black_vax_rate)
 ```
 
 
@@ -1961,7 +1961,7 @@ plot_30907_total_black_vax_rate
 ### Save plot
 ```{r}
 #save figure
-ggsave(filename = here("results","plot_30907_total_black_vax_rate.png"), plot=plot_30907_total_black_vax_rate)
+ggsave(filename = here("results","30907_total_black_vax_rate.png"), plot=plot_30907_total_black_vax_rate)
 ```
 
 

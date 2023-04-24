@@ -27,7 +27,21 @@ This file describes all files in this project, the reproducibility procedure for
             -   `processed_data_31701_Feb.rds`: Contains processed data for the 31701 zip code during February, 2023
 
             -   `processed_combined_31701.rds`: Contains all vaccinations with all variables by month (September-February) for African Americans in the 31701 zip
+           
+            -   processed_POP_data_31701_Sept.rds`: Contains processed data for the 31701 zip code Total Black Population during September, 2022
 
+            -   processed_POP_data_31701_Oct.rds`: Contains processed data for the 31701 zip code Total Black Population during October, 2022
+
+            -   processed_POP_data_31701_Nov.rds`: Contains processed data for the 31701 zip code Total Black Population during November, 2022
+
+            -   processed_POP_data_31701_Dec.rds`: Contains processed data for the 31701 zip code Total Black Population during December, 2022
+
+            -   processed_POP_data_31701_Jan.rds`: Contains processed data for the 31701 zip code Total Black Population during January, 2023
+
+            -   processed_POP_data_31701_Feb.rds`: Contains processed data for the 31701 zip code Total Black Population during February, 2023
+
+            -   `processed_POP_combined_31701.rds`: Contains Total Population with all variables by month (September-February) for African Americans in the 31701 zip
+            
         -   `Zip_31705` folder: Contains processed data for the 31705 zip code
 
             -   `processed_data_31705_Sept.rds`: Contains processed data for the 31705 zip code during September, 2022
@@ -41,7 +55,21 @@ This file describes all files in this project, the reproducibility procedure for
             -   `processed_data_31705_Jan.rds`: Contains processed data for the 31705 zip code during January, 2022
 
             -   `processed_data_31705_Feb.rds`: Contains processed data for the 31705 zip code during Feb ruary, 2022
+           
+            -   processed_POP_data_31705_Sept.rds`: Contains processed data for the 31705 zip code Total Black Population during September, 2022
 
+            -   processed_POP_data_31705_Oct.rds`: Contains processed data for the 31705 zip code Total Black Population during October, 2022
+
+            -   processed_POP_data_31705_Nov.rds`: Contains processed data for the 31705 zip code Total Black Population during November, 2022
+
+            -   processed_POP_data_31705_Dec.rds`: Contains processed data for the 31705 zip code Total Black Population during December, 2022
+
+            -   processed_POP_data_31705_Jan.rds`: Contains processed data for the 31705 zip code Total Black Population during January, 2023
+
+            -   processed_POP_data_31705_Feb.rds`: Contains processed data for the 31705 zip code Total Black Population during February, 2023
+
+            -   `processed_POP_combined_31705.rds`: Contains Total Population with all variables by month (September-February) for African Americans in the 31705 zip
+            
         -   `Zip_31707` folder: Contains processed data for the 31707 zip code
 
             -   `processed_data_31707_Sept.rds`: Contains processed data for the 31707 zip code during September, 2022
@@ -55,7 +83,71 @@ This file describes all files in this project, the reproducibility procedure for
             -   `processed_data_31707_Jan.rds`: Contains processed data for the 31707 zip code during January, 2023
 
             -   `processed_data_31707_Feb.rds`: Contains processed data for the 31707 zip code during February, 2023
+          
+            -   processed_POP_data_31707_Sept.rds`: Contains processed data for the 31707 zip code Total Black Population during September, 2022
 
+            -   processed_POP_data_31707_Oct.rds`: Contains processed data for the 31707 zip code Total Black Population during October, 2022
+
+            -   processed_POP_data_31707_Nov.rds`: Contains processed data for the 31707 zip code Total Black Population during November, 2022
+
+            -   processed_POP_data_31707_Dec.rds`: Contains processed data for the 31707 zip code Total Black Population during December, 2022
+
+            -   processed_POP_data_31707_Jan.rds`: Contains processed data for the 31707 zip code Total Black Population during January, 2023
+
+            -   processed_POP_data_31707_Feb.rds`: Contains processed data for the 31707 zip code Total Black Population during February, 2023
+
+            -   `processed_POP_combined_31707.rds`: Contains Total Population with all variables by month (September-February) for African Americans in the 31707 zip
+
+        -   `Zip_30815` folder: Contains processed data for the 31707 zip code
+            -   `processed_data_30815_Sept.rds`: Contains processed data for the 30815 zip code during September, 2022
+
+            -   `processed_data_30815_Oct.rds`: Contains processed data for the 30815 zip code during October, 2022
+
+            -   `processed_data_30815_Nov.rds`: Contains processed data for the 30815 zip code during November, 2022
+
+            -   `processed_data_30815_Dec.rds`: Contains processed data for the 30815 zip code during December, 2022
+
+            -   `processed_data_30815_Jan.rds`: Contains processed data for the 30815 zip code during January, 2023
+
+            -   `processed_data_30815_Feb.rds`: Contains processed data for the 30815 zip code during February, 2023
+          
+            -   processed_POP_data_30815_Sept.rds`: Contains processed data for the 30815 zip code Total Black Population during September, 2022
+
+            -   processed_POP_data_30815_Oct.rds`: Contains processed data for the 30815 zip code Total Black Population during October, 2022
+
+            -   processed_POP_data_30815_Nov.rds`: Contains processed data for the 30815 zip code Total Black Population during November, 2022
+
+            -   processed_POP_data_30815_Dec.rds`: Contains processed data for the 30815 zip code Total Black Population during December, 2022
+
+            -   processed_POP_data_30815_Jan.rds`: Contains processed data for the 30815 zip code Total Black Population during January, 2023
+
+            -   processed_POP_data_30815_Feb.rds`: Contains processed data for the 30815 zip code Total Black Population during February, 2023 
+       
+        -   `Zip_30907` folder: Contains processed data for the 31707 zip code
+          
+            -   `processed_data_30907_Sept.rds`: Contains processed data for the 30907 zip code during September, 2022
+
+            -   `processed_data_30907_Oct.rds`: Contains processed data for the 30907 zip code during October, 2022
+
+            -   `processed_data_30907_Nov.rds`: Contains processed data for the 30907 zip code during November, 2022
+
+            -   `processed_data_30907_Dec.rds`: Contains processed data for the 30907 zip code during December, 2022
+
+            -   `processed_data_30907_Jan.rds`: Contains processed data for the 30907 zip code during January, 2023
+
+            -   `processed_data_30907_Feb.rds`: Contains processed data for the 30907 zip code during February, 2023
+            -   processed_POP_data_30907_Sept.rds`: Contains processed data for the 30907 zip code Total Black Population during September, 2022
+
+            -   processed_POP_data_30907_Oct.rds`: Contains processed data for the 30907 zip code Total Black Population during October, 2022
+
+            -   processed_POP_data_30907_Nov.rds`: Contains processed data for the 30907 zip code Total Black Population during November, 2022
+
+            -   processed_POP_data_30907_Dec.rds`: Contains processed data for the 30907 zip code Total Black Population during December, 2022
+
+            -   processed_POP_data_30907_Jan.rds`: Contains processed data for the 30907 zip code Total Black Population during January, 2023
+
+            -   processed_POP_data_30907_Feb.rds`: Contains processed data for the 30907 zip code Total Black Population during February, 2023             
+   
     -   `raw_data` folder: Contains the raw data for this project
 
         -   `Codebook.xlsx` : Contains the codebook for the raw data
@@ -76,8 +168,10 @@ This file describes all files in this project, the reproducibility procedure for
 
     -   `processing_code`: Contains the code for data processing in both .R files and .qmd files
 
-        -   `processingcode.qmd`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 that was downloaded in September 2022
-
+        -   `processingcode.qmd`: processing code for COVID-19 vaccination data in the three target zip codes 31701, 31705 and 31707 and the two control zip codes 30815 and 30907
+        
+        -   `processingcode2.qmd`: processing code for COVID-19 Population data in the three target zip codes 31701, 31705 and 31707 and the two control zip codes 30815 and 30907
+        
         -   `readme.md`: provides a brief description of the files in `processing_code` folder
 
     -   `analysis_code`: Contains the code for the analysis
@@ -102,12 +196,32 @@ This file describes all files in this project, the reproducibility procedure for
 
 -   `results` folder: Contains the graphs produced from rendering the analysis 
 
-    -   `Black_Vax_Total.png`: Contains a line graph with all three zip codes plotted for the African American populations 
-
-    -   `Black_Vax_Total_31701.png` : A line graph of African Americans with at least one dose of the COVID-19 vaccine in the 31701 zip code
+    -   `31701_total_black_vax_rate.png` : A line graph of African Americans with at least one dose of the COVID-19 vaccine in the 31701 zip code
     
-
-    -   `Black_Vax_Total_31705.png` : A line graph of African Americans with at least one dose of the COVID-19 vaccine in the 31705 zip code
+    -   `31705_total_black_vax_rate.png` : A line graph of African Americans with at least one dose of the COVID-19 vaccine in the 31705 zip code
     
-
-    -   `Black_Vax_Total_31707.png`: A line graph of African Americans with at least one dose of the COVID-19 vaccine in the 31707 zip code
+    -   `31707_total_black_vax_rate.png`: A line graph of African Americans with at least one dose of the COVID-19 vaccine in the 31707 zip code
+    
+    -   `30815_total_black_vax_rate.png` : A line graph of African Americans with at least one dose of the COVID-19 vaccine in the 30815 zip code
+    
+    -   `30907_total_black_vax_rate.png` : A line graph of African Americans with at least one dose of the COVID-19 vaccine in the 30907 zip code
+    
+    -   `31701_Gender_black_vax.png`: A line graph of African Americans by Gender with at least one dose of the COVID-19 vaccine in the 31701 zip code
+    
+    -   `31705_Gender_black_vax.png`: A line graph of African Americans by Gender with at least one dose of the COVID-19 vaccine in the 31705 zip code
+   
+    -   `31707_Gender_black_vax.png`: A line graph of African Americans by Gender with at least one dose of the COVID-19 vaccine in the 31707 zip code
+    
+    -   `30815_Gender_black_vax.png`: A line graph of African Americans by Gender with at least one dose of the COVID-19 vaccine in the 30815 zip code
+  
+    -   `30907_Gender_black_vax.png`: A line graph of African Americans by Gender with at least one dose of the COVID-19 vaccine in the 30907 zip code   
+    
+    -   `31701_Age_black_vax.png`: A line graph of African Americans by Age with at least one dose of the COVID-19 vaccine in the 31701 zip code
+    
+    -   `31705_Age_black_vax.png`: A line graph of African Americans by Age with at least one dose of the COVID-19 vaccine in the 31705 zip code
+   
+    -   `31707_Age_black_vax.png`: A line graph of African Americans by Age with at least one dose of the COVID-19 vaccine in the 31707 zip code
+    
+    -   `30815_Age_black_vax.png`: A line graph of African Americans by Age with at least one dose of the COVID-19 vaccine in the 30815 zip code
+  
+    -   `30907_Age_black_vax.png`: A line graph of African Americans by Age with at least one dose of the COVID-19 vaccine in the 30907 zip code
