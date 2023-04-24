@@ -226,8 +226,6 @@ codebook = read_excel(codebook_location)
 glimpse(Oct_28)
 ```
 
-
-
 ### Separating the data by zip code and removing negative values
 
 ```{r}

@@ -13,16 +13,18 @@ csl: ./apa.csl
 ---
 
 # Summary
-
-Back in March 2020, COVID-19 began to disproportionately impact the citizens of the United States. Among African Americans sub-population in rural South Georgia, there was a call to increase access to health services, promote health literacy as it relates to COVID-19 and decrease vaccine hesitancy. One such program includes the partnership between the City of Albany, GA and Albany State University to reduce COVID-19 vaccine hesitancy in Albany through a $3.9 million grant from Health and Human Services and the Office of Minority Health.
-
-This study aims to conduct a secondary analysis of residents in Albany, GA that have received at least one dose of the COVID-19 vaccine and live in the one of the three zip codes 31701, 31705 and 31707.
+This study aims to conduct a secondary analysis of residents of the black community in Albany, GA that have received at least one dose of the COVID-19 vaccine from September 2022 through February 2023 and live in the one of the three zip codes 31701, 31705 and 31707. The outcome of interest is the difference in vaccination rates by month from September through February. The predictor of interest is the presence of a COVID-19 Vaccine Hesitancy Program Intervention. 
 
 {{< pagebreak >}}
 
 # Introduction
 
 ## General Background
+Back in March 2020, COVID-19 greatly impacted the citizens of the Albany, GA. Early on in the COVID-19 pandemic Albany, GA was ranked the "forth-worst" city hit by COVID-19 in the United States [@grahamrapierHowSmallGeorgia2020]. According to U.S Census Bureau, 74.5% of the total population of the City of Albany is made up by residents that are black. In a study that examined the health outcomes of residents who tested positive for COVID-19 in Albany, GA it was found that 83.3% of 710 patients that were hospitalized for COVID-19 were black[@]. Although there was no differences in hospital mortality found between residents that were black compared to residents that were not black but there was a much higher percentage of hospitalizations due to COVID-19 for residents who were black.
+
+In July 2022, Albany was awarded a 3.9 million dollar grant from the Health and Human Services and the Office of Minority Health in an effort to fund COVID-19 vaccine hesitancy and health literacy programs[]. The Economic Evaluation Research Group (EERG) out of the University of Georgia College of Public Health Department of Health Policy and Management led by Dr. Janani Rajbhandari-Thapa is currently conducting an evaluation on the federally funded programs. 
+
+This study serves an extension of the evaluation being conducted by EERG through examining the vaccination rates of the zip codes where vaccine hesitancy programs are being conducted. 
 
 ## Description of data and data source
 
@@ -36,7 +38,7 @@ The data of interest from this dashboard is the data containing the count of res
 
 I am seeking to establish an efficient method of processing and cleaning the data to produce a data set with the target zip codes.
 
-My goal is to compare monthly trends of vaccinations and examine whether there is an increase in vaccinations among African American residents during the time of the health literacy program, which is from September through April.
+My goal is to compare monthly trends of vaccinations and examine whether there is a noticable change in vaccination rates among residents who are black during the time of the health literacy programs, which is from September through February.
 
 In other words, I am looking to see if the COVID-19 vaccine hesitancy program will have any observable effects through secondary data.
 
@@ -52,9 +54,10 @@ After downloading the data the excel file containing the vaccination counts by c
 
 ## Data Processing
 
-In preparation for analysis, the raw data was first sub-setted by  Dougherty County, the county in which Albany, Georgia lies. This allowed me to work only with census tracts from Dougherty county. I then summed the data by demographic to get demographic totals.
+In preparation for analysis, the raw data was first subsetted by Dougherty County, the county in which Albany, Georgia lies. This allowed me to work only with census tracts from Dougherty county. I then stratified the data by black residents. Of black residents, I summed the vaccination totals and populations by gender, age for each intervention zip code (31701, 31705 and 31707) and the two control zip codes.
 
 # Results
+
 
 ## Vaccination Trends of the Black Community for Each Zip Code 
 ```{r}
