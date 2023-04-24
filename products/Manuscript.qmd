@@ -60,8 +60,13 @@ In preparation for analysis, the raw data was first subsetted by Dougherty Count
 
 
 ## Vaccination Trends of the Black Community for Each Zip Code 
+
+The was no noticiable increase of vaccination rate for 
+
+
+
 ```{r}
-knitr::include_graphics("../results/31701_total_black_vax.png")
+knitr::include_graphics("../results/plot_31701_total_black_vax_rate.png")
 ```
 
 ```{r}
