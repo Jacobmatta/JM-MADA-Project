@@ -13,24 +13,26 @@ csl: ./apa.csl
 ---
 
 # Summary
-This study aims to conduct a secondary analysis of residents of the black community in Albany, GA that have received at least one dose of the COVID-19 vaccine from September 2022 through February 2023 and live in the one of the three zip codes 31701, 31705 and 31707. The outcome of interest is the difference in vaccination rates by month from September through February. The predictor of interest is the presence of a COVID-19 Vaccine Hesitancy Program Intervention. 
+
+This study aims to conduct a secondary analysis of residents of the black community in Albany, GA that have received at least one dose of the COVID-19 vaccine from September 2022 through February 2023 and live in the one of the three zip codes 31701, 31705 and 31707. The outcome of interest is the difference in vaccination rates by month from September through February. The predictor of interest is the presence of a COVID-19 Vaccine Hesitancy Program Intervention.
 
 # Introduction
 
 ## General Background
+
 Back in March 2020, COVID-19 greatly impacted the citizens of the Albany, GA. Early on in the COVID-19 pandemic Albany, GA was ranked the "forth-worst" city hit by COVID-19 in the United States [@Rapier2020]. According to U.S Census Bureau, 74.5% of the total population of the City of Albany is made up by residents that are black. In a study that examined the health outcomes of residents who tested positive for COVID-19 in Albany, GA it was found that 83.3% of 710 patients that were hospitalized for COVID-19 were black[@Racine2022]. Although there was no differences in hospital mortality found between residents that were black compared to residents that were not black but there was a much higher percentage of hospitalizations due to COVID-19 for residents who were black.
 
-In July 2022, Albany was awarded a 3.9 million dollar grant from the Health and Human Services and the Office of Minority Health in an effort to fund COVID-19 vaccine hesitancy and health literacy programs[@TheAlbanyHerald]. The Economic Evaluation Research Group (EERG) out of the University of Georgia College of Public Health Department of Health Policy and Management led by Dr. Janani Rajbhandari-Thapa is currently conducting an evaluation on the federally funded programs. 
+In July 2022, Albany was awarded a 3.9 million dollar grant from the Health and Human Services and the Office of Minority Health in an effort to fund COVID-19 vaccine hesitancy and health literacy programs[@TheAlbanyHerald]. The Economic Evaluation Research Group (EERG) out of the University of Georgia College of Public Health Department of Health Policy and Management led by Dr. Janani Rajbhandari-Thapa is currently conducting an evaluation on the federally funded programs.
 
-This study serves an extension of the evaluation being conducted by EERG through examining the vaccination rates of the zip codes where vaccine hesitancy programs are being conducted. 
+This study serves an extension of the evaluation being conducted by EERG through examining the vaccination rates of the zip codes where vaccine hesitancy programs are being conducted.
 
 ## Description of data and data source
 
 The data is a count of residents with at least one COVID-19 vaccination by demographic in the state of Georgia released by the Georgia Department of Public Health. The data has 1962 observations which are 1962 different census tracts in Georgia. There are 187 variables each are a different combination of gender, race and age. The data is uploaded monthly.
 
-The data is downloaded from the Georgia Department of Public Health Distribution Dashboard ([citation for dashboard pasted here](https://experience.arcgis.com/experience/3d8eea39f5c1443db1743a4cb8948a9c)) which is a publicly available dashboard that displays the current vaccination administered and the up-to-date count of Georgia residents that have been vaccinated. 
+The data is downloaded from the Georgia Department of Public Health Distribution Dashboard ([citation for dashboard pasted here](https://experience.arcgis.com/experience/3d8eea39f5c1443db1743a4cb8948a9c)) which is a publicly available dashboard that displays the current vaccination administered and the up-to-date count of Georgia residents that have been vaccinated.
 
-The data of interest from this dashboard is the data containing the count of residents with at least one dose of the COVID-19 vaccine by census tract by demographics. You can download the data from [the census tract demographic data](https://www.arcgis.com/home/item.html?id=17a8a4af79e5453a9132aaa29fb4ad22) and a description of the data by census tract demographic can be found on the separate dashboard found [here](https://insights.arcgis.com/#/view/08d2c1f995524053b1f9669dd0b0b995). 
+The data of interest from this dashboard is the data containing the count of residents with at least one dose of the COVID-19 vaccine by census tract by demographics. You can download the data from [the census tract demographic data](https://www.arcgis.com/home/item.html?id=17a8a4af79e5453a9132aaa29fb4ad22) and a description of the data by census tract demographic can be found on the separate dashboard found [here](https://insights.arcgis.com/#/view/08d2c1f995524053b1f9669dd0b0b995).
 
 ## Objective
 
@@ -48,7 +50,7 @@ The city of Albany's population is predominately African American and by examini
 
 ## Data Import
 
-After downloading the data the excel file containing the vaccination counts by census tract was saved to the rawdata file within this product and uploaded to a processing file where the intent is to clean and prepare the data for analysis. 
+After downloading the data the excel file containing the vaccination counts by census tract was saved to the rawdata file within this product and uploaded to a processing file where the intent is to clean and prepare the data for analysis.
 
 ## Data Processing
 
@@ -56,30 +58,27 @@ In preparation for analysis, the raw data was first subsetted by Dougherty Count
 
 # Results
 
-
-## Vaccination Trends of the Black Community for Each Zip Code 
+## Vaccination Trends of the Black Community for Each Zip Code
 
 ### Zip code 31701
-The vaccination rate of the the Black population slightly decreased from a rate of 61% to 60.6% \@ref(fig:31701_total_black_vax_rate). The vaccination rate for female black residents slightly decreased from 65% to 64% while the male black resident population's vaccination rate increased slightly at 53% to 57%. It is important to note the difference between the vaccination rates of female and male black residents, which is around .1 from September to February \@ref(fig:31701_Gender_black_vax). When the black population was stratified by age, the rates were the highest for the ages of 65 and older at 89%. Black residents aged 45-64 had a steady rate of 70%, black residents aged 18-44 had a steady rate of 65%, blacked residents aged 10-17 had a steady rate of 40% and black residents aged 5-9 had a steady rate of 12% \@ref(fig:31701_Age_black_vax).
 
+The vaccination rate of the the Black population slightly decreased from a rate of 61% to 60.6% \@ref(fig:31701_total_black_vax_rate). The vaccination rate for female black residents slightly decreased from 65% to 64% while the male black resident population's vaccination rate increased slightly at 53% to 57%. It is important to note the difference between the vaccination rates of female and male black residents, which is around .1 from September to February \@ref(fig:31701_Gender_black_vax). When the black population was stratified by age, the rates were the highest for the ages of 65 and older at 89%. Black residents aged 45-64 had a steady rate of 70%, black residents aged 18-44 had a steady rate of 65%, blacked residents aged 10-17 had a steady rate of 40% and black residents aged 5-9 had a steady rate of 12% \@ref(fig:31701_Age_black_vax).
 
 ```{r 31701_total_black_vax_rate,  fig.cap='\\label{fig::31701_total_black_vax_rate}Vaccination Rates for Black Population in the 31701 Zipcode', echo=FALSE}
 knitr::include_graphics("../results/31701_total_black_vax_rate.png")
 ```
 
-
 ```{r 31701_Gender_black_vax,  fig.cap='\\label{fig::31701_Gender_black_vax}Vaccination Rates for Black Population by Gender in the 31701 Zipcode', echo=FALSE}
 knitr::include_graphics("../results/31701_Gender_black_vax.png")
 ```
-
 
 ```{r 31701_Age_black_vax.png,  fig.cap='\\label{fig::31701_Age_black_vax}Vaccination Rates for Black Population by Age in the 31701 Zipcode', echo=FALSE}
 knitr::include_graphics("../results/31701_Age_black_vax.png")
 ```
 
-
 ### Zip code 31705
-The vaccination rate of stayed stable around 48% for the black population in the 31705 zip code \@ref(fig:31701_Age_black_vax). The vaccination rate of female black residents dropped from 51.1% to 49.7% from September to December, but remained stable close to 50% until February. For male black residents the vaccination rate hovered around 44% \@ref(fig:31705_Gender_black_vax). After stratifying by age the vaccination rates for the 65+, 44-64, 18-44, 10-17 and 5-9 ages groups were as follows: 85%, 68%, 43%, 35% and 12% \@ref(fig:31705_Age_black_vax).  
+
+The vaccination rate of stayed stable around 48% for the black population in the 31705 zip code \@ref(fig:31701_Age_black_vax). The vaccination rate of female black residents dropped from 51.1% to 49.7% from September to December, but remained stable close to 50% until February. For male black residents the vaccination rate hovered around 44% \@ref(fig:31705_Gender_black_vax). After stratifying by age the vaccination rates for the 65+, 44-64, 18-44, 10-17 and 5-9 ages groups were as follows: 85%, 68%, 43%, 35% and 12% \@ref(fig:31705_Age_black_vax).
 
 ```{r 31705_total_black_vax_rate,  fig.cap='\\label{fig::31705_total_black_vax_rate}Vaccination Rates for Black Population in the 31705 Zipcode', echo=FALSE}
 knitr::include_graphics("../results/31705_total_black_vax_rate.png")
@@ -94,7 +93,8 @@ knitr::include_graphics("../results/31705_Age_black_vax.png")
 ```
 
 ### Zip code 31707
-The total vaccination rate of black residents in the 31707 zip code was around 50% from September through February \@ref(fig:31707_total_black_vax_rate). The vaccination rates for the female and male black population were found to be steady around 54% and 44% \@ref(fig:31707_Gender_black_vax). The vaccination rates by the age groups 65+, 44-64, 18-44, 10-17 and 5-9 where found to be 98%, 85%, 52%, 37%, and 17% \@ref(fig:31707_Age_black_vax). 
+
+The total vaccination rate of black residents in the 31707 zip code was around 50% from September through February \@ref(fig:31707_total_black_vax_rate). The vaccination rates for the female and male black population were found to be steady around 54% and 44% \@ref(fig:31707_Gender_black_vax). The vaccination rates by the age groups 65+, 44-64, 18-44, 10-17 and 5-9 where found to be 98%, 85%, 52%, 37%, and 17% \@ref(fig:31707_Age_black_vax).
 
 ```{r 31707_total_black_vax_rate,  fig.cap='\\label{fig::31707_total_black_vax_rate}Vaccination Rates for Black Population in the 31707 Zipcode', echo=FALSE}
 knitr::include_graphics("../results/31707_total_black_vax_rate.png")
@@ -109,6 +109,7 @@ knitr::include_graphics("../results/31707_Age_black_vax.png")
 ```
 
 ### Zip code 30815
+
 The total vaccination rate for the black population was 44% in the 30815 zip code from September through February \@ref(fig:30815_total_black_vax_rate). The vaccination rates for black female and male residents were 49% and 38% \@ref(fig:30815_Gender_black_vax). The vaccination rates by the age groups 65+, 44-64, 18-44, 10-17 and 5-9 where found to be 78%, 60%, 38%, 31%, and 8% \@ref(fig:30815_Age_black_vax).
 
 ```{r 30815_total_black_vax_rate,  fig.cap='\\label{fig::30815_total_black_vax_rate}Vaccination Rates for Black Population in the 30815 Zipcode', echo=FALSE}
@@ -124,6 +125,7 @@ knitr::include_graphics("../results/30815_Age_black_vax.png")
 ```
 
 ### Zip code 30907
+
 The total vaccination rate for the black population was 54% in September and dropped to around 53% in February in the 30907 zip code \@ref(fig:30907_total_black_vax_rate). The vaccination rates for black female and male residents were 60% and 45% \@ref(fig:30907_Gender_black_vax). The vaccination rates by the age groups 65+, 44-64, 18-44, 10-17 and 5-9 where found to be 95%, 64%, 63%, 33%, and 11% \@ref(fig:30907_Age_black_vax).
 
 ```{r 30907_total_black_vax_rate,  fig.cap='\\label{fig::30907_total_black_vax_rate}Vaccination Rates for Black Population in the 30907 Zipcode', echo=FALSE}
@@ -138,9 +140,10 @@ knitr::include_graphics("../results/30907_Gender_black_vax.png")
 knitr::include_graphics("../results/30907_Age_black_vax.png")
 ```
 
-### Statistical Analysis 
+### Statistical Analysis
 
 # References
 
 # Discussion
-Albany, Georgia is predominately black 
+
+Albany, Georgia is predominately black

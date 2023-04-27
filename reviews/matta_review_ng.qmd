@@ -1,0 +1,184 @@
+---
+title: Project Review Jacob Matta 
+author: Nathan Greenslit
+date: "`r file.mtime(knitr::current_input())`"
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Overview
+
+Title of project: Manuscript for MADA Project
+
+Name of project author(s): Jacob Matta
+
+Name of project reviewer: Nathan Greenslit
+
+# Specific project content evaluation
+
+## Background, Context and Motivation
+
+How well is the context of the project described? Is a comprehensive background, including summary of previous/related work given? Is the project well placed into the context of existing work (including proper referencing of existing work). Is it clear why the project was undertaken and what new information it hopes to provide?
+
+### Feedback and Comments
+
+Background information is provided with relevant sources, however more may be needed in order to properly provide context, and set up the research question and why it is important. It is generally helpful to think of an "hourglass" format. Where you start of broad, and funnel down to your project and question, and then end with another broad statement of how your research applies to real-world scenarios, or adds to gaps research.
+
+For example, a broader introduction that addresses hesitancy programs, vaccination status among black communities, or variance in mortality rates based on race, may aid in setting up this specific study conducted in Albany Georgia. The question of interest is stated, but it would be beneficial to add a sentence or two of why this vaccination status is important to address. Or what the results of this study can provide.
+
+### Summary assessment
+
+-   some contextualization and motivation
+
+## Question description
+
+How well and clear are the question(s)/hypotheses the project aims to address described? Is it clear how the questions relate to the data?
+
+### Feedback and Comments
+
+Question/Objective is clearly stated: *My goal is to compare monthly trends of vaccinations and examine whether there is a noticeable change in vaccination rates among residents who are black during the time of the health literacy programs, which is from September through February.*
+
+For the hypothesis, can you state specifically what "observable change" you are expecting (increase/decrease).
+
+### Summary assessment
+
+-   question/hypotheses fully clear
+
+## Data description
+
+How well is the data overall described? Is the source provided? Is a codebook or other meta-information available that makes it clear what the data is?
+
+### Feedback and Comments
+
+Data structure is described in depth and links to the data sets are provided. Readme files that pertain to the data go in to good detail of how to interpret the different variables, and how they apply to the project.
+
+### Summary assessment
+
+-   source and overall structure of data well explained
+
+## Data wrangling and exploratory analysis
+
+How well is the data cleaned/processed and explored? Are all steps reasonable and well explained? Are alternatives discussed and considered? Are meaningful exploratory results shown (e.g. in the supplementary materials)?
+
+### Feedback and Comments
+
+#### Data Processing:
+
+Data is extensively processed. Both files ran well with no errors. Each step of processing was very well annotated and organized. The final "processed data" is ready for downstream analysis
+
+#### Exploratory Analysis:
+
+Produced plots are informative with well-written annotation. Additionally, the use of an interactive plot is very cool! Alternatives are not discussed, but the overall workflow makes sense for the project/question.
+
+### Summary assessment
+
+-   essentially no weaknesses in wrangling and exploratory component
+
+## Appropriateness of Analysis
+
+Were the analysis methods appropriate for the data? Was the analysis done properly? Were different components of the analysis (e.g. performance measure, variable selection, data pre-processing, model evaluation) done in the best way possible and explained well?
+
+### Feedback and Comments
+
+Based on my knowledge, the analysis was applicable to the data/questions. Both a tree and LASSO model were used to assess the primary question. Some initial cleaning was done in the `statistical analysis` code that may be better in its own cleaning code. It may also be beneficial to explore more simple linear models to backup these more complex ML models.
+
+It would be helpful to add a few sentences in this script that summarize what you are doing and why. And add a conclusion sentence where you evaluate the performance of each model.
+
+### Summary assessment
+
+-   strong and reasonable analysis
+
+## Presentation
+
+How well are results presented? Are tables and figures easy to read and understand? Are the main figures/tables publication level quality?
+
+### Feedback and Comments
+
+Summary paragraphs are provided for each collection of plots and the figures are fairly interpretable. One optional suggestion is to add `+theme_bw()` to the plots. This produces a cleaner and more professional look. It may be beneficial to to rename the variables within a column (especially with the age ranges) by eliminating "\_" and adding "-". This can be done with the code:
+
+`mutate(column_name = recode(column_name, "Old_Name" = "New-Name"))`
+
+Additionally, you can rename your y axis "VAX_RATE" to "Vaccination Rate"
+
+### Summary assessment
+
+-   results are very well presented
+
+## Discussion/Conclusions
+
+Are the study findings properly discussed? Are strengths and limitations acknowledged? Are findings interpreted properly?
+
+### Feedback and Comments
+
+No discussion or conclusion was supplied.
+
+### Summary assessment
+
+-   major parts of discussion missing or wrong
+
+## Further comments
+
+See comments at end of review.
+
+# Overall project content evaluation
+
+Evaluate overall features of the project by filling in the sections below.
+
+## Structure
+
+Is the project well structured? Are files in well labeled folders? Do files have reasonable names? Are all "junk" files not needed for analysis/reproduction removed? By just looking at files and folders, can you get an idea of how things fit together?
+
+### Feedback and Comments
+
+Great job on structure! The layout makes it very easy to reproduce. Additionally, your code is incredibly organized and well annotated, making it very easy to follow along. Your figures in your results folder are also well labeled. I would add a note about the \``exploratoryanalysis_files` folder. As well as the `processingcode_files` folder.
+
+### Summary assessment
+
+-   well structured
+
+## Documentation
+
+How well is the project documented? Are you able to understand each step of the whole analysis, each decision that was made, and each line of code? Is enough information provided as comments in code or as part of Rmd files?
+
+### Feedback and Comments
+
+Reiterating what I said above, your project is very well documented. I would add some more annotations on the statistical scripts to help others track along. I ended up using the tidymodels webpage to guide my annotations here. It can be useful for summarizing each step.
+
+### Summary assessment
+
+-   decently documented with some gaps
+
+## Reproducibility
+
+Are all results fully reproducible? Is documentation provided which clearly explains how to reproduce things, and does it work without the need for any manual intervention? Are you able to re-run the whole analysis without having to do manual interventions/edits?
+
+### Feedback and Comments
+
+All code ran with no issues! In the initial README file, it is clearly stated what must be done to reproduce. This file was efficient in summarizing the structure and workflow of the project (I may end up following a similar format!).
+
+### Summary assessment
+
+-   fully reproducible without issues
+
+## Thoroughness
+
+How thorough was the overall study? Were alternatives (e.g. different ways of processing the data or different models) considered? Were alternatives discussed? Were the questions/hypotheses fully and thoroughly addressed?
+
+### Feedback and Comments
+
+Different ML models were utilized for analysis (LASSO and Tree) that assessed the question. Again, it may be good to run a few simple univariate linear models as well. Adding interpretations/plots to your manuscript would be helpful. Analysis did assess the questions, but the results have not been interpreted in the manuscript.
+
+### Summary assessment
+
+-   strong level of thoroughness
+
+# Further comments
+
+When rendering your manuscript, the citations appeared in the paper but bolded with question marks. This happened with mine as well and the problem is that the script is not recognizing your .bibtex citation keys. This also makes it so you have no references at the end of your manuscript. I would double check your key format and see if they match up.
+
+There is also a potential typo in the raw data readme. Both January 16th and January 26th are mentioned.
+
+Overall, a really interesting question and analysis. I think that you have most of the "meat" of the project, and some factors (comments, annotations, explanations) just need to be fleshed out a little more. The biggest gap is the lack of the abstract, discussion, and conclusion. Additional, some more information would be useful in the introduction in order to set up your project. But all previous analysis (project/data description, cleaning, statistical analysis) is really good!
