@@ -19,9 +19,9 @@ Name of project reviewer: Kelly Hatfield
 
 
 ### Feedback and Comments
- The background and introduction are  thorough and proide good motiviation to the importance of the study. 
+ The background and introduction are  thorough and provide good motiviation to the importance of the study. 
 
-The abstract could use help with clarity, perhaps reframe the study some: 
+The abstract could use help with clarity, perhaps even a reframe the study some: 
 The outcome of interest is the change in the proportion of residents vacccinated over time from September - February. The predictor of interest is the COVID-19 vaccine hesitancy program intervention. It would be helpful also to help contextualize the three zip codes of interest. 
 
 ### Summary assessment (PICK ONE, DELETE THE OTHERS)
@@ -33,15 +33,15 @@ How well and clear are the question(s)/hypotheses the project aims to address de
 
 ### Feedback and Comments
 
-The hypotheis and questions can be more explicitly stated in the manuscript. For example, in the objectives section you mention data cleaning methods. The objective should be stated more succintly and explicitly: 
+The hypothesis and questions can be more explicitly stated in the manuscript. For example, in the objectives section you mention data cleaning methods. The objective should be stated more succinctly : 
 
 We aim to assess any trend in vaccine uptake among our targeted community during the time of health literacy programs (September - February 2022) 
 
-Your hypothesis is a little unclear to me too. For example, you are looking for an increase in the number of Albany citizens who receive the vaccine in the time period. However, this is a value that can't decrease. So are you looking for an increase in the trend (interrupted tiem series), and increase in the daily rate among unvaccinated (where your denominator will change daily), an increase in the zip codes of interest versus other zip codes where targeted interventions werent applied? The objective/hypothesis might need to be fleshed out a bit more. 
+Your hypothesis is a little unclear to me too. For example, you are looking for an increase in the number of Albany citizens who receive the vaccine in the time period. However, this is a value that can't decrease. So are you looking for an increase in the trend (interrupted tiem series), and increase in the daily rate among unvaccinated (where your denominator will change daily), an increase in the zip codes of interest versus other zip codes where targeted interventions weren't applied? The objective/hypothesis might need to be fleshed out a bit more. 
 
 
 ### Summary assessment
-* question/hypotheses fully clear
+* question/hypotheses somewhat explained
 
 
 ## Data description
@@ -49,11 +49,11 @@ How well is the data overall described? Is the source provided? Is a codebook or
 
 ### Feedback and Comments
 
-The data structure is well explained and sources described. It is meddled in the with the importation and cleaning. I would rather encourage the author to separate the findings a bit. 
+The data structure is well explained and sources described. However, the author presents the findings as percents but states that the data source provides counts. He does not provide details on where the denominators for calculating percents come from. I see some population data in the processed dataset so I would encourage the author to describe the sources of that data too.  
 
 
 ### Summary assessment
-* source and overall structure of data well explained
+* source and overall structure of data somewhat explained
 
 
 ## Data wrangling and exploratory analysis
@@ -61,13 +61,10 @@ How well is the data cleaned/processed and explored? Are all steps reasonable an
 
 ### Feedback and Comments
 
+Data processing is explained. However, I would be curious as to some of the data points. For example, the authors describe a decrease in vaccination rates over time. First, I would note that the decreases are small (<1%). Second, it is unclear how the decreases could occur (i.e., once a resident is vaccinated, they can't unvaccinated themself). This could be due to variation in the data or other factors, but should be addressed. 
 
-Data cleaning process is well described. Similar to comment above, it is interwoven with description of the data sources. The manuscript would benefit from separate paragraphs discussing these elements and some editorial review (e.g., ensuring run-on sentences are shortened, fragments removed). Some mentions of "data were cleaned" without explaining exaclty how. An example would be: 
+The author also does the analyses over time in separate figures for each zip code. It would be helpful to have these on the same graph, perhaps grouped by color for if they are an intervention zip code or control zip code.  
 
-"For this analysis, we decided to exclude purina body condition scores as it was implemented later in the study, and most dogs do not have that information. The remaining columns were cleaned to make the data more consistent and in the format required for statistical analysis. "
-
-could be streamlined to: 
-"We excluded condition scores because they were not consistently collected and had high numbers of missing values. We recoded XXXX variables from XXX to XXX to facilitate easier statistical analysis.""
 
 ### Summary assessment
 
@@ -80,11 +77,11 @@ could be streamlined to:
 Were the analysis methods appropriate for the data? Was the analysis done properly? Were different components of the analysis (e.g. performance measure, variable selection, data pre-processing, model evaluation) done in the best way possible and explained well?
 
 ### Feedback and Comments
-
  
+ There is limited analysis description in the manuscript. Per the analysis code file it appears there is detailed analysis with cross-fold validation. However, this is not described in the text. 
 
 ### Summary assessment
-* defensible but not optimal analysis 
+* wrong/inadequate analysis
 
 
 
@@ -92,9 +89,10 @@ Were the analysis methods appropriate for the data? Was the analysis done proper
 How well are results presented? Are tables and figures easy to read and understand? Are the main figures/tables publication level quality? 
 
 ### Feedback and Comments
+The line graphs showing trends over time in the different zip codes are helpful. However, they could be improved with some additioanl work on the visualizations. In the manuscript the results for the advanced analysis are limited and not well described. 
 
 ### Summary assessment
-* results are presented ok, with room for improvement
+* results are poorly presented, hard to understand, poor quality
 
 
 
@@ -106,13 +104,10 @@ Discussion not present at time of review.
 
 ### Summary assessment
 
-* strong, complete and clear discussion
+* major parts of discussion missing or wrong 
 
 
 ## Further comments
-
-
-
 
 
 # Overall project content evaluation
@@ -120,10 +115,10 @@ Evaluate overall features of the project  by filling in the sections below.
 
 
 ## Structure
-Is the project well structured? Are files in well labeled folders? Do files have reasonable names? Are all "junk" files not needed for analysis/reproduction removed? By just looking at files and folders, can you get an idea of how things fit together?
+
 
 ### Feedback and Comments
-
+The project is well organized and the quarto files with code are well documented and easy to file. It is unclear to me if processingcode and processingcode2 quarto files need to reamin. I would update the readme section in that folder to make it clear which file does what part you are describing. 
 
 ### Summary assessment
 
@@ -134,7 +129,7 @@ Is the project well structured? Are files in well labeled folders? Do files have
 How well is the project documented? Are you able to understand each step of the whole analysis, each decision that was made, and each line of code? Is enough information provided as comments in code or as part of Rmd files? 
 
 ### Feedback and Comments
-
+The project is well documented. Some of the rationale for some of the caclulations is missing in some of the analysis files, but it is easy to understand the analytic parts. 
 
 ### Summary assessment
 
@@ -146,7 +141,7 @@ How well is the project documented? Are you able to understand each step of the 
 Are all results fully reproducible? Is documentation provided which clearly explains how to reproduce things, and does it work without the need for any manual intervention? Are you able to re-run the whole analysis without having to do manual interventions/edits?
 
 ### Feedback and Comments
-
+The analysis appears reproducible. However, some parts do appear to typed in (e.g., calculation of some rates) where it may be better to program the calculations to ensure typos don't affect your results. 
 
 ### Summary assessment
 
@@ -158,10 +153,16 @@ How thorough was the overall study? Were alternatives (e.g. different ways of pr
 
 ### Feedback and Comments
 
+The analysis seems thorough in the quarto files. However, from the manuscript file it is unclear. 
+
 ### Summary assessment
 
-* strong level of thorougness
+
+* decent level of thoroughness
 
 
 ## Further comments
+This study could use a bit more thought and effort into the analysis and interpretation. I think the quarto files show a lot of really good exploratory analyses. The manuscript could use work to better describe the work and the findings. 
+
+I don't think the references are formatted correctly, as they are also not populating in the manuscript. 
 ---
