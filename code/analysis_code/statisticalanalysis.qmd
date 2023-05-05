@@ -380,11 +380,22 @@ residuals = predictions$TOTAL_RATE_DIFF - predictions$.pred
 residuals_df = data.frame(TOTAL_RATE_DIFF = predictions$TOTAL_RATE_DIFF, Predictions = predictions$.pred, Residuals = residuals)
 
 # Create a scatter plot with ggplot for residuals 
-ggplot(residuals_df, aes(x = Predictions , y = Residuals)) +
+Res1 = ggplot(residuals_df, aes(x = Predictions , y = Residuals)) +
   geom_point() +
   xlab("Predicted values") +
   ylab("Residuals") +
   ggtitle("Residual Plot")
+Res1
+
+#Save Linear Regression Output Table
+table10= here("results", "table10.RDS")
+saveRDS(final_fit_metrics, file = table10) 
+
+#save figure of predictions vs outcome values 
+ggsave(filename = here("results","Predictions_vs_OutcomeValues.png"), plot=plot1)
+
+#save figure of residuals 
+ggsave(filename = here("results","Residuals_Plot.png"), plot=Res1)
 
 ```
 
@@ -447,3 +458,154 @@ final_lasso_wf <-
 final_lasso_wf
 ```
 
+### Evaluate the final fit for the Lasso model
+
+```{r}
+final_fit2 <- 
+  final_lasso_wf %>%
+  last_fit(data_split) 
+
+final_fit_metrics2 <- final_fit2 %>%
+  collect_metrics()
+final_fit_metrics2
+
+#creating a tibble for predicted values of model
+predictions2 = final_fit2  %>%
+  collect_predictions
+
+#plotting model predictions vs actual outcome 
+plot2 = final_fit2 %>%
+  collect_predictions  %>%
+    ggplot(aes(x = .pred, y = TOTAL_RATE_DIFF)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  xlab("Predicted Probability") +
+  ylab("Actual Class") +
+  ggtitle("Predicted Values vs Actual Outcome Values")
+plot2
+
+#plotting the residuals 
+residuals2 = predictions$TOTAL_RATE_DIFF - predictions$.pred
+
+#creating a residual data frame 
+residuals_df2 = data.frame(TOTAL_RATE_DIFF = predictions$TOTAL_RATE_DIFF, Predictions = predictions$.pred, Residuals = residuals)
+
+# Create a scatter plot with ggplot for residuals 
+Res2 = ggplot(residuals_df2, aes(x = Predictions , y = Residuals)) +
+  geom_point() +
+  xlab("Predicted Values") +
+  ylab("Residuals") +
+  ggtitle("Residual Plot")
+
+#Save Linear Regression Output Table
+table11= here("results", "table11.RDS")
+saveRDS(final_fit_metrics2, file = table11) 
+
+#save figure of predictions vs outcome values 
+ggsave(filename = here("results","Predictions_vs_OutcomeValues.png"), plot=plot2)
+
+#save figure of residuals 
+ggsave(filename = here("results","Residuals_Plot.png"), plot=Res2)
+```
+
+## Fitting for random forest model
+
+### Building a model
+
+```{r}
+rf_mod =
+  rand_forest(mtry = tune(), min_n = tune(), trees = 1000) %>% 
+  set_engine("ranger") %>% 
+  set_mode("regression")
+```
+
+## Creating a recipe
+
+```{r}
+recipe2 <- recipe(TOTAL_RATE_DIFF ~ ., data = train_data)
+```
+
+### Creating a workflow
+
+```{r}
+rf_workflow =
+  workflow() %>%
+  add_model(rf_mod)  %>%
+  add_recipe(recipe2)
+```
+
+### Train and tune the model
+
+```{r}
+rf_res <- 
+  rf_workflow %>% 
+  tune_grid(CV_fold)
+```
+
+### Collect metrics and picking the best model
+
+```{r}
+rf_res %>% show_best("rmse")
+
+best_rf = rf_res %>%
+  select_best("rmse")
+best_rf
+```
+
+### Finalizing random forest model
+
+```{r}
+final_rf_wf <- 
+  rf_workflow %>% 
+  finalize_workflow(best_rf)
+
+final_rf_wf
+```
+
+### Evaluate the final fit for the random forest model
+
+```{r}
+final_fit3 <- 
+  final_rf_wf %>%
+  last_fit(data_split) 
+
+final_fit_metrics3 <- final_fit3 %>%
+  collect_metrics()
+final_fit_metrics3
+
+#creating a tibble for predicted values of model
+predictions3 = final_fit3  %>%
+  collect_predictions
+
+#plotting model predictions vs actual outcome 
+plot3 = final_fit3 %>%
+  collect_predictions  %>%
+    ggplot(aes(x = .pred, y = TOTAL_RATE_DIFF)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  xlab("Predicted Probability") +
+  ylab("Actual Class") +
+  ggtitle("Predicted Values vs Actual Outcome Values")
+plot3
+
+#plotting the residuals 
+residuals3 = predictions$TOTAL_RATE_DIFF - predictions$.pred
+
+#creating a residual data frame 
+residuals_df3 = data.frame(TOTAL_RATE_DIFF = predictions$TOTAL_RATE_DIFF, Predictions = predictions$.pred, Residuals = residuals)
+
+# Create a scatter plot with ggplot for residuals 
+Res3 = ggplot(residuals_df3, aes(x = Predictions , y = Residuals)) +
+  geom_point() +
+  xlab("Predicted Values") +
+  ylab("Residuals") +
+  ggtitle("Residual Plot")
+
+#Save Linear Regression Output Table
+table12 = here("results", "table12.RDS")
+saveRDS(final_fit_metrics3, file = table12) 
+
+#save figure of predictions vs outcome values 
+ggsave(filename = here("results","Predictions_vs_OutcomeValues.png"), plot=plot3)
+
+#save figure of residuals 
+ggsave(filename = here("results","Residuals_Plot.png"), plot=Res3)
+```
