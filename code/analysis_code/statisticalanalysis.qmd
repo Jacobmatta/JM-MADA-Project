@@ -9,6 +9,7 @@ library(rsq) #rsqured
 library(yardstick)
 library(MASS) #used for AIC forward selection 
 library(glmnet) #for ridge regression 
+library(here)
 ```
  
 
@@ -97,6 +98,129 @@ combined <- combined %>%
          TOTAL_RATE_DIFF = TOTAL_RATE_DIFF * 100)
 
 ```
+
+### Bivariate Analysis Through Linear Regression
+
+```{r}
+# fit linear model 
+lm_mod <- linear_reg()
+
+#fit model with total rate difference as outcome and total vax rate as predictor
+total_rate_fit <- lm_mod %>% 
+  fit( TOTAL_RATE_DIFF ~ TOTAL_VAX_RATE,
+      data = combined) 
+total_rate <- tidy(total_rate_fit) 
+print(total_rate)
+
+#Save Linear Regression Output Table
+table1= here("results", "table1.RDS")
+saveRDS(total_rate, file = table1) 
+```
+
+```{r}
+#fit model with total rate difference as outcome and male vax rate as predictor
+Male_rate_fit <- lm_mod %>% 
+  fit( TOTAL_RATE_DIFF ~ Male_VAX_RATE,
+      data = combined) 
+Male_rate <- tidy(Male_rate_fit) 
+print(Male_rate)
+
+#Save Linear Regression Output Table
+table2= here("results", "table2.RDS")
+saveRDS(Male_rate, file = table2) 
+```
+
+```{r}
+#fit model with total rate difference as outcome and female vax rate as predictor
+Female_rate_fit <- lm_mod %>% 
+  fit( TOTAL_RATE_DIFF ~ Female_VAX_RATE,
+      data = combined) 
+Female_rate <- tidy(Female_rate_fit) 
+print(Female_rate)
+
+#Save Linear Regression Output Table
+table3= here("results", "table3.RDS")
+saveRDS(Female_rate, file = table3) 
+```
+
+```{r}
+#fit model with total rate difference as outcome and Age_05_09_VAX_RATE as predictor
+Age_05_09_rate_fit <- lm_mod %>% 
+  fit( TOTAL_RATE_DIFF ~ Age_05_09_VAX_RATE,
+      data = combined) 
+Age_05_09_rate <- tidy(Age_05_09_rate_fit) 
+print(Age_05_09_rate)
+
+#Save Linear Regression Output Table
+table4= here("results", "table4.RDS")
+saveRDS(Age_05_09_rate, file = table4) 
+```
+
+```{r}
+#fit model with total rate difference as outcome and Age_10_17_VAX_RATE as predictor
+Age_10_17_rate_fit <- lm_mod %>% 
+  fit( TOTAL_RATE_DIFF ~ Age_10_17_VAX_RATE,
+      data = combined) 
+Age_10_17_rate <- tidy(Age_10_17_rate_fit) 
+print(Age_10_17_rate)
+
+#Save Linear Regression Output Table
+table5= here("results", "table5.RDS")
+saveRDS(Age_10_17_rate, file = table5) 
+```
+
+```{r}
+#fit model with total rate difference as outcome and Age_18_44_VAX_ as predictor
+Age_18_44_rate_fit <- lm_mod %>% 
+  fit( TOTAL_RATE_DIFF ~ Age_18_44_VAX_RATE,
+      data = combined) 
+Age_18_44_rate <- tidy(Age_18_44_rate_fit) 
+print(Age_18_44_rate)
+
+#Save Linear Regression Output Table
+table6= here("results", "table6.RDS")
+saveRDS(Age_18_44_rate, file = table6) 
+```
+
+```{r}
+#fit model with total rate difference as outcome and Age_45_64_VAX_RATE as predictor
+Age_45_64_rate_fit <- lm_mod %>% 
+  fit( TOTAL_RATE_DIFF ~ Age_45_64_VAX_RATE,
+      data = combined) 
+Age_45_64_rate <- tidy(Age_45_64_rate_fit) 
+print(Age_45_64_rate)
+
+#Save Linear Regression Output Table
+table7= here("results", "table7.RDS")
+saveRDS(Age_45_64_rate, file = table7) 
+```
+
+```{r}
+#fit model with total rate difference as outcome and Age_65Plus_VAX_RATE as predictor
+Age_65Plus_rate_fit <- lm_mod %>% 
+  fit( TOTAL_RATE_DIFF ~ Age_65Plus_VAX_RATE,
+      data = combined) 
+Age_65Plus_rate <- tidy(Age_65Plus_rate_fit) 
+print(Age_65Plus_rate)
+
+#Save Linear Regression Output Table
+table8= here("results", "table8.RDS")
+saveRDS(Age_65Plus_rate, file = table8) 
+```
+
+```{r}
+#fit model with total rate difference as outcome and Interventione as predictor
+Intervention_fit <- lm_mod %>% 
+  fit( TOTAL_RATE_DIFF ~ Intervention,
+      data = combined) 
+Intervention <- tidy(Intervention_fit) 
+print(Intervention)
+
+#Save Linear Regression Output Table
+table9= here("results", "table9.RDS")
+saveRDS(Intervention, file = table9) 
+```
+
 
 ### Data splitting
 
