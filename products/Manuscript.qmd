@@ -26,6 +26,11 @@ In July 2022, Albany was awarded a 3.9 million dollar grant from the Health and 
 
 This study serves an extension of the evaluation being conducted by EERG through examining the vaccination rates of the zip codes where vaccine hesitancy programs are being conducted.
 
+## Intervention Zip Codes vs Control Zip Codes
+The intervention zip codes include 31701, 31705 and 31707 which all are within Albany, GA and Dougherty County. These three zip codes will be hosting the COVID-19 vaccine hesitancy and health literacy programs and as a result they will be considered intervention zip codes. 
+
+The control zip codes will be both 30907 and 30815 which lie in Richmond County, GA. The 30815 zip code was matched with the three intervention zip codes based on the Social Vulnerability Index (SVI) which is in part scaled by a communities vulnerability to disease outbreaks like COVID-19(@agencyfortoxicsubstancesanddiseaseregistryCDCATSDRSocial). The 30907 zip code was matched based on Social Risk Index (SRI) which is partly scaled by a communities social risk and ability to recover from disease outbreak (@allianzSocialRiskIndex). 
+
 ## Description of data and data source
 
 The data is a count of residents with at least one COVID-19 vaccination by demographic in the state of Georgia released by the Georgia Department of Public Health. The data has 1962 observations which are 1962 different census tracts in Georgia. There are 187 variables each are a different combination of gender, race and age. The data is uploaded monthly.
@@ -194,14 +199,14 @@ The Intervention variable is a binary predictor where "1" indicates a zip code h
 
 ```{r}
 #| label: tbl-9
-#| fig-cap: "Simple Linear Regression Output for Intervention as a Predictor "
+#| fig-cap: "Simple Linear Regression Output for Intervention as a Predictor"
 readRDS(file = here("results", "table9.RDS")) 
 ```
 
 ## Full Model Fitting and Evalutation
 
 ### Tree Model 
-After running a Regression Tree Model using all the predictors and the main outcome of total vaccination rate difference by month among the black population in each zip code the best fit model was found to have an RMSE value of 0.37584439 and an R-squared value of 0.06730276 (@tbl-10).
+After running a Regression Tree Model using all the predictors and the main outcome of total vaccination rate difference by month among the black population in each zip code the best fit model was found to have an Root Mean Squared Error (RMSE) value of 0.37584439 and an R-squared value of 0.06730276 (@tbl-10).
 
 ```{r}
 #| label: tbl-10 
@@ -230,8 +235,23 @@ readRDS(file = here("results", "table12.RDS"))
 # Discussion
 Since July of 2022, The Health and Human Services and the Office of Minority Health have funded COVID-19 vaccine hesitancy and health literacy prgrams in Albany, GA that have been in action since October of 2022 [@thealbanyheraldCityAlbanyReceives]. This analysis has produced a data set from the Georgia Department of Public Health COVID-19 vaccination data that contains vaccination rates by demographic and total vaccination rate in zip codes that the COVID-19 vaccine hesitancy and health literacy programs were enrolled compared to a two control zip codes that were matched via SRI and and SVI. The intention of this analysis was to examine whether the zip codes with the COVID-19 vaccination and health literacy intervention had a notable increase of vaccination rates from the months of September 2022 through February 2023. 
 
-Descriptive statistics were used to examine the vaccination rates among the zip codes of 31701, 31705 and 31707 by month from September 2022 through February 2023. No notable increase were observed  
+Descriptive statistics were used to examine the vaccination rates among the zip codes of 31701, 31705 and 31707 by month from September 2022 through February 2023. A substantial increase in vaccinate rates was not observed in any of the three zip codes. There was a slight increase in COVID-19 vaccination rate of about 1% among the black male population in the 31701 zip code. 
+
+The bivariate analysis revealed that all of the demographic variables were not significant predictors of the total vaccination rate difference by month. Among the demographic variables, the COVID-19 vaccination rate for the age range of 45-64 proved to be the best predictor according to p-value (@tbl-1). According to the linear regression model, for every one-unit increase of the COVID-19 vaccination rate for black members of the community ages 45-64 the monthly difference in COVID-19 vaccination rate for black members of the community increased by 0.004 (@tbl-1). 
+Interestingly, the bivariate analysis showed the intervention of the COVID-19 vaccine hesitancy was a relatively good predictor for the monthly difference in COVID-19 vaccination rate for black members of the community. The simple linear regression model used monthly difference in COVID-19 vaccination rate for black members of the community as an outcome and intervention as predictor; When the intervention value in the data set was "1" indicating the presence of an intervention in the zip code, the COVID-19 vaccination rate for black members of the community increased by 0.068 (@tbl-9). Although the p-value for the Intervention variable was not significant at the 0.05 level (p-value = 0.55), this p-value was among the lower p-values when compared to the other demographic predictors. Relatively speaking, Intervention was among the best predictors given the positive magnitude of the coefficient estimate and a low p-value.
+
+A full model was fit using a multiple linear regression model including all predictors and the outcome of monthly difference in COVID-19 vaccination rate for black members of the community. The null model produced an RMSE metric of 0.3095648 which indicates the average distance between predicted values of the model and the actual values. The Tree Model, produced a model that had an RMSE value of 0.37584439 which is actually slight larger than the null model indicating the predicted values were slightly more off (@tbl-10). The LASSO Regression model produced an RMSE of 0.30444322 which is a bit less than the null model (@tbl-11). The Random Forest Model produced an RMSE of 0.3716112 which is larger than the LASSO RMSE but lower than the Tree Model RMSE (@tbl-12). The best model selection based on RMSE is the LASSO model due to having the lowest RMSE metric. 
+
 
 # Limitations 
-# References
+There are a few issues that resulted from selecting to work with census tract level data for this analysis. First, census tracts do not completely align with zip codes. In other words, zip codes can share census tracts and this was not accounted for in this analysis. The amount of census tracts in each zip code used for this analysis was found through the use of ArcGIS. Once the census tracts were obtained via ArcGIS, each census tract was included regardless of the population size and the amount of land they took up in a zip code. This becomes an issue because some of the census tracts completely resided in a target zip code while others that were included largly resided in other zip codes. By not accounting for proportion of a census tract's population actually resided in the zip code, the vaccination rates and population numbers are not 100% accurate and are most likely larger than expected. 
+
+Another limitation is that the final data set used to run the analysis was quite small with few variables (30 Obs and 13 variables). This was not accounted for in the beginning of the analysis because the data cleaning and processing was done on fairly large monthly vaccination data sets (1962 Obs and 184 variables). However, the variables and observations of interest produced after the cleaning, processing and manipulating were quite small. Working with a small data set is not ideal for the machine learning models included in this analysis due to the techniques like data splitting and cross validation. Each RMSE metric produced by the machine learning models were relatively low indicating a chance of over fit models. To prevent this in the future, producing a larger data set across greater range of months would be helpful for the statistical analysis section of this analysis.
+
+The fact that the machine learning model selection based was primarily based on RMSE value is another limiation of this analysis. It is important that RMSE can not primarily determine whether a model is the best fit for a data set. Discussing the R-Squared values would have been helpful as it is a metric that indicates the percentage of variability that is explained by the dependent variable.
+
+It is important to note that all of the predictors in the bivariate analysis failed to be statistically significant at the 0.05 level. As a result, it is clear that the predictors selected for this analysis are not strong predictors of the outcome of interest. New research questions should be analyzed in order to explore additional predictors and other outcome variables to find stronger associations in the data. 
+
+# Further Comments 
+It is important to highlight the disparities in the vaccination rates within each zip code. Based on demagraphics it appears females are have higher vaccination rates than males and vaccination rate tends to decline as age decreased. These findings are not connected to the research question investigated in this analysis.  
 

@@ -225,3 +225,39 @@ This file describes all files in this project, the reproducibility procedure for
     -   `30815_Age_black_vax.png`: A line graph of African Americans by Age with at least one dose of the COVID-19 vaccine in the 30815 zip code
   
     -   `30907_Age_black_vax.png`: A line graph of African Americans by Age with at least one dose of the COVID-19 vaccine in the 30907 zip code
+
+    -   `table1.RDS`: Simple Linear Regression Output Table for total rate difference as outcome and total vax rate as a predictor
+    
+    -   `table2.RDS`: Simple Linear Regression Output Table for total rate difference as outcome and male vax rate as a predictor
+    
+    -   `table3.RDS`: Simple Linear Regression Output Table for total rate difference as outcome and female vax rate as a predictor
+    
+    -   `table4.RDS`: Simple Linear Regression Output Table for total rate difference as outcome and Age_05_09_VAX_RATE as a predictor
+    
+    -   `table5.RDS`: Simple Linear Regression Output Table for total rate difference as outcome and Age_10_17_VAX_RATE as a predictor
+    
+    -   `table6.RDS`: Simple Linear Regression Output Table for total rate difference as outcome and Age_18_44_VAX_ as a predictor
+    
+    -   `table7.RDS`: Simple Linear Regression Output Table for total rate difference as outcome and Age_45_64_VAX_RATE as a predictor
+    
+    -   `table8.RDS`: Simple Linear Regression Output Table for total rate difference as outcome and Age_65Plus_VAX_RATE as a predictor
+
+    -   `table9.RDS`: Simple Linear Regression Output Table for total rate difference as outcome and Intervention as a predictor
+    
+    -   `table10.RDS`: Simple Linear Regression Output Table The Tree Model 
+    
+    -   `table11.RDS`: Simple Linear Regression Output Table The LASSO Model 
+    
+    -   `table12.RDS`: Simple Linear Regression Output Table The Random Forest Model 
+    -   `Predictions_vs_OutcomeValues1.png`: figure of predictions vs outcome values for the tree model 
+    
+    -   `Predictions_vs_OutcomeValues2.png`: figure of predictions vs outcome values for the LASSO model 
+    
+    -   `Predictions_vs_OutcomeValues3.png`: figure of predictions vs outcome values for the Random Forest model 
+    
+    -   `Residuals_Plot1.png`: figure of residualss for the Tree Model  
+    
+    -   `Residuals_Plot2.png`: figure of residualss for the LASSO Model 
+    
+    -   `Residuals_Plot3.png`: figure of residualss for the Random Forest Model 
+  

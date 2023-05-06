@@ -209,7 +209,7 @@ saveRDS(Age_65Plus_rate, file = table8)
 ```
 
 ```{r}
-#fit model with total rate difference as outcome and Interventione as predictor
+#fit model with total rate difference as outcome and Intervention as a predictor
 Intervention_fit <- lm_mod %>% 
   fit( TOTAL_RATE_DIFF ~ Intervention,
       data = combined) 
@@ -392,10 +392,10 @@ table10= here("results", "table10.RDS")
 saveRDS(final_fit_metrics, file = table10) 
 
 #save figure of predictions vs outcome values 
-ggsave(filename = here("results","Predictions_vs_OutcomeValues.png"), plot=plot1)
+ggsave(filename = here("results","Predictions_vs_OutcomeValues1.png"), plot=plot1)
 
 #save figure of residuals 
-ggsave(filename = here("results","Residuals_Plot.png"), plot=Res1)
+ggsave(filename = here("results","Residuals_Plot1.png"), plot=Res1)
 
 ```
 
@@ -501,10 +501,10 @@ table11= here("results", "table11.RDS")
 saveRDS(final_fit_metrics2, file = table11) 
 
 #save figure of predictions vs outcome values 
-ggsave(filename = here("results","Predictions_vs_OutcomeValues.png"), plot=plot2)
+ggsave(filename = here("results","Predictions_vs_OutcomeValues2.png"), plot=plot2)
 
 #save figure of residuals 
-ggsave(filename = here("results","Residuals_Plot.png"), plot=Res2)
+ggsave(filename = here("results","Residuals_Plot2.png"), plot=Res2)
 ```
 
 ## Fitting for random forest model
@@ -604,8 +604,8 @@ table12 = here("results", "table12.RDS")
 saveRDS(final_fit_metrics3, file = table12) 
 
 #save figure of predictions vs outcome values 
-ggsave(filename = here("results","Predictions_vs_OutcomeValues.png"), plot=plot3)
+ggsave(filename = here("results","Predictions_vs_OutcomeValues3.png"), plot=plot3)
 
 #save figure of residuals 
-ggsave(filename = here("results","Residuals_Plot.png"), plot=Res3)
+ggsave(filename = here("results","Residuals_Plot3.png"), plot=Res3)
 ```
